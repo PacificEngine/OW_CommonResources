@@ -1,7 +1,7 @@
 ﻿using OWML.Common;
 using System;
 
-namespace PacificEngine.OW_CommonResourcesMod
+namespace PacificEngine.OW_CommonResources
 {
     public static class Config
     {

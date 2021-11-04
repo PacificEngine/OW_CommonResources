@@ -7,7 +7,7 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
 
-namespace PacificEngine.OW_CommonResourcesMod
+namespace PacificEngine.OW_CommonResources
 {
     public static class EyeCoordinates
     {

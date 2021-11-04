@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-namespace PacificEngine.OW_CommonResourcesMod
+namespace PacificEngine.OW_CommonResources
 {
     public static class Data
     {
