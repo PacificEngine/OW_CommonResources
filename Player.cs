@@ -324,12 +324,39 @@ namespace PacificEngine.OW_CommonResources
 
             if (boostSeconds > maxBoostSeconds)
                 boostSeconds = maxBoostSeconds;
-            if (fuelSeconds > maxFuelSeconds)
-                fuelSeconds = maxFuelSeconds;
-            if (oxygenSeconds > maxOxygenSeconds)
-                oxygenSeconds = maxOxygenSeconds;
             if (health > maxHealth)
                 health = maxHealth;
+
+
+            var resources = getResources();
+            if (resources != null)
+            {
+                if (!resources.IsOxygenPresent() && oxygenSeconds > maxOxygenSeconds)
+                {
+                    if (resources.IsRefillingOxygen())
+                    {
+                        resources.SetValue("_refillingOxygen", false);
+                    }
+                    oxygenSeconds = maxOxygenSeconds;
+                }
+
+                if (fuelSeconds > maxFuelSeconds)
+                {
+                    if (resources.IsRefueling())
+                    {
+                        if (resources.IsHealing())
+                        {
+                            resources.StopRefillResources();
+                            resources.StartRefillResources(false, true);
+                        }
+                        else
+                        {
+                            resources.StopRefillResources();
+                        }
+                    }
+                    fuelSeconds = maxFuelSeconds;
+                }
+            }
         }
     }
 }
