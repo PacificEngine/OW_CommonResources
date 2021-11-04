@@ -1,0 +1,9 @@
+{
+	"filename": "PacificEngine.OW_CommonResources.dll",
+	"author": "PacificEngine",
+	"name": "PacificEngine's Common Resources",
+	"uniqueName": "PacificEngine.OW_CommonResources",
+	"version": "0.1.0",
+	"owmlVersion": "2.1.0",
+	"enabled": true
+}
