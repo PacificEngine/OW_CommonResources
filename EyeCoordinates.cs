@@ -11,6 +11,7 @@ namespace PacificEngine.OW_CommonResources
 {
     public static class EyeCoordinates
     {
+        private static KeyInfoPromptController keyInfoPromptController = null;
         private static NomaiCoordinateInterface nomaiCoordinateInterface = null;
         private static ScreenPromptElement eyePromptElement = null;
         private static System.Random random = new System.Random();
@@ -92,10 +93,21 @@ namespace PacificEngine.OW_CommonResources
 
         public static void updateCoordinates()
         {
-            if (eyePromptElement)
+            if (keyInfoPromptController)
             {
-                eyePromptElement.GetPromptData().SetText(UITextLibrary.GetString(UITextType.EyeCoordinates) + "(" + string.Join(",", _x) + ") " + "(" + string.Join(",", _y) + ") " + "(" + string.Join(",", _z) + ")");
+                var manager = Locator.GetPromptManager();
+                var oldPrompt = keyInfoPromptController.GetValue<ScreenPrompt>("_eyeCoordinatesPrompt");
+                manager.RemoveScreenPrompt(oldPrompt);
+                var texture = drawCoordinate(getCoordinate(x), getCoordinate(y), getCoordinate(z));
+                var eyePrompt = new ScreenPrompt(UITextLibrary.GetString(UITextType.EyeCoordinates) + "<EYE>", Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), Vector2.zero));
+                eyePromptElement = manager.AddScreenPrompt(eyePrompt, manager.GetScreenPromptList(PromptPosition.LowerLeft), manager.GetTextAnchor(PromptPosition.LowerLeft));
+                keyInfoPromptController.SetValue("_eyeCoordinatesPrompt", eyePrompt);
             }
+        }
+
+        public static Texture2D getCoordinatesImage()
+        {
+            return drawCoordinate(getCoordinate(x), getCoordinate(y), getCoordinate(z));
         }
 
         private static bool onNomaiCoordinateInterfaceAwake(ref NomaiCoordinateInterface __instance)
@@ -107,13 +119,79 @@ namespace PacificEngine.OW_CommonResources
 
         private static void onKeyInfoPromptControllerStart(ref KeyInfoPromptController __instance)
         {
-            var manager = Locator.GetPromptManager();
-            var oldPrompt = __instance.GetValue<ScreenPrompt>("_eyeCoordinatesPrompt");
-            var eyePrompt = new ScreenPrompt(UITextLibrary.GetString(UITextType.EyeCoordinates));
-            manager.RemoveScreenPrompt(oldPrompt);
-            eyePromptElement = manager.AddScreenPrompt(eyePrompt, manager.GetScreenPromptList(PromptPosition.LowerLeft), manager.GetTextAnchor(PromptPosition.LowerLeft));
-            __instance.SetValue("_eyeCoordinatesPrompt", eyePrompt);
+            keyInfoPromptController = __instance;
             EyeCoordinates.updateCoordinates();
+        }
+
+        private static Texture2D drawCoordinate(Vector2[] x, Vector2[] y, Vector2[] z)
+        {
+            var coordinates = new Shapes(400, 100);
+            drawCoordinate(coordinates, x, 0.5f);
+            drawCoordinate(coordinates, y, 3.5f);
+            drawCoordinate(coordinates, z, 6.5f);
+            return coordinates.getTexture();
+        }
+
+        private static void drawCoordinate(Shapes coordinates, Vector2[] w, float xOffset)
+        {
+            var multiplier = coordinates.height / 2.5f;
+            var yOffset = 0.386f;
+            var width = 0.25f;
+            if (w.Length > 0)
+            {
+                var x = (w[0].x + xOffset) * multiplier;
+                var y = (w[0].y + yOffset) * multiplier;
+                //coordinates.addDot((int)x, (int)y, Color.white, Color.white, width * (multiplier / 2f));
+            }
+
+            for (int i = 1; i < w.Length; i++)
+            {
+                var x1 = (w[i].x + xOffset) * multiplier;
+                var y1 = (w[i].y + yOffset) * multiplier;
+                var x2 = (w[i-1].x + xOffset) * multiplier;
+                var y2 = (w[i-1].y + yOffset) * multiplier;
+                //coordinates.addDot((int)x1, (int)y1, Color.white, Color.white, width * (multiplier / 2f));
+                coordinates.drawLine((int)x1, (int)y1, (int)x2, (int)y2, Color.white, Color.white, width * multiplier);
+            }
+        }
+
+        private static Vector2[] getCoordinate(int[] coordinate)
+        {
+            var vectors = new Vector2[coordinate.Length];
+            for (int i = 0; i < coordinate.Length; i++)
+            {
+                vectors[i] = getCoordinate(coordinate[i]);
+            }
+            return vectors;
+        }
+
+        private static Vector2 getCoordinate(int coordinate)
+        {
+            if (coordinate == 0)
+            {
+                return new Vector2(0.5f, 1.732f);
+            }
+            if (coordinate == 1)
+            {
+                return new Vector2(1.5f, 1.732f);
+            }
+            if (coordinate == 2)
+            {
+                return new Vector2(2f, 0.866f);
+            }
+            if (coordinate == 3)
+            {
+                return new Vector2(1.5f, 0f);
+            }
+            if (coordinate == 4)
+            {
+                return new Vector2(0.5f, 0f);
+            }
+            if (coordinate == 5)
+            {
+                return new Vector2(0f, 0.866f);
+            }
+            return new Vector2(1f, 0.866f);
         }
 
         private static int[] generateCoordinate()
