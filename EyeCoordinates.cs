@@ -141,7 +141,7 @@ namespace PacificEngine.OW_CommonResources
             {
                 var x = (w[0].x + xOffset) * multiplier;
                 var y = (w[0].y + yOffset) * multiplier;
-                //coordinates.addDot((int)x, (int)y, Color.white, Color.white, width * (multiplier / 2f));
+                coordinates.addDot((int)x, (int)y, Color.white, Color.white, width * (multiplier / 2f));
             }
 
             for (int i = 1; i < w.Length; i++)
@@ -150,7 +150,7 @@ namespace PacificEngine.OW_CommonResources
                 var y1 = (w[i].y + yOffset) * multiplier;
                 var x2 = (w[i-1].x + xOffset) * multiplier;
                 var y2 = (w[i-1].y + yOffset) * multiplier;
-                //coordinates.addDot((int)x1, (int)y1, Color.white, Color.white, width * (multiplier / 2f));
+                coordinates.addDot((int)x1, (int)y1, Color.white, Color.white, width * (multiplier / 2f));
                 coordinates.drawLine((int)x1, (int)y1, (int)x2, (int)y2, Color.white, Color.white, width * multiplier);
             }
         }
