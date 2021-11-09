@@ -7,7 +7,7 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 
 
-namespace PacificEngine.OW_CommonResources
+namespace PacificEngine.OW_CommonResources.Game.State
 {
     class AnglerfishHelper
     {

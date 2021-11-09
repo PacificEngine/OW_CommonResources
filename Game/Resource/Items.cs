@@ -6,15 +6,10 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-namespace PacificEngine.OW_CommonResources
+namespace PacificEngine.OW_CommonResources.Game.Resource
 {
     public static class Items
     {
-        public static ItemTool getItemTool()
-        {
-            return GameObject.FindObjectOfType<ItemTool>();
-        }
-
         public static void Start()
         {
         }
@@ -23,22 +18,18 @@ namespace PacificEngine.OW_CommonResources
         {
         }
 
-        public static void pickUpWarpCore(WarpCoreType type)
+        public static WarpCoreItem createWarpCore(WarpCoreType type)
         {
-            var tool = getItemTool();
-            if (tool)
+            foreach (WarpCoreItem core in GameObject.FindObjectsOfType<WarpCoreItem>())
             {
-                foreach (WarpCoreItem core in GameObject.FindObjectsOfType<WarpCoreItem>())
+                if (core.GetWarpCoreType().Equals(type))
                 {
-                    if (core.GetWarpCoreType().Equals(type))
-                    {
-                        var newCore = GameObject.Instantiate(core, (Locator.GetAstroObject(AstroObject.Name.Sun)?.transform ?? Locator.GetAstroObject(AstroObject.Name.Eye)?.transform ?? Locator.GetPlayerBody()?.transform));
-                        SetVisible(newCore, true);
-                        tool.PickUpItemInstantly(newCore);
-                        break;
-                    }
+                    var newCore = GameObject.Instantiate(core, (Locator.GetAstroObject(AstroObject.Name.Sun)?.transform ?? Locator.GetAstroObject(AstroObject.Name.Eye)?.transform ?? Locator.GetPlayerBody()?.transform));
+                    SetVisible(newCore, true);
+                    return newCore;
                 }
             }
+            return null;
         }
 
         private static void SetVisible(OWItem item, bool visible)
@@ -81,6 +72,5 @@ namespace PacificEngine.OW_CommonResources
                 }
             }
         }
-
     }
 }

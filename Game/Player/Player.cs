@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-namespace PacificEngine.OW_CommonResources
+namespace PacificEngine.OW_CommonResources.Game.Player
 {
     public static class Player
     {

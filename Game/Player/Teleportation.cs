@@ -1,12 +1,13 @@
 ﻿using OWML.Common;
 using OWML.ModHelper;
 using OWML.Utils;
+using PacificEngine.OW_CommonResources.Game.Resource;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-namespace PacificEngine.OW_CommonResources
+namespace PacificEngine.OW_CommonResources.Game.Player
 {
     public static class Teleportation
     {
@@ -145,7 +146,6 @@ namespace PacificEngine.OW_CommonResources
             if (Locator.GetPlayerBody() && parent)
             {
                 ignoreSand(false);
-                GlobalMessenger.FireEvent("PlayerEnterGiantsDeep");
                 if (!PlayerState.IsInsideShip())
                 {
                     teleportPlayerTo(parent, new Vector3(0f, 505f, 0f), Vector3.zero, Vector3.zero, Vector3.zero, Quaternion.identity);
@@ -164,6 +164,17 @@ namespace PacificEngine.OW_CommonResources
             {
                 ignoreSand(false);
                 teleportPlayerTo(parent, Vector3.zero, Vector3.zero, Vector3.zero, Vector3.zero, Quaternion.identity);
+            }
+        }
+
+        public static void teleportPlayerToProbeCannonCommandModule()
+        {
+            var parent = Position.getBody(Position.HeavenlyBodies.GiantsDeep);
+            if (Locator.GetPlayerBody() && parent)
+            {
+                ignoreSand(false);
+                GlobalMessenger.FireEvent("PlayerEnterGiantsDeep");
+                teleportPlayerTo(parent, new Vector3(-17.3f, -76.2f, -18.9f), Vector3.zero, Vector3.zero, Vector3.zero, Quaternion.identity);
             }
         }
 

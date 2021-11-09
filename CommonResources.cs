@@ -1,6 +1,9 @@
 ﻿using OWML.Common;
 using OWML.ModHelper;
 using OWML.Utils;
+using PacificEngine.OW_CommonResources.Game.Player;
+using PacificEngine.OW_CommonResources.Game.Resource;
+using PacificEngine.OW_CommonResources.Game.State;
 using System;
 using System.Collections.Generic;
 using UnityEngine;

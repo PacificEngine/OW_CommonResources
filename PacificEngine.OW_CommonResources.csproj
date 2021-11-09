@@ -82,23 +82,26 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Anglerfish.cs" />
+    <Compile Include="Game\Player\Possession.cs" />
+    <Compile Include="Game\State\Anglerfish.cs" />
     <Compile Include="CommonResources.cs" />
     <Compile Include="Config.cs" />
-    <Compile Include="Data.cs" />
-    <Compile Include="EyeCoordinates.cs" />
-    <Compile Include="Fog.cs" />
+    <Compile Include="Game\Player\Data.cs" />
+    <Compile Include="Game\State\EyeCoordinates.cs" />
+    <Compile Include="Game\State\Fog.cs" />
+    <Compile Include="Geometry\Coordinates.cs" />
     <Compile Include="Helper.cs" />
-    <Compile Include="Inhabitants.cs" />
+    <Compile Include="Game\State\Inhabitants.cs" />
     <Compile Include="Inputs.cs" />
-    <Compile Include="Items.cs" />
-    <Compile Include="Player.cs" />
-    <Compile Include="Position.cs" />
-    <Compile Include="QuantumMoonHelper.cs" />
-    <Compile Include="Shapes.cs" />
-    <Compile Include="Ship.cs" />
-    <Compile Include="SuperNova.cs" />
-    <Compile Include="Teleportation.cs" />
+    <Compile Include="Game\Resource\Items.cs" />
+    <Compile Include="Game\Player\Player.cs" />
+    <Compile Include="Game\Resource\Position.cs" />
+    <Compile Include="Game\Resource\QuantumMoonHelper.cs" />
+    <Compile Include="Geometry\Shapes2D.cs" />
+    <Compile Include="Geometry\Shapes3D.cs" />
+    <Compile Include="Game\Player\Ship.cs" />
+    <Compile Include="Game\State\SuperNova.cs" />
+    <Compile Include="Game\Player\Teleportation.cs" />
   </ItemGroup>
   <ItemGroup>
     <WCFMetadata Include="Connected Services\" />
