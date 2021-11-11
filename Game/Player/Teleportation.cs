@@ -174,7 +174,7 @@ namespace PacificEngine.OW_CommonResources.Game.Player
             {
                 ignoreSand(false);
                 GlobalMessenger.FireEvent("PlayerEnterGiantsDeep");
-                teleportPlayerTo(parent, new Vector3(-17.3f, -76.2f, -18.9f), Vector3.zero, Vector3.zero, Vector3.zero, Quaternion.identity);
+                teleportPlayerTo(parent, new Vector3(-14.5f, -76.0f, -16.0f), Vector3.zero, Vector3.zero, Vector3.zero, Quaternion.identity);
             }
         }
 

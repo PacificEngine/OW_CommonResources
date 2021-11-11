@@ -37,125 +37,241 @@ namespace PacificEngine.OW_CommonResources.Geometry
             return mesh;
         }
 
+        private Vector3 getRotation(Vector3 start, Vector3 end)
+        {
+            bool flipX = false;
+            bool flipY = false;
+            bool flipZ = false;
+
+            var difference = end - start;
+            if (difference.z > 0f)
+            {
+                return getRotation(end, start);
+            }
+
+            if (difference.x <= 0f && difference.y <= 0f)
+            {
+                flipX = true;
+                flipY = true;
+                difference = new Vector3(-1f * difference.x, -1f * difference.y, difference.z);
+            }
+
+            var angles = Coordinates.angleXYZ(difference, Vector3.forward);
+            if (difference.x != 0f && difference.z == 0f)
+            {
+                angles = angles + Coordinates.angleXYZ(difference, Vector3.right);
+            }
+
+            if (flipX)
+            {
+                difference = new Vector3(-1f * difference.x, difference.y, difference.z);
+                angles = new Vector3(-1f * angles.x, angles.y, angles.z);
+            }
+            if (flipY)
+            {
+                difference = new Vector3(difference.x, -1f * difference.y, difference.z);
+                angles = new Vector3(angles.x, -1f * angles.y, angles.z);
+            }
+            if (flipZ)
+            {
+                difference = new Vector3(difference.x, difference.y, -1f * difference.z);
+                angles = new Vector3(angles.x, angles.y, -1f * angles.z);
+            }
+
+            return angles;
+
+        }
+
+        private Vector3 calculateRotation(Vector3 point, float rotation, Vector3 angle)
+        {
+            return Coordinates.rotatePoint(Coordinates.rotatePoint(point, Vector3.forward * rotation), angle);
+        }
+
         public void drawBox(Vector3 start, Vector2 startSize, Vector3 end, Vector2 endSize, float startRotation, float endRotation)
         {
             var difference = end - start;
-            if (difference.x < 0f && difference.y < 0f || difference.x < 0f && difference.z < 0f || difference.y < 0f && difference.z < 0f)
+            if (difference.z > 0f)
             {
                 drawBox(end, endSize, start, startSize, endRotation, startRotation);
                 return;
             }
+            bool normal = !(difference.y == 0f && difference.z == 0f) && !(difference.x < 0f && difference.y > 0f && difference.z == 0f);
 
-            var angles = Coordinates.angleXYZ(difference, Vector3.forward);
+            Vector3 angles = getRotation(start, end);
 
             int[] vertices = {
-                addVertex(start + Coordinates.rotatePoint(Coordinates.rotatePoint(new Vector3 (startSize.x / -2f, startSize.y / -2f, 0f), Vector3.forward * startRotation), angles)), // 0, 0, 0 (0)
-                addVertex(start + Coordinates.rotatePoint(Coordinates.rotatePoint(new Vector3 (startSize.x / -2f, startSize.y / 2f, 0f), Vector3.forward * startRotation), angles)),  // 1, 0, 0 (1)
-                addVertex(start + Coordinates.rotatePoint(Coordinates.rotatePoint(new Vector3 (startSize.x / 2f, startSize.y / -2f, 0f), Vector3.forward * startRotation), angles)),  // 0, 1, 0 (2)
-                addVertex(start + Coordinates.rotatePoint(Coordinates.rotatePoint(new Vector3 (startSize.x / 2f, startSize.y / 2f, 0f), Vector3.forward * startRotation), angles)),   // 1, 1, 0 (3)
-                addVertex(end + Coordinates.rotatePoint(Coordinates.rotatePoint(new Vector3 (endSize.x / -2f, endSize.y / -2f, 0f), Vector3.forward * endRotation), angles)),         // 0, 0, 1 (4)
-                addVertex(end + Coordinates.rotatePoint(Coordinates.rotatePoint(new Vector3 (endSize.x / -2f, endSize.y / 2f, 0f), Vector3.forward * endRotation), angles)),          // 1, 0, 1 (5)
-                addVertex(end + Coordinates.rotatePoint(Coordinates.rotatePoint(new Vector3 (endSize.x / 2f, endSize.y / -2f, 0f), Vector3.forward * endRotation), angles)),          // 0, 1, 1 (6)
-                addVertex(end + Coordinates.rotatePoint(Coordinates.rotatePoint(new Vector3 (endSize.x / 2f, endSize.y / 2f, 0f), Vector3.forward * endRotation), angles)),           // 1, 1, 1 (7)
+                addVertex(start + calculateRotation(new Vector3 (startSize.x / -2f, startSize.y / -2f, 0f), startRotation, angles)), // 0, 0, 0 (0)
+                addVertex(start + calculateRotation(new Vector3 (startSize.x / -2f, startSize.y /  2f, 0f), startRotation, angles)), // 1, 0, 0 (1)
+                addVertex(start + calculateRotation(new Vector3 (startSize.x /  2f, startSize.y / -2f, 0f), startRotation, angles)), // 0, 1, 0 (2)
+                addVertex(start + calculateRotation(new Vector3 (startSize.x /  2f, startSize.y /  2f, 0f), startRotation, angles)), // 1, 1, 0 (3)
+                addVertex(end + calculateRotation(new Vector3 (endSize.x / -2f, endSize.y / -2f, 0f), endRotation, angles)),         // 0, 0, 1 (0)
+                addVertex(end + calculateRotation(new Vector3 (endSize.x / -2f, endSize.y /  2f, 0f), endRotation, angles)),         // 1, 0, 1 (1)
+                addVertex(end + calculateRotation(new Vector3 (endSize.x /  2f, endSize.y / -2f, 0f), endRotation, angles)),         // 0, 1, 1 (2)
+                addVertex(end + calculateRotation(new Vector3 (endSize.x /  2f, endSize.y /  2f, 0f), endRotation, angles))          // 1, 1, 1 (3)
             };
-            addRectangle(vertices[0], vertices[1], vertices[3], vertices[2], true);    // (x, x, 0)
-            addRectangle(vertices[4], vertices[5], vertices[7], vertices[6], false);   // (x, x, 1)
-            addRectangle(vertices[0], vertices[2], vertices[6], vertices[4], true);    // (0, x, x)
-            addRectangle(vertices[1], vertices[3], vertices[7], vertices[5], false);   // (1, x, x)
-            addRectangle(vertices[0], vertices[1], vertices[5], vertices[4], false);   // (x, 0, x)
-            addRectangle(vertices[2], vertices[3], vertices[7], vertices[6], true);    // (x, 1, x)
+
+            addRectangle(vertices[0], vertices[1], vertices[3], vertices[2], !normal);    // (x, x, 0)
+            addRectangle(vertices[4], vertices[5], vertices[7], vertices[6], normal);     // (x, x, 1)
+            addRectangle(vertices[0], vertices[2], vertices[6], vertices[4], !normal);    // (0, x, x)
+            addRectangle(vertices[1], vertices[3], vertices[7], vertices[5], normal);     // (1, x, x)
+            addRectangle(vertices[2], vertices[3], vertices[7], vertices[6], !normal);    // (x, 1, x)
+            addRectangle(vertices[0], vertices[1], vertices[5], vertices[4], normal);     // (x, 0, x)
         }
 
-        public void drawCylinder(Vector3 from, Vector3 to, float startRadius, float endRadius)
+        public void drawCylinder(Vector3 start, Vector3 end, float startRadius, float endRadius, int sides)
         {
+            var difference = end - start;
+            if (difference.z > 0f)
+            {
+                drawCylinder(end, start, endRadius, startRadius, sides);
+                return;
+            }
+            bool normal = !(difference.y == 0f && difference.z == 0f) && !(difference.x < 0f && difference.y > 0f && difference.z == 0f);
 
+            Vector3 angles = getRotation(start, end);
+
+            var zero = Vector2.zero;
+
+            int top = addVertex(start);
+            int bottom = addVertex(end);
+            int[] topVertices = new int[sides];
+            int[] bottomVertices = new int[sides];
+
+            var vertex = Circle.getPointOnCircle(ref zero, startRadius, 0);
+            topVertices[0] = addVertex(start + calculateRotation(new Vector3(vertex.x, vertex.y, 0f), 0, angles));
+
+            vertex = Circle.getPointOnCircle(ref zero, endRadius, 0);
+            bottomVertices[0] = addVertex(end + calculateRotation(new Vector3(vertex.x, vertex.y, 0f), 0, angles));
+
+            var increment = 2f * (float)Math.PI / (float)sides;
+            for (int i = 1; i < sides; i++)
+            {
+                vertex = Circle.getPointOnCircle(ref zero, startRadius, increment * (float)i);
+                topVertices[i] = addVertex(start + calculateRotation(new Vector3(vertex.x, vertex.y, 0f), 0, angles));
+
+                vertex = Circle.getPointOnCircle(ref zero, endRadius, increment * (float)i);
+                bottomVertices[i] = addVertex(end + calculateRotation(new Vector3(vertex.x, vertex.y, 0f), 0, angles));
+
+                addTriangle(topVertices[i], topVertices[i - 1], top, !normal);
+                addTriangle(bottomVertices[i], bottomVertices[i - 1], bottom, normal);
+                addRectangle(topVertices[i], bottomVertices[i], bottomVertices[i - 1], topVertices[i - 1], !normal);
+            }
+
+            addTriangle(topVertices[0], topVertices[sides - 1], top, !normal);
+            addTriangle(bottomVertices[0], bottomVertices[sides - 1], bottom, normal);
+            addRectangle(topVertices[0], bottomVertices[0], bottomVertices[sides - 1], topVertices[sides - 1], !normal);
         }
 
         public void drawSphere(Vector3 center, float radius, int levels)
         {
             var root3 = (float)Math.Sqrt(3f);
-            var length = 0.25f * (root3 * (float)Math.Sqrt((16f * radius * radius) + (9f * levels * levels)) - (3f * root3 * levels));
-            var topHeight = radius - (float)Math.Sqrt((radius * radius) - ((length * length) / 3f));
-            var topLongitude = topHeight / radius * ((float)Math.PI / 2f);
-            var bottomLongitude = -1f * topLongitude;
-            var topTeirs = new int[(levels + 1) / 2][];
-            var bottomTeirs = new int[(levels + 1)/ 2][];
-            var topRotation = 0f;
-            var bottomRotation = 0f;
-            if (levels % 2 == 1)
+            var latIncrement = Circle.getCountAngle(levels * 2);
+            var chordLength = Circle.getChordLength(radius, latIncrement);
+            var length = chordLength * root3 / 2f;
+            var height = radius - (float)Math.Sqrt(radius * radius - 0.25f * chordLength * chordLength);
+            var topLatitude = (float)(Math.PI) - (height / radius);
+            var bottomLattiude = (float)Math.PI - topLatitude;
+
+            var totalLevels = (int)Math.Ceiling((topLatitude / latIncrement));
+            var topTeirs = new Vector3[totalLevels / 2][];
+            var bottomTeirs = new Vector3[totalLevels / 2][];
+            var isTopRotated = totalLevels % 2 == 1;
+            var isBottomRotated = false;
+            topTeirs[0] = makeASphereTierViaAngle(ref center, topLatitude, radius, (2f * (float)Math.PI) / 3, isTopRotated);
+            bottomTeirs[0] = makeASphereTierViaAngle(ref center, bottomLattiude, radius, (2f * (float)Math.PI) / 3, isBottomRotated);
+
+            addTriangle(ref topTeirs[0][0], ref topTeirs[0][1], ref topTeirs[0][2], false);
+            addTriangle(ref bottomTeirs[0][0], ref bottomTeirs[0][1], ref bottomTeirs[0][2], true);
+            
+            var level = 1;
+            for (level = 1; level < topTeirs.Length; level++)
             {
-                topRotation = (float)Math.PI / 3f;
+                isTopRotated = !isTopRotated;
+                isBottomRotated = !isBottomRotated;
+
+                topTeirs[level] = makeASphereTierViaLength(ref center, topLatitude - (float)level * latIncrement, radius, length, isTopRotated);
+                bottomTeirs[level] = makeASphereTierViaLength(ref center, bottomLattiude + (float)level * latIncrement, radius, length, isBottomRotated);
+
+                connectTwoSphereTeirs(ref topTeirs[level], ref topTeirs[level - 1], false);
+                connectTwoSphereTeirs(ref bottomTeirs[level], ref bottomTeirs[level - 1], true);
             }
-            topTeirs[0] = addVertices(Coordinates.getPointOnSphere(ref center, 0 + topRotation, topLongitude, radius), Coordinates.getPointOnSphere(ref center, (((float)Math.PI * 2f) / 3f) + topRotation, topLongitude, radius), Coordinates.getPointOnSphere(ref center, (((float)Math.PI * 4f) / 3f) + topRotation, topLongitude, radius));
-            bottomTeirs[0] = addVertices(Coordinates.getPointOnSphere(ref center, 0 + bottomRotation, bottomLongitude, radius), Coordinates.getPointOnSphere(ref center, (((float)Math.PI * 2f) / 3f) + bottomRotation, bottomLongitude, radius), Coordinates.getPointOnSphere(ref center, (((float)Math.PI * 4f) / 3f) + bottomRotation, bottomLongitude, radius));
-            addTriangle(topTeirs[0][0], topTeirs[0][1], topTeirs[0][2], true);
-            addTriangle(bottomTeirs[0][0], bottomTeirs[0][1], bottomTeirs[0][2], true);
 
-            // TODO, solve the inebetween
-            var increment = (length * root3) / 2f;
-
-            var top = topTeirs[topTeirs.Length - 1];
-            var bottom = bottomTeirs[bottomTeirs.Length - 1];
-
-            if (levels % 2 == 1)
+            var currentTier = topTeirs[topTeirs.Length - 1];
+            var lastTier = bottomTeirs[bottomTeirs.Length - 1];
+            if (totalLevels % 2 == 1)
             {
-                for (int i = 0; i < top.Length; i++)
+                currentTier = makeASphereTierViaLength(ref center, (float)Math.PI / 2f, radius, length, false);
+
+                connectTwoSphereTeirs(ref currentTier, ref topTeirs[topTeirs.Length - 1], false);
+            }
+
+            connectTwoSphereTeirs(ref currentTier, ref lastTier, true);
+        }
+
+        private Vector3[] makeASphereTierViaLength(ref Vector3 center, float latitude, float radius, float length, bool isRotated)
+        {
+            var rad = Sphere.getRadiusOnSphere(latitude, radius);
+            var arcAngle = Circle.getChordAngle(rad, length);
+
+            return makeASphereTierViaAngle(ref center, latitude, radius, arcAngle, isRotated);
+        }
+
+        private Vector3[] makeASphereTierViaAngle(ref Vector3 center, float latitude, float radius, float arcAngle, bool isRotated)
+        {
+            var count = (int)Math.Ceiling(Circle.getCount(arcAngle));
+            arcAngle = Circle.getCountAngle(count);
+
+            var rotation = isRotated ? (arcAngle / 2f) : 0f;
+            var currentTier = new Vector3[count];
+            for (int j = 0; j < count; j++)
+            {
+                currentTier[j] = Sphere.getPointOnSphere(ref center, ((float)j * arcAngle + rotation) - (float)Math.PI, latitude, radius);
+            }
+
+            return currentTier;
+        }
+
+        private void connectTwoSphereTeirs(ref Vector3[] currentTier, ref Vector3[] lastTier, bool normal)
+        {
+            int lastIndex = 0;
+            float distance = float.MaxValue;
+            for (int i = 0; i < lastTier.Length; i++)
+            {
+                var d2 = (currentTier[0] - lastTier[0]).sqrMagnitude;
+                if (d2 < distance)
                 {
-                    addTriangle(top[i], top[(i + 1) % top.Length], bottom[i], false);
-                    addTriangle(bottom[i], bottom[(i + 1) % top.Length], top[i], true);
+                    lastIndex = i;
+                    distance = d2;
                 }
+            }
+            int firstIndex = lastIndex;
+
+
+            for (int j = 1; j < currentTier.Length; j++)
+            {
+                int nextIndex = (lastIndex + 1) % lastTier.Length;
+                if ((currentTier[j] - lastTier[lastIndex]).sqrMagnitude > (currentTier[j] - lastTier[nextIndex]).sqrMagnitude)
+                {
+                    addTriangle(ref currentTier[j], ref lastTier[nextIndex], ref lastTier[lastIndex], normal);
+                    addTriangle(ref currentTier[j], ref currentTier[j - 1], ref lastTier[lastIndex], !normal);
+                    lastIndex = nextIndex;
+                }
+                else
+                {
+                    addTriangle(ref currentTier[j], ref currentTier[j - 1], ref lastTier[lastIndex], !normal);
+                }
+            }
+
+            if (firstIndex != lastIndex)
+            {
+                addTriangle(ref currentTier[0], ref lastTier[firstIndex], ref lastTier[lastIndex], normal);
+                addTriangle(ref currentTier[0], ref currentTier[currentTier.Length - 1], ref lastTier[lastIndex], !normal);
             }
             else
             {
-                // TODO: Add a middle tier and connect them
+                addTriangle(ref currentTier[0], ref currentTier[currentTier.Length - 1], ref lastTier[lastIndex], !normal);
             }
         }
-
-        /*public void drawSphere(Vector3 center, float radius, Vector2 steps)
-        {
-            float pi2 = (float)(2f * Math.PI);
-            float pi = (float)(Math.PI);
-
-            float latitude_increment = (float)(pi2 / steps.x);
-            float longitude_increment = (float)(pi / steps.y);
-            //float longitudeReduction = 1f; // TODO
-
-            // Create top and bottom points
-            var top = getPointOnCircle(ref center, 0, pi, radius);
-            vertices.Add(top);
-            verticeIndex.Add(top, vertices.Count - 1);
-
-            var bottom = getPointOnCircle(ref center, 0, 0, radius);
-            vertices.Add(bottom);
-            verticeIndex.Add(bottom, vertices.Count - 1);
-
-            for (float longitude = longitude_increment; longitude < (pi - longitude_increment); longitude += longitude_increment)
-            {
-                var first = getPointOnCircle(ref center, 0, longitude, radius);
-                vertices.Add(first);
-                verticeIndex.Add(first, vertices.Count - 1);
-                for (float latitude = latitude_increment; latitude < pi2; latitude += latitude_increment)
-                {
-                    var current = getPointOnCircle(ref center, latitude, longitude, radius);
-                    vertices.Add(current);
-                    verticeIndex.Add(current, vertices.Count - 1);
-
-                    var previous = getPointOnCircle(ref center, latitude - latitude_increment, longitude, radius);
-                    var below = getPointOnCircle(ref center, latitude, longitude - longitude_increment, radius);
-                    var belowPrevious = getPointOnCircle(ref center, latitude - latitude_increment, longitude, radius);
-
-                    triangles.Add(verticeIndex[current]);
-                    triangles.Add(verticeIndex[previous]);
-                    triangles.Add(verticeIndex[belowPrevious]);
-
-                    triangles.Add(verticeIndex[current]);
-                    triangles.Add(verticeIndex[below]);
-                    triangles.Add(verticeIndex[belowPrevious]);
-                }
-
-                // Need a more effient method
-            }
-        }*/
 
         private int[] addVertices(params Vector3[] vertices)
         {

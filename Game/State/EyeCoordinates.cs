@@ -188,7 +188,7 @@ namespace PacificEngine.OW_CommonResources.Game.State
                 var x = (w[0].x + xOffset) * multiplier;
                 var y = (w[0].y) * multiplier;
                 var z = (w[0].z) * multiplier;
-                //coordinates.drawSphere(new Vector3(x, y, z), width * (multiplier / 2f), 1);
+                coordinates.drawSphere(new Vector3(x, y, z), width * (multiplier / 2f), 8);
             }
 
             for (int i = 1; i < w.Length; i++)
@@ -199,44 +199,9 @@ namespace PacificEngine.OW_CommonResources.Game.State
                 var x2 = (w[i - 1].x + xOffset) * multiplier;
                 var y2 = (w[i - 1].y) * multiplier;
                 var z2 = (w[i - 1].z) * multiplier;
-                //coordinates.drawSphere(new Vector3(x1, y1, z1), width * (multiplier / 2f), 1);
-                coordinates.drawBox(new Vector3(x1, y1, z1), new Vector2(width * (multiplier / 2f), width * (multiplier / 2f)), new Vector3(x2, y2, z2), new Vector2(width * (multiplier / 2f), width * (multiplier / 2f)), 0f, 0f);
+                coordinates.drawSphere(new Vector3(x1, y1, z1), width * (multiplier / 2f), 8);
+                coordinates.drawCylinder(new Vector3(x1, y1, z1), new Vector3(x2, y2, z2), width * (multiplier / 2f), width * (multiplier / 2f), 25);
             }
-            coordinates.drawBox(Vector3.one, new Vector2(0.125f, 0.125f), Vector3.one + Vector3.right, new Vector2(0.125f, 0.125f), 0f, 0f);
-            coordinates.drawBox(Vector3.one, new Vector2(0.50f, 0.50f), Vector3.one + Vector3.up, new Vector2(0.50f, 0.50f), 0f, 0f);
-            coordinates.drawBox(Vector3.one, new Vector2(0.25f, 0.25f), Vector3.one + Vector3.forward, new Vector2(0.25f, 0.25f), 0f, 0f);
-
-            // Q1 = Right, Up, Forward
-            // Q2 = Right, Up, Back
-            // Q3 = Right, Down, Forward
-            // Q4 = Left, Up, Forward
-            // Q5 = Right, Down, Back    = Q4
-            // Q6 = Left, Up, Back       = Q3
-            // Q7 = Left, Down, Forward  = Q2
-            // Q8 = Left, Down, Back     = Q1
-
-            /*
-            coordinates.drawBox(Vector3.zero, new Vector2(0.25f, 0.25f), Vector3.zero + Vector3.forward + Vector3.right, new Vector2(0.25f, 0.25f), 0f, 0f);// Q1|Q3 
-            coordinates.drawBox(Vector3.zero, new Vector2(0.25f, 0.25f), Vector3.zero + Vector3.back + Vector3.left, new Vector2(0.25f, 0.25f), 0f, 0f);    // Q1|Q3 (Q6|Q8)
-            coordinates.drawBox(Vector3.zero, new Vector2(0.25f, 0.25f), Vector3.zero + Vector3.back + Vector3.right, new Vector2(0.25f, 0.25f), 0f, 0f);   // Q2|Q4 (Q2|Q5)   Inside-out
-            
-            coordinates.drawBox(Vector3.zero, new Vector2(0.25f, 0.25f), Vector3.zero + Vector3.down + Vector3.back, new Vector2(0.25f, 0.25f), 0f, 0f);    // Q1|Q4 (Q5|Q8)
-            coordinates.drawBox(Vector3.zero, new Vector2(0.25f, 0.25f), Vector3.zero + Vector3.down + Vector3.forward, new Vector2(0.25f, 0.25f), 0f, 0f); // Q2|Q3 (Q3|Q7)
-            coordinates.drawBox(Vector3.zero, new Vector2(0.25f, 0.25f), Vector3.zero + Vector3.up + Vector3.forward, new Vector2(0.25f, 0.25f), 0f, 0f);   // Q1|Q4
-            */
-
-            coordinates.drawBox(Vector3.zero, new Vector2(0.25f, 0.25f), Vector3.zero + Vector3.up + Vector3.back, new Vector2(0.25f, 0.25f), 0f, 0f);      // Q2|Q3 (Q2|Q6)
-            coordinates.drawBox(Vector3.zero, new Vector2(0.25f, 0.25f), Vector3.zero + Vector3.forward + Vector3.left, new Vector2(0.25f, 0.25f), 0f, 0f); // Q2|Q4 (Q4|Q7)
-
-            // coordinates.drawBox(Vector3.zero, new Vector2(0.25f, 0.25f), Vector3.zero + Vector3.up + Vector3.left, new Vector2(0.25f, 0.25f), 0f, 0f);   // Q3|Q4 (Q4|Q6)
-            // coordinates.drawBox(Vector3.zero, new Vector2(0.25f, 0.25f), Vector3.zero + Vector3.up + Vector3.right, new Vector2(0.25f, 0.25f), 0f, 0f);  // Q1|Q2
-            // coordinates.drawBox(Vector3.zero, new Vector2(0.25f, 0.25f), Vector3.zero + Vector3.up + Vector3.back, new Vector2(0.25f, 0.25f), 0f, 0f);   // Q2|Q3 (Q2|Q6)
-            // coordinates.drawBox(Vector3.zero, new Vector2(0.25f, 0.25f), Vector3.zero + Vector3.down + Vector3.left, new Vector2(0.25f, 0.25f), 0f, 0f); // Q1|Q2 (Q7|Q8)
-            // coordinates.drawBox(Vector3.zero, new Vector2(0.25f, 0.25f), Vector3.zero + Vector3.down + Vector3.right, new Vector2(0.25f, 0.25f), 0f, 0f);// Q3|Q4 (Q3|Q5)
-
-            /*coordinates.drawBox(new Vector3(2, 1, 0), new Vector2(0.25f, 0.25f), new Vector3(2, 2, 0.5f), new Vector2(0.25f, 0.25f), 0f, 0f);
-            coordinates.drawBox(new Vector3(2, 3, 0), new Vector2(0.25f, 0.25f), new Vector3(1, 3, 0.5f), new Vector2(0.25f, 0.25f), 0f, 0f);
-            coordinates.drawBox(new Vector3(1, 1, 0), new Vector2(0.25f, 0.25f), new Vector3(0.5f, 0.5f, 0.5f), new Vector2(0.25f, 0.25f), 0f, 0f);*/
         }
 
         private static Shapes2D drawCoordinate(ref Vector2[] x, ref Vector2[] y, ref Vector2[] z)

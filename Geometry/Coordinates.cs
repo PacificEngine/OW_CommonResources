@@ -69,12 +69,18 @@ namespace PacificEngine.OW_CommonResources.Geometry
 
         public static float angle(Vector2 p1, Vector2 p2)
         {
-            var v1 = p1; // / p1.magnitude;
-            var v2 = p2; // / p2.magnitude;
-            var value = Math.Atan2(v1.x * v2.y - v1.y * v2.x, v1.x * v2.x + v1.y * v2.y); // Math.Acos((p1.x * p2.x + p1.y * p2.y) / (p1.magnitude * p2.magnitude));
+            // / p1.magnitude;
+            // / p2.magnitude;
+            var value = Math.Atan2(p1.x * p2.y - p1.y * p2.x, p1.x * p2.x + p1.y * p2.y);
             if (double.IsNaN(value))
             {
                 return 0f;
+            }
+
+            value = value % (2d * Math.PI);
+            if (value > Math.PI)
+            {
+                return (float)(Math.PI - value);
             }
             return (float)value;
         }
@@ -85,6 +91,12 @@ namespace PacificEngine.OW_CommonResources.Geometry
             if (double.IsNaN(value))
             {
                 return 0f;
+            }
+
+            value = value % (2d * Math.PI);
+            if (value > Math.PI)
+            {
+                return (float)(Math.PI - value);
             }
             return (float)value;
         }
@@ -142,11 +154,6 @@ namespace PacificEngine.OW_CommonResources.Geometry
             rotate = Coordinates.rotatePointY(ref rotate, rotation.y);
             rotate = Coordinates.rotatePointZ(ref rotate, rotation.z);
             return rotate;
-        }
-
-        public static Vector3 getPointOnSphere(ref Vector3 center, float latitude, float longitude, float radius)
-        {
-            return new Vector3((radius * (float)Math.Cos(longitude) * (float)Math.Cos(latitude)) + center.x, (radius * (float)Math.Cos(latitude) * (float)Math.Sin(longitude)) + center.y, (radius * (float)Math.Sin(latitude)) + center.z);
         }
     }
 }
