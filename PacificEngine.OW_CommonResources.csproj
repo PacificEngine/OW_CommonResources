@@ -83,6 +83,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Game\Player\Possession.cs" />
+    <Compile Include="Game\Resource\SectorHelper.cs" />
     <Compile Include="Game\State\Anglerfish.cs" />
     <Compile Include="CommonResources.cs" />
     <Compile Include="Config.cs" />

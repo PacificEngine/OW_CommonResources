@@ -164,6 +164,7 @@ namespace PacificEngine.OW_CommonResources.Geometry
 
         public void drawSphere(Vector3 center, float radius, int levels)
         {
+            // TODO: Figure out why they aren't more sphere shape
             var root3 = (float)Math.Sqrt(3f);
             var latIncrement = Circle.getCountAngle(levels * 2);
             var chordLength = Circle.getChordLength(radius, latIncrement);

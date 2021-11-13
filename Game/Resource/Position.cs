@@ -120,8 +120,7 @@ namespace PacificEngine.OW_CommonResources.Game.Resource
                 if (Time.time - lastUpdate > 0.2f)
                 {
                     lastUpdate = Time.time;
-                    var list = Position.getClosest(getPlayerBody().GetPosition());
-                    var item = list[0] == Position.HeavenlyBodies.TimberHearthProbe ? list[1] : list[0];
+                    var item = Position.getClosest(getPlayerBody().GetPosition(), Position.HeavenlyBodies.TimberHearthProbe);
                     var parent = Position.getBody(item);
                     if (parent)
                     {
@@ -147,13 +146,47 @@ namespace PacificEngine.OW_CommonResources.Game.Resource
             return bodies[body].Invoke();
         }
 
-        public static List<HeavenlyBodies> getClosest(Vector3 position)
+        public static HeavenlyBodies getClosest(Vector3 position, params HeavenlyBodies[] exclude)
         {
+            var excludeSet = new HashSet<HeavenlyBodies>(exclude);
+            var distanceV1 = float.MaxValue;
+            HeavenlyBodies value = HeavenlyBodies.Sun;
+            foreach (HeavenlyBodies body in bodies.Keys)
+            {
+                if (!excludeSet.Contains(body))
+                {
+                    var distanceV2 = bodies[body]?.Invoke()?.transform?.InverseTransformPoint(position).sqrMagnitude;
+                    if (distanceV2.HasValue && distanceV2.Value < distanceV1)
+                    {
+                        distanceV1 = distanceV2.Value;
+                        value = body;
+                    }
+                }
+            }
+
+            return value;
+        }
+
+        public static List<HeavenlyBodies> getClosestList(Vector3 position, params HeavenlyBodies[] exclude)
+        {
+            var excludeSet = new HashSet<HeavenlyBodies>(exclude);
             List<HeavenlyBodies> keys = new List<HeavenlyBodies>(bodies.Keys);
             keys.Sort((v1, v2) =>
             {
-                var distanceV1 = bodies[v1]?.Invoke()?.transform?.InverseTransformPoint(position).magnitude;
-                var distanceV2 = bodies[v2]?.Invoke()?.transform?.InverseTransformPoint(position).magnitude;
+                if (excludeSet.Contains(v1) && excludeSet.Contains(v2))
+                {
+                    return 0;
+                }
+                else if (excludeSet.Contains(v1))
+                {
+                    return 1;
+                }
+                else if (excludeSet.Contains(v2))
+                {
+                    return -1;
+                }
+                var distanceV1 = bodies[v1]?.Invoke()?.transform?.InverseTransformPoint(position).sqrMagnitude;
+                var distanceV2 = bodies[v2]?.Invoke()?.transform?.InverseTransformPoint(position).sqrMagnitude;
                 if (distanceV1.HasValue && distanceV2.HasValue)
                 {
                     return (int)(distanceV1.GetValueOrDefault(0f) - distanceV2.GetValueOrDefault(0f));
