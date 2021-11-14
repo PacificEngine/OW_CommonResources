@@ -4,6 +4,6 @@
 	"name": "PacificEngine's Common Resources",
 	"uniqueName": "PacificEngine.OW_CommonResources",
 	"version": "0.1.5",
-	"owmlVersion": "2.1.0",
+	"owmlVersion": "2.2.0",
 	"enabled": true
 }

@@ -125,30 +125,27 @@ namespace PacificEngine.OW_CommonResources.Game.State
 
         private static bool AnglerfishControllerMoveTowardsTarget(ref AnglerfishController __instance, ref Vector3 targetPos, ref float moveSpeed, ref float maxAcceleration)
         {
-            Vector3 vector3 = targetPos - (__instance.GetValue<OWRigidbody>("_anglerBody").GetPosition() + __instance.transform.TransformDirection(__instance.GetValue<Vector3>("_mouthOffset")));
-            Vector3 relativeVelocity = __instance.GetValue<OWRigidbody>("_brambleBody").GetRelativeVelocity(__instance.GetValue<OWRigidbody>("_anglerBody"));
-            Vector3 acceleration = vector3.normalized * moveSpeed - relativeVelocity;
-
-            // Make them not fly past the player
-            var proposedAcceleration = Mathf.Min(acceleration.magnitude, maxAcceleration);
             var target = __instance.GetValue<OWRigidbody>("_targetBody");
-            if (target)
+            var distance = targetPos - (__instance.GetValue<OWRigidbody>("_anglerBody").GetPosition() + __instance.transform.TransformDirection(__instance.GetValue<Vector3>("_mouthOffset")));
+            var currentVelocity = __instance.GetValue<OWRigidbody>("_brambleBody").GetRelativeVelocity(__instance.GetValue<OWRigidbody>("_anglerBody"));
+            var desiredVelocity = distance.normalized * moveSpeed;
+            var finalVelocity = distance.normalized * (!target ? 0f : __instance.GetValue<OWRigidbody>("_brambleBody").GetRelativeVelocity(target).magnitude + (moveSpeed / 5f));
+
+            var velocityAverage = (finalVelocity + currentVelocity) / 2f;
+            var velocityDifference = finalVelocity - currentVelocity;
+            var requiredDecceleration = new Vector3(Mathf.Abs(distance.x) <= 0f ? 0f : (velocityAverage.x * velocityDifference.x) / distance.x, Mathf.Abs(distance.y) <= 0f ? 0f : (velocityAverage.y * velocityDifference.y) / distance.y, Mathf.Abs(distance.z) <= 0f ? 0f : (velocityAverage.z * velocityDifference.z) / distance.z);
+            var requiredDeccelerationMagnitude = requiredDecceleration.magnitude;
+
+            if (maxAcceleration < Math.Abs(requiredDeccelerationMagnitude) && !float.IsNaN(requiredDeccelerationMagnitude) && !float.IsInfinity(requiredDeccelerationMagnitude))
             {
-                var destinationVelocity = __instance.GetValue<OWRigidbody>("_brambleBody").GetRelativeVelocity(target).magnitude + (moveSpeed / 5f);
-                var timeToDestination = (2f * (vector3.magnitude + 100f)) / (destinationVelocity + relativeVelocity.magnitude);
-                var requiredDecceleration = (destinationVelocity - relativeVelocity.magnitude) / (timeToDestination * timeToDestination);
-
-                if (proposedAcceleration < Mathf.Abs(requiredDecceleration) && Mathf.Abs(requiredDecceleration) < maxAcceleration)
-                {
-                    proposedAcceleration = requiredDecceleration;
-                }
-                if (maxAcceleration < Mathf.Abs(requiredDecceleration))
-                {
-                    maxAcceleration = -1f * maxAcceleration;
-                }
+                __instance.GetValue<OWRigidbody>("_anglerBody").AddAcceleration(requiredDecceleration.normalized * maxAcceleration);
             }
-
-            __instance.GetValue<OWRigidbody>("_anglerBody").AddAcceleration(acceleration.normalized * proposedAcceleration);
+            else
+            {
+                var proposedDirection = desiredVelocity - currentVelocity;
+                __instance.GetValue<OWRigidbody>("_anglerBody").AddAcceleration(proposedDirection.normalized * Mathf.Min(proposedDirection.magnitude, maxAcceleration));
+            }
+           
             return false;
         }
 
