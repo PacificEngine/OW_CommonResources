@@ -84,11 +84,6 @@ namespace PacificEngine.OW_CommonResources.Game.State
         {
         }
 
-        public static void randomizeCoordinates(System.Random random)
-        {
-            setCoordinates(generateCoordinate(ref random), generateCoordinate(ref random), generateCoordinate(ref random));
-        }
-
         public static void setCoordinates(int[] x, int[] y, int[] z)
         {
             EyeCoordinates.x = x;
@@ -282,52 +277,6 @@ namespace PacificEngine.OW_CommonResources.Game.State
                 return new Vector2(0f, 0.866f);
             }
             return new Vector2(1f, 0.866f);
-        }
-
-        private static int[] generateCoordinate(ref System.Random random)
-        {
-            var coodinate = random.Next(0, 63);
-            var list = new List<int>();
-            if ((coodinate & 0x1) != 0)
-            {
-                list.Add(1);
-            }
-            if ((coodinate & 0x2) != 0)
-            {
-                list.Add(2);
-            }
-            if ((coodinate & 0x4) != 0)
-            {
-                list.Add(3);
-            }
-            if ((coodinate & 0x8) != 0)
-            {
-                list.Add(4);
-            }
-            if ((coodinate & 0x10) != 0)
-            {
-                list.Add(5);
-            }
-            if ((coodinate & 0x20) != 0)
-            {
-                list.Add(0);
-            }
-            Shuffle(list, ref random);
-
-            return list.ToArray();
-        }
-
-        private static void Shuffle<T>(this IList<T> list, ref System.Random random)
-        {
-            int n = list.Count;
-            while (n > 1)
-            {
-                n--;
-                int k = random.Next(n + 1);
-                T value = list[k];
-                list[k] = list[n];
-                list[n] = value;
-            }
         }
     }
 }

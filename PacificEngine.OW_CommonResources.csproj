@@ -104,6 +104,7 @@
     <Compile Include="Game\Player\Ship.cs" />
     <Compile Include="Game\State\SuperNova.cs" />
     <Compile Include="Game\Player\Teleportation.cs" />
+    <Compile Include="RandomizerSeeds.cs" />
   </ItemGroup>
   <ItemGroup>
     <WCFMetadata Include="Connected Services\" />
