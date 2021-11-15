@@ -42,6 +42,7 @@ namespace PacificEngine.OW_CommonResources.Game.Resource
             InnerDarkBramble_Gutter,
             InnerDarkBramble_Vessel,
             InnerDarkBramble_Maze,
+            InnerDarkBramble_Felspar,
             InnerDarkBramble_SmallNest,
             Interloper,
             WhiteHole,
@@ -125,11 +126,11 @@ namespace PacificEngine.OW_CommonResources.Game.Resource
                 {
                     lastUpdate = Time.time;
                     var list = Position.getClosest(getPlayerBody().GetPosition());
-                    var item = list[0] == Position.HeavenlyBodies.TimberHearthProbe ? list[1] : list[0];
-                    var parent = Position.getBody(item);
+                    var item = list[0].Item1 == Position.HeavenlyBodies.TimberHearthProbe ? list[1] : list[0];
+                    var parent = Position.getBody(item.Item1);
                     if (parent)
                     {
-                        parentPrompt.SetText("Parent: " + item);
+                        parentPrompt.SetText("Parent: " + item.Item1);
                         positionPrompt.SetText("Position: " + (parent.transform.InverseTransformPoint(getPlayerBody().GetPosition())));
                         velocityPrompt.SetText("Velocity: " + (getPlayerBody().GetVelocity() - parent.GetVelocity()));
                     }
@@ -162,46 +163,23 @@ namespace PacificEngine.OW_CommonResources.Game.Resource
             return obj.gameObject == null ? null : obj;
         }
 
-        public static List<HeavenlyBodies> getClosest(Vector3 position)
+        public static List<Tuple<HeavenlyBodies, float>> getClosest(Vector3 position)
         {
             var keys = new HeavenlyBodies[bodyLookup.Count];
             bodyLookup.Keys.CopyTo(keys, 0);
             return getClosest(position, keys);
         }
 
-        public static List<HeavenlyBodies> getClosest(Vector3 position, params HeavenlyBodies[] include)
+        public static List<Tuple<HeavenlyBodies, float>> getClosest(Vector3 position, params HeavenlyBodies[] include)
         {
-            var distance = new Dictionary<HeavenlyBodies, float?>();
-            var keys = new List<HeavenlyBodies>(include);
-            keys.Sort((v1, v2) =>
+            var obj = new List<Tuple<HeavenlyBodies, float>>(include.Length);
+            foreach (HeavenlyBodies body in include)
             {
-                float? distanceV1;
-                float? distanceV2;
-                if (!distance.TryGetValue(v1, out distanceV1))
-                {
-                    distanceV1 = getBody(v1)?.transform?.InverseTransformPoint(position).sqrMagnitude;
-                    distance.Add(v1, distanceV1);
-                }
-                if (!distance.TryGetValue(v2, out distanceV2))
-                {
-                    distanceV2 = getBody(v2)?.transform?.InverseTransformPoint(position).sqrMagnitude;
-                    distance.Add(v2, distanceV2);
-                }
-                if (distanceV1.HasValue && distanceV2.HasValue)
-                {
-                    return (int)(distanceV1.GetValueOrDefault(0f) - distanceV2.GetValueOrDefault(0f));
-                }
-                if (distanceV1.HasValue)
-                {
-                    return -1;
-                }
-                if (distanceV2.HasValue)
-                {
-                    return 1;
-                }
-                return 0;
-            });
-            return keys;
+                var distance = getBody(body)?.transform?.InverseTransformPoint(position).sqrMagnitude;
+                obj.Add(new Tuple<HeavenlyBodies, float>(body, distance.HasValue ? distance.Value : float.PositiveInfinity));
+            }
+            obj.Sort((v1, v2) => v1.Item2.CompareTo(v2.Item2));
+            return obj;
         }
 
     }

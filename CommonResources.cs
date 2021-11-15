@@ -23,6 +23,7 @@ namespace PacificEngine.OW_CommonResources
             Inhabitants.Start();
             Items.Start();
             EyeCoordinates.Start();
+            BramblePortals.Start();
             ModHelper.Console.WriteLine("Common Resources Mod: Started!");
         }
 
@@ -35,6 +36,7 @@ namespace PacificEngine.OW_CommonResources
             Inhabitants.Destroy();
             Items.Destroy();
             EyeCoordinates.Destroy();
+            BramblePortals.Destroy();
             ModHelper.Console.WriteLine("Common Resources Mod: Clean Up!");
         }
 
@@ -46,6 +48,7 @@ namespace PacificEngine.OW_CommonResources
             Anglerfish.Awake();
             Inhabitants.Awake();
             EyeCoordinates.Awake();
+            BramblePortals.Awake();
 
             ModHelper.Console.WriteLine("Common Resources Mod: Player Awakes");
         }
@@ -69,6 +72,7 @@ namespace PacificEngine.OW_CommonResources
             Anglerfish.Update();
             SuperNova.Update();
             EyeCoordinates.Update();
+            BramblePortals.Update();
         }
     }
 }

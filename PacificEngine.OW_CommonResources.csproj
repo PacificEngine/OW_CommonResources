@@ -87,6 +87,7 @@
     <Compile Include="CommonResources.cs" />
     <Compile Include="Config.cs" />
     <Compile Include="Game\Player\Data.cs" />
+    <Compile Include="Game\State\BramblePortals.cs" />
     <Compile Include="Game\State\EyeCoordinates.cs" />
     <Compile Include="Game\State\Fog.cs" />
     <Compile Include="Geometry\Circle.cs" />

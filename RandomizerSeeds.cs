@@ -13,8 +13,10 @@ namespace PacificEngine.OW_CommonResources
             Profile,
             Death,
             Minute,
+            Use,
             Seedless,
-            SeedlessMinute
+            SeedlessMinute,
+            SeedlessUse
         }
 
         private int _seed;
@@ -26,6 +28,7 @@ namespace PacificEngine.OW_CommonResources
         private Random _profileRandom;
         private Random _deathRandom;
         private Random _minuteRandom;
+        private Random _useRandom;
         private Random _seedlessRandom;
 
         private delegate T getRandom<T>(Random random);
@@ -50,6 +53,7 @@ namespace PacificEngine.OW_CommonResources
 
             _seedRandom = new Random(_seed);
             _minuteRandom = new Random(_seedRandom.Next());
+            _useRandom = new Random(_seedRandom.Next());
             _profileSeed = _seedRandom.Next();
             _deathSeed = _seedRandom.Next();
 
@@ -100,6 +104,10 @@ namespace PacificEngine.OW_CommonResources
             if (type == Type.Minute)
             {
                 return random.Invoke(_minuteRandom);
+            }
+            if (type == Type.Use)
+            {
+                return random.Invoke(_useRandom);
             }
             return random.Invoke(_seedlessRandom);
         }

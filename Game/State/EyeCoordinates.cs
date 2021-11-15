@@ -162,7 +162,7 @@ namespace PacificEngine.OW_CommonResources.Game.State
 
         private static void onShipLogFactListItemStart(ref ShipLogFactListItem __instance)
         {
-            Helper.helper.Console.WriteLine("Fact" + __instance);
+           // Helper.helper.Console.WriteLine("Fact" + __instance);
            // EyeCoordinates.updateCoordinates();
         }
 
