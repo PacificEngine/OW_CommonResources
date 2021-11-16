@@ -155,12 +155,12 @@ namespace PacificEngine.OW_CommonResources.Game.Resource
                 obj = bodyLookup[body].Invoke();
                 bodies[body] = obj;
             }
-            else if (obj.gameObject == null)
+            else if (obj == null || obj?.gameObject == null)
             {
                 obj = bodyLookup[body].Invoke();
                 bodies[body] = obj;
             }
-            return obj.gameObject == null ? null : obj;
+            return obj == null || obj?.gameObject == null ? null : obj;
         }
 
         public static List<Tuple<HeavenlyBodies, float>> getClosest(Vector3 position)
