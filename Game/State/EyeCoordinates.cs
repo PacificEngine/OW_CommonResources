@@ -63,6 +63,30 @@ namespace PacificEngine.OW_CommonResources.Game.State
             }
         }
 
+        public static Tuple<int[], int[], int[]> coordinates
+        {
+            get
+            {
+                return Tuple.Create(x, y, z);
+            }
+            set
+            {
+                x = value.Item1;
+                y = value.Item2;
+                z = value.Item3;
+                updateCoordinates();
+            }
+        }
+
+        public static Tuple<int[], int[], int[]> defaultCoordinates
+        {
+            get
+            {
+                return Tuple.Create(new int[] { 1, 5, 4 }, new int[] { 3, 0, 1, 4 }, new int[] { 1, 2, 3, 0, 5, 4 });
+            }
+        }
+
+
         public static void Start()
         {
             Helper.helper.HarmonyHelper.AddPrefix<NomaiCoordinateInterface>("Awake", typeof(EyeCoordinates), "onNomaiCoordinateInterfaceAwake");
@@ -78,7 +102,6 @@ namespace PacificEngine.OW_CommonResources.Game.State
         {
         }
 
-
         public static void Update()
         {
             var card = Data.getFactEntry("OPC_SUNKEN_MODULE");
@@ -89,15 +112,23 @@ namespace PacificEngine.OW_CommonResources.Game.State
             }
         }
 
-        public static void setCoordinates(int[] x, int[] y, int[] z)
+        public static Shapes2D getCoordinatesImage()
         {
-            EyeCoordinates.x = x;
-            EyeCoordinates.y = y;
-            EyeCoordinates.z = z;
-            updateCoordinates();
+            var x = getCoordinate2D(EyeCoordinates.x);
+            var y = getCoordinate2D(EyeCoordinates.y);
+            var z = getCoordinate2D(EyeCoordinates.z);
+            return drawCoordinate(ref x, ref y, ref z);
         }
 
-        public static void updateCoordinates()
+        public static Shapes3D getCoordinatesModel()
+        {
+            var x = getCoordinate3D(EyeCoordinates.x);
+            var y = getCoordinate3D(EyeCoordinates.y);
+            var z = getCoordinate3D(EyeCoordinates.z);
+            return drawCoordinate(ref x, ref y, ref z);
+        }
+
+        private static void updateCoordinates()
         {
             var texture = getCoordinatesImage().getTexture();
             if (keyInfoPromptController)
@@ -129,7 +160,7 @@ namespace PacificEngine.OW_CommonResources.Game.State
             }
         }
 
-        public static Sprite createSprite(Texture2D oldTexture, Sprite oldSprite)
+        private static Sprite createSprite(Texture2D oldTexture, Sprite oldSprite)
         {
             var width = oldSprite.rect.width;
             var height = oldSprite.rect.height;
@@ -156,26 +187,10 @@ namespace PacificEngine.OW_CommonResources.Game.State
             return Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), Vector2.zero);
         }
 
-        public static Shapes2D getCoordinatesImage()
-        {
-            var x = getCoordinate2D(EyeCoordinates.x);
-            var y = getCoordinate2D(EyeCoordinates.y);
-            var z = getCoordinate2D(EyeCoordinates.z);
-            return drawCoordinate(ref x, ref y, ref z);
-        }
-
-        public static Shapes3D getCoordinatesModel()
-        {
-            var x = getCoordinate3D(EyeCoordinates.x);
-            var y = getCoordinate3D(EyeCoordinates.y);
-            var z = getCoordinate3D(EyeCoordinates.z);
-            return drawCoordinate(ref x, ref y, ref z);
-        }
-
         private static bool onNomaiCoordinateInterfaceAwake(ref NomaiCoordinateInterface __instance)
         {
             EyeCoordinates.nomaiCoordinateInterface = __instance;
-            EyeCoordinates.setCoordinates(_x, _y, _z);
+            coordinates = Tuple.Create(_x, _y, _z);
             return true;
         }
 
