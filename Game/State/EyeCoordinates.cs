@@ -1,6 +1,7 @@
 ﻿using OWML.Common;
 using OWML.ModHelper;
 using OWML.Utils;
+using PacificEngine.OW_CommonResources.Game.Player;
 using PacificEngine.OW_CommonResources.Geometry;
 using System;
 using System.Collections.Generic;
@@ -16,7 +17,7 @@ namespace PacificEngine.OW_CommonResources.Game.State
         private static NomaiCoordinateInterface nomaiCoordinateInterface = null;
         private static ScreenPromptElement eyePromptElement = null;
         private static Hologram eyeHologram = null;
-        private static ShipLogFactListItem eyeFactBubble = null;
+        private static EntryData? shipEntry = null;
         private static System.Random random = new System.Random();
 
         private static int[] _x = new int[] { 1, 5, 4 };
@@ -67,8 +68,6 @@ namespace PacificEngine.OW_CommonResources.Game.State
             Helper.helper.HarmonyHelper.AddPrefix<NomaiCoordinateInterface>("Awake", typeof(EyeCoordinates), "onNomaiCoordinateInterfaceAwake");
             Helper.helper.HarmonyHelper.AddPostfix<KeyInfoPromptController>("Start", typeof(EyeCoordinates), "onKeyInfoPromptControllerStart");
             Helper.helper.HarmonyHelper.AddPostfix<OrbitalCannonHologramProjector>("Awake", typeof(EyeCoordinates), "onOrbitalCannonHologramProjectorAwake");
-            Helper.helper.HarmonyHelper.AddPostfix<ShipLogFactListItem>("Start", typeof(EyeCoordinates), "onShipLogFactListItemStart");
-            //ShipLogFactListItem
         }
 
         public static void Awake()
@@ -82,6 +81,12 @@ namespace PacificEngine.OW_CommonResources.Game.State
 
         public static void Update()
         {
+            var card = Data.getFactEntry("OPC_SUNKEN_MODULE");
+            if (!shipEntry.HasValue && card.HasValue)
+            {
+                shipEntry = card;
+                updateCoordinates();
+            }
         }
 
         public static void setCoordinates(int[] x, int[] y, int[] z)
@@ -94,12 +99,12 @@ namespace PacificEngine.OW_CommonResources.Game.State
 
         public static void updateCoordinates()
         {
+            var texture = getCoordinatesImage().getTexture();
             if (keyInfoPromptController)
             {
                 var manager = Locator.GetPromptManager();
                 var oldPrompt = keyInfoPromptController.GetValue<ScreenPrompt>("_eyeCoordinatesPrompt");
                 manager.RemoveScreenPrompt(oldPrompt);
-                var texture = getCoordinatesImage().getTexture();
                 var eyePrompt = new ScreenPrompt(UITextLibrary.GetString(UITextType.EyeCoordinates) + "<EYE>", Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), Vector2.zero));
                 eyePromptElement = manager.AddScreenPrompt(eyePrompt, manager.GetScreenPromptList(PromptPosition.LowerLeft), manager.GetTextAnchor(PromptPosition.LowerLeft), -1, oldPrompt.IsVisible());
                 keyInfoPromptController.SetValue("_eyeCoordinatesPrompt", eyePrompt);
@@ -113,6 +118,45 @@ namespace PacificEngine.OW_CommonResources.Game.State
                 var filter = gameObject.AddComponent<MeshFilter>();
                 filter.mesh = model.getMesh();
             }
+
+            var oldCard = Data.getFactEntry("OPC_SUNKEN_MODULE");
+            if (oldCard.HasValue)
+            {
+                var sprite = createSprite(texture, oldCard.Value.sprite);
+                var altSprite = createSprite(texture, oldCard.Value.altSprite);
+
+                Data.setFactCardImage("OPC_SUNKEN_MODULE", sprite, altSprite);
+            }
+        }
+
+        public static Sprite createSprite(Texture2D oldTexture, Sprite oldSprite)
+        {
+            Helper.helper.Console.WriteLine("oldSprite " + oldSprite.rect.width + "," + oldSprite.rect.height);
+            Helper.helper.Console.WriteLine("oldTexture " + oldTexture.width + "," + oldTexture.height);
+
+            var width = oldSprite.rect.width;
+            var height = oldSprite.rect.height;
+            var ratio = width / height;
+
+            if (oldTexture.width > oldTexture.height)
+            {
+                width = oldTexture.width;
+                height = oldTexture.height * ratio;
+            }
+            else
+            {
+
+                width = oldTexture.width / ratio;
+                height = oldTexture.height;
+            }
+
+            var shape = new Shapes2D(new Vector2(width, height));
+
+            var x = ((width - oldTexture.width) / 2f);
+            var y = ((height - oldTexture.height) / 2f);
+            shape.drawTexture(oldTexture, new Vector2(x, y));
+            var texture = shape.getTexture();
+            return Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), Vector2.zero);
         }
 
         public static Shapes2D getCoordinatesImage()
@@ -141,7 +185,7 @@ namespace PacificEngine.OW_CommonResources.Game.State
         private static void onKeyInfoPromptControllerStart(ref KeyInfoPromptController __instance)
         {
             keyInfoPromptController = __instance;
-            EyeCoordinates.updateCoordinates();
+            updateCoordinates();
         }
 
 
@@ -156,14 +200,7 @@ namespace PacificEngine.OW_CommonResources.Game.State
                     break;
                 }
             }
-            EyeCoordinates.updateCoordinates();
-        }
-
-
-        private static void onShipLogFactListItemStart(ref ShipLogFactListItem __instance)
-        {
-           // Helper.helper.Console.WriteLine("Fact" + __instance);
-           // EyeCoordinates.updateCoordinates();
+            updateCoordinates();
         }
 
         private static Shapes3D drawCoordinate(ref Vector3[] x, ref Vector3[] y, ref Vector3[] z)
@@ -201,7 +238,9 @@ namespace PacificEngine.OW_CommonResources.Game.State
 
         private static Shapes2D drawCoordinate(ref Vector2[] x, ref Vector2[] y, ref Vector2[] z)
         {
-            var coordinates = new Shapes2D(new Vector2(400, 100));
+            var width = 300f;
+            var height = (width / 7.5f) * 2.5f;
+            var coordinates = new Shapes2D(new Vector2(width, height));
             drawCoordinate(ref coordinates, ref x, 0.25f, 0.25f, 0.25f);
             drawCoordinate(ref coordinates, ref y, 2.75f, 0.25f, 0.25f);
             drawCoordinate(ref coordinates, ref z, 5.25f, 0.25f, 0.25f);

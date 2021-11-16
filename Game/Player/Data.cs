@@ -200,23 +200,83 @@ namespace PacificEngine.OW_CommonResources.Game.Player
 
         public static void learnFacts(bool learn = true, bool notifyPlayer = false, params String[] factIds)
         {
-            if (Locator.GetShipLogManager())
+            if (!Locator.GetShipLogManager())
             {
-                foreach (var fact in factIds)
+                return;
+            }
+
+            foreach (var fact in factIds)
+            {
+                if (learn)
                 {
-                    if (learn)
-                    {
-                        Locator.GetShipLogManager().RevealFact(fact, false, false);
-                    }
-                    else
-                    {
-                        var savedFact = StandaloneProfileManager.SharedInstance.currentProfileGameSave.shipLogFactSaves[fact];
-                        savedFact.newlyRevealed = false;
-                        savedFact.read = false;
-                        savedFact.revealOrder = -1;
-                    }
+                    Locator.GetShipLogManager().RevealFact(fact, false, false);
                 }
-                PlayerData.SaveCurrentGame();
+                else
+                {
+                    var savedFact = StandaloneProfileManager.SharedInstance.currentProfileGameSave.shipLogFactSaves[fact];
+                    savedFact.newlyRevealed = false;
+                    savedFact.read = false;
+                    savedFact.revealOrder = -1;
+                }
+            }
+            PlayerData.SaveCurrentGame();
+        }
+
+        public static EntryData? getFactEntry(string factId)
+        {
+            if (!Locator.GetShipLogManager())
+            {
+                return null;
+            }
+
+            var library = Locator.GetShipLogManager().GetValue<ShipLogLibrary>("_shipLogLibrary");
+            for (int i = 0; i < library.entryData.Length; i++)
+            {
+                var libraryEntry = library.entryData[i];
+                if (factId.Equals(libraryEntry.id))
+                {
+                    return libraryEntry;
+                }
+            }
+
+            return null;
+        }
+
+        public static void setFactCardImage(string factId, Sprite sprite, Sprite altSprite)
+        {
+            if (!Locator.GetShipLogManager())
+            {
+                return;
+            }
+
+            var library = Locator.GetShipLogManager().GetValue<ShipLogLibrary>("_shipLogLibrary");
+            for(int i = 0; i < library.entryData.Length; i++)
+            {
+                var libraryEntry = library.entryData[i];
+                if (factId.Equals(libraryEntry.id))
+                {
+                    libraryEntry.sprite = sprite;
+                    libraryEntry.altSprite = altSprite;
+                    library.entryData[i] = libraryEntry;
+                }
+            }
+
+            var dictionary = Locator.GetShipLogManager().GetValue<Dictionary<string, EntryData>>("_entryDataDict");
+            EntryData dictionaryEntry;
+            if (dictionary.TryGetValue(factId, out dictionaryEntry))
+            {
+                dictionaryEntry.sprite = sprite;
+                dictionaryEntry.altSprite = altSprite;
+                dictionary[factId] = dictionaryEntry;
+            }
+
+            foreach(var shipEntry in Locator.GetShipLogManager().GetEntryList())
+            {
+                if (factId.Equals(shipEntry.GetID()))
+                {
+                    shipEntry.SetSprite(sprite);
+                    shipEntry.SetAltSprite(altSprite);
+                }
             }
         }
     }

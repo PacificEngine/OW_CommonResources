@@ -17,6 +17,19 @@ namespace PacificEngine.OW_CommonResources.Geometry
             colors = Enumerable.Repeat(Color.clear, (int)Math.Ceiling(size.x * size.y)).ToArray();
         }
 
+        public void drawTexture(Texture2D texture, Vector2 placement)
+        {
+            for (float x = 0; 0 <= (x + placement.x) && x < (size.x + placement.x) && x < texture.width; x++)
+            {
+                for (float y = 0; 0 <= (y + placement.y) && y < (size.y + placement.y) && y < texture.height; y++)
+                {
+                    var newX = (int)(x + placement.x);
+                    var newY = (int)(y + placement.y);
+                    setColor(newX, newY, blendColors(getColor(newX, newY), texture.GetPixel((int)x, (int)y)));
+                }
+            }
+        }
+
         public void drawCircle(Vector2 center, Color colorCenter, Color colorEdge, float radius)
         {
             // Could fix this by first drawing a quarter circle, and then imposing it on the underlying shape
