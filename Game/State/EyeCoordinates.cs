@@ -131,9 +131,6 @@ namespace PacificEngine.OW_CommonResources.Game.State
 
         public static Sprite createSprite(Texture2D oldTexture, Sprite oldSprite)
         {
-            Helper.helper.Console.WriteLine("oldSprite " + oldSprite.rect.width + "," + oldSprite.rect.height);
-            Helper.helper.Console.WriteLine("oldTexture " + oldTexture.width + "," + oldTexture.height);
-
             var width = oldSprite.rect.width;
             var height = oldSprite.rect.height;
             var ratio = width / height;
@@ -238,7 +235,7 @@ namespace PacificEngine.OW_CommonResources.Game.State
 
         private static Shapes2D drawCoordinate(ref Vector2[] x, ref Vector2[] y, ref Vector2[] z)
         {
-            var width = 300f;
+            var width = 1024f;
             var height = (width / 7.5f) * 2.5f;
             var coordinates = new Shapes2D(new Vector2(width, height));
             drawCoordinate(ref coordinates, ref x, 0.25f, 0.25f, 0.25f);

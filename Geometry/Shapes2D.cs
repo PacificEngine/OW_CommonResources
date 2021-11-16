@@ -63,16 +63,28 @@ namespace PacificEngine.OW_CommonResources.Geometry
                 float yTopPercentage = yTop - (float)Math.Floor(yTop);
 
                 var color = applyTransparency(colorEdge, (float)yTopPercentage);
-                quarterCircle[(int)Math.Floor(Math.Floor(x) * Math.Floor(size) + Math.Floor(y1))] = color;
-                quarterCircle[(int)Math.Floor(Math.Floor(y1) * Math.Floor(size) + Math.Floor(x))] = color;
+                var index = (int)Math.Floor(Math.Floor(x) * Math.Floor(size) + Math.Floor(y1));
+                if (0 <= index && index < quarterCircle.Length)
+                    quarterCircle[index] = color;
+
+                index = (int)Math.Floor(Math.Floor(y1) * Math.Floor(size) + Math.Floor(x));
+                if (0 <= index && index < quarterCircle.Length)
+                    quarterCircle[index] = color;
+
                 var zeroColor = getGradiant(colorCenter, colorEdge, xPercentage);
                 for (float y = x; y < Math.Floor(yTop); y++)
                 {
                     yTopPercentage = 1f - (yTop - (y + 0.5f)) / yTop;
 
                     color = getGradiant(colorEdge, zeroColor, (float)yTopPercentage);
-                    quarterCircle[(int)Math.Floor(Math.Floor(x) * Math.Floor(size) + Math.Floor(y))] = color;
-                    quarterCircle[(int)Math.Floor(Math.Floor(y) * Math.Floor(size) + Math.Floor(x))] = color;
+
+                    index = (int)Math.Floor(Math.Floor(x) * Math.Floor(size) + Math.Floor(y));
+                    if (0 <= index && index < quarterCircle.Length)
+                        quarterCircle[index] = color;
+
+                    index = (int)Math.Floor(Math.Floor(y) * Math.Floor(size) + Math.Floor(x));
+                    if (0 <= index && index < quarterCircle.Length)
+                        quarterCircle[index] = color;
                 }
             }
             return quarterCircle;
@@ -148,7 +160,11 @@ namespace PacificEngine.OW_CommonResources.Geometry
             {
                 for (int y = 0; y < height; y++)
                 {
-                    texture.SetPixel(x, y, colors[x * height + y]);
+                    var index = x * height + y;
+                    if (0 <= index && index < colors.Length)
+                        texture.SetPixel(x, y, colors[index]);
+                    else
+                        texture.SetPixel(x, y, Color.clear);
                 }
             }
             texture.Apply();
