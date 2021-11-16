@@ -53,18 +53,7 @@ namespace PacificEngine.OW_CommonResources.Game.Player
             {
                 if (PlayerData.IsLoaded() && Locator.GetShipLogManager() && value != eyeCoordinates)
                 {
-                    if (value)
-                    {
-                        Locator.GetShipLogManager().RevealFact("OPC_EYE_COORDINATES_X1", true, false);
-                    }
-                    else
-                    {
-                        var savedFact = StandaloneProfileManager.SharedInstance.currentProfileGameSave.shipLogFactSaves["OPC_EYE_COORDINATES_X1"];
-                        savedFact.newlyRevealed = false;
-                        savedFact.read = false;
-                        savedFact.revealOrder = -1;
-                        PlayerData.SaveCurrentGame();
-                    }
+                    learnFacts(value, false, "OPC_EYE_COORDINATES_X1");
                     GameObject.FindWithTag("Global")?.GetComponent<KeyInfoPromptController>()?.GetValue<ScreenPrompt>("_eyeCoordinatesPrompt")?.SetVisibility(value);
                 }
             }
@@ -94,22 +83,7 @@ namespace PacificEngine.OW_CommonResources.Game.Player
                 {
                     return;
                 }
-
-                if (value)
-                {
-                    foreach (SignalName signal in (SignalName[])Enum.GetValues(typeof(SignalName)))
-                    {
-                        StandaloneProfileManager.SharedInstance.currentProfileGameSave.knownSignals[(int)signal] = true;
-                    }
-                }
-                else
-                {
-                    foreach (SignalName signal in (SignalName[])Enum.GetValues(typeof(SignalName)))
-                    {
-                        StandaloneProfileManager.SharedInstance.currentProfileGameSave.knownSignals.Remove((int)signal);
-                    }
-                }
-                PlayerData.SaveCurrentGame();
+                learnSignal(value, (SignalName[])Enum.GetValues(typeof(SignalName)));
             }
         }
 
@@ -167,17 +141,7 @@ namespace PacificEngine.OW_CommonResources.Game.Player
                     return false;
                 }
 
-                foreach (ShipLogFact fact in Locator.GetShipLogManager().GetValue<List<ShipLogFact>>("_factList"))
-                {
-                    if (!fact.IsRevealed())
-                    {
-                        if (fact.IsRumor())
-                        {
-                            return false;
-                        }
-                    }
-                }
-                return true;
+                return Locator.GetShipLogManager().GetValue<List<ShipLogFact>>("_factList").TrueForAll(x => !x.IsRumor() || x.IsRevealed());
             }
             set
             {
@@ -185,25 +149,7 @@ namespace PacificEngine.OW_CommonResources.Game.Player
                 {
                     return;
                 }
-
-                if (value)
-                {
-                    Locator.GetShipLogManager().RevealAllFacts(true);
-                }
-                else
-                {
-                    foreach (ShipLogFact fact in Locator.GetShipLogManager().GetValue<List<ShipLogFact>>("_factList"))
-                    {
-                        if (fact.IsRumor())
-                        {
-                            var savedFact = StandaloneProfileManager.SharedInstance.currentProfileGameSave.shipLogFactSaves[fact.GetID() ?? fact.GetEntryID()];
-                            savedFact.newlyRevealed = false;
-                            savedFact.read = false;
-                            savedFact.revealOrder = -1;
-                        }
-                    }
-                }
-                PlayerData.SaveCurrentGame();
+                learnFacts(value, false, Locator.GetShipLogManager().GetValue<List<ShipLogFact>>("_factList").FindAll(x => x.IsRumor()).ToArray());
             }
         }
 
@@ -216,17 +162,7 @@ namespace PacificEngine.OW_CommonResources.Game.Player
                     return false;
                 }
 
-                foreach (ShipLogFact fact in Locator.GetShipLogManager().GetValue<List<ShipLogFact>>("_factList"))
-                {
-                    if (!fact.IsRevealed())
-                    {
-                        if (!fact.IsRumor())
-                        {
-                            return false;
-                        }
-                    }
-                }
-                return true;
+                return Locator.GetShipLogManager().GetValue<List<ShipLogFact>>("_factList").TrueForAll(x => x.IsRumor() || x.IsRevealed());
             }
             set
             {
@@ -234,22 +170,50 @@ namespace PacificEngine.OW_CommonResources.Game.Player
                 {
                     return;
                 }
+                learnFacts(value, false, Locator.GetShipLogManager().GetValue<List<ShipLogFact>>("_factList").FindAll(x => value || !x.IsRumor()).ToArray());
+            }
+        }
 
-                if (value)
+        public static void learnSignal(bool learn = true, params SignalName[] signals)
+        {
+            if (StandaloneProfileManager.SharedInstance.currentProfileGameSave != null)
+            {
+                foreach (var signal in signals)
                 {
-                    Locator.GetShipLogManager().RevealAllFacts(false);
-                }
-                else
-                {
-                    foreach (ShipLogFact fact in Locator.GetShipLogManager().GetValue<List<ShipLogFact>>("_factList"))
+                    if (learn)
                     {
-                        if (!fact.IsRumor())
-                        {
-                            var savedFact = StandaloneProfileManager.SharedInstance.currentProfileGameSave.shipLogFactSaves[fact.GetID() ?? fact.GetEntryID()];
-                            savedFact.newlyRevealed = false;
-                            savedFact.read = false;
-                            savedFact.revealOrder = -1;
-                        }
+                        StandaloneProfileManager.SharedInstance.currentProfileGameSave.knownSignals[(int)signal] = true;
+                    }
+                    else
+                    {
+                        StandaloneProfileManager.SharedInstance.currentProfileGameSave.knownSignals.Remove((int)signal);
+                    }
+                }
+                PlayerData.SaveCurrentGame();
+            }
+        }
+
+        public static void learnFacts(bool learn = true, bool notifyPlayer = false, params ShipLogFact[] facts)
+        {
+            learnFacts(learn, notifyPlayer, new List<ShipLogFact>(facts).ConvertAll(x => x.GetID() ?? x.GetEntryID()).ToArray());
+        }
+
+        public static void learnFacts(bool learn = true, bool notifyPlayer = false, params String[] factIds)
+        {
+            if (Locator.GetShipLogManager())
+            {
+                foreach (var fact in factIds)
+                {
+                    if (learn)
+                    {
+                        Locator.GetShipLogManager().RevealFact(fact, false, false);
+                    }
+                    else
+                    {
+                        var savedFact = StandaloneProfileManager.SharedInstance.currentProfileGameSave.shipLogFactSaves[fact];
+                        savedFact.newlyRevealed = false;
+                        savedFact.read = false;
+                        savedFact.revealOrder = -1;
                     }
                 }
                 PlayerData.SaveCurrentGame();
