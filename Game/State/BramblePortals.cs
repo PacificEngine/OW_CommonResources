@@ -229,6 +229,7 @@ InnerFogWarpVolume._senderWarps
             {
                 processingFrame = Time.frameCount;
                 alreadyProcessed.Clear();
+                return true;
             }
 
             if (!alreadyProcessed.Contains(__instance))
