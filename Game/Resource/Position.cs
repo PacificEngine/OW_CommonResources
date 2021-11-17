@@ -57,18 +57,6 @@ namespace PacificEngine.OW_CommonResources.Game.Resource
         private static Dictionary<HeavenlyBodies, body> bodyLookup = new Dictionary<HeavenlyBodies, body>();
         private static Dictionary<HeavenlyBodies, OWRigidbody> bodies = new Dictionary<HeavenlyBodies, OWRigidbody>();
 
-        private static OWRigidbody getPlayerBody()
-        {
-            if (PlayerState.IsInsideShip())
-            {
-                return Locator.GetShipBody();
-            }
-            else
-            {
-                return Locator.GetPlayerBody();
-            }
-        }
-
         public static void Start()
         {
             bodies.Clear();
@@ -120,28 +108,72 @@ namespace PacificEngine.OW_CommonResources.Game.Resource
                 if (Time.time - lastUpdate > 0.2f)
                 {
                     lastUpdate = Time.time;
-                    var list = Position.getClosest(getPlayerBody().GetPosition());
-                    var item = list[0].Item1 == Position.HeavenlyBodies.TimberHearthProbe ? list[1] : list[0];
-                    var parent = Position.getBody(item.Item1);
-                    if (parent)
-                    {
-                        console.setElement(classId + ".Base.Parent", "Parent: " + item.Item1, 10.1f);
-                        console.setElement(classId + ".Base.Position", "Position: " + (parent.transform.InverseTransformPoint(getPlayerBody().GetPosition())), 10.2f);
-                        console.setElement(classId + ".Base.Velocity", "Velocity: " + (getPlayerBody().GetVelocity() - parent.GetVelocity()), 10.3f);
-                    }
-                    else
-                    {
-                        console.setElement(classId + ".Base.Parent", "", 0f);
-                        console.setElement(classId + ".Base.Position", "", 0f);
-                        console.setElement(classId + ".Base.Velocity", "", 0f);
-                    }
+                    listValue("Player", "Player", 10f, Locator.GetPlayerBody());
+                    listValue("Ship", "Ship", 10.1f, Locator.GetShipBody());
+                    listValue("Probe", "Probe", 10.2f, Locator.GetProbe()?.GetAttachedOWRigidbody());
                 }
             }
             else
             {
-                console.setElement(classId + ".Base.Parent", "", 0f);
-                console.setElement(classId + ".Base.Position", "", 0f);
-                console.setElement(classId + ".Base.Velocity", "", 0f);
+                listValue("Player", "", 0f, null, Vector3.zero, Vector3.zero, Vector3.zero, Vector3.zero);
+                listValue("Ship", "", 0f, null, Vector3.zero, Vector3.zero, Vector3.zero, Vector3.zero);
+                listValue("Probe", "", 0f, null, Vector3.zero, Vector3.zero, Vector3.zero, Vector3.zero);
+            }
+        }
+
+        private static void listValue(string id, string name, float index, OWRigidbody comparison)
+        {
+            if (comparison)
+            {
+                var list = Position.getClosest(comparison.GetPosition());
+                var item = list[0].Item1 == Position.HeavenlyBodies.TimberHearthProbe ? list[1] : list[0];
+                listValue(id, name, index, item.Item1, Position.HeavenlyBodies.Sun, comparison);
+            }
+            else
+            {
+                listValue(id, name, index, null, Vector3.zero, Vector3.zero, Vector3.zero, Vector3.zero);
+            }
+        }
+
+        private static void listValue(string id, string name, float index, Position.HeavenlyBodies? body, Position.HeavenlyBodies? rootBody, OWRigidbody comparison)
+        {
+            if (body.HasValue)
+            {
+                var parent = Position.getBody(body.Value);
+                var root = Position.getBody(rootBody.Value);
+                if (parent)
+                {
+                    listValue(id, name, index, body, (parent.transform.InverseTransformPoint(comparison.GetPosition())), (comparison.GetVelocity() - parent.GetVelocity()), (root.transform.InverseTransformPoint(comparison.GetPosition())), (comparison.GetVelocity() - root.GetVelocity()));
+                }
+                else
+                {
+                    listValue(id, name, index, null, Vector3.zero, Vector3.zero, Vector3.zero, Vector3.zero);
+                }
+            }
+            else
+            {
+                listValue(id, name, index, null, Vector3.zero, Vector3.zero, Vector3.zero, Vector3.zero);
+            }
+        }
+
+        private static void listValue(string id, string name, float index, Position.HeavenlyBodies? body, Vector3 position, Vector3 velocity, Vector3 rootPosition, Vector3 rootVelocity)
+        {
+            var console = DisplayConsole.getConsole(ConsoleLocation.BottomRight);
+            if (!body.HasValue)
+            {
+                console.setElement(classId + "." + id + ".Parent", "", 0f);
+                console.setElement(classId + "." + id + ".Position", "", 0f);
+                console.setElement(classId + "." + id + ".Velocity", "", 0f);
+                console.setElement(classId + "." + id + ".Root.Position", "", 0f);
+                console.setElement(classId + "." + id + ".Root.Velocity", "", 0f);
+            }
+            else
+            {
+                console.setElement(classId + "." + id + ".Parent", name + " Parent: " + body.Value, index + 0.01f);
+                console.setElement(classId + "." + id + ".Position", name + " Position: " + position, index + 0.02f);
+                console.setElement(classId + "." + id + ".Velocity", name + " Velocity: " + velocity, index + 0.03f);
+                console.setElement(classId + "." + id + ".Root.Position", name + " Root Position: " + rootPosition, index + 0.04f);
+                console.setElement(classId + "." + id + ".Root.Velocity", name + " Root Velocity: " + rootVelocity, index + 0.05f);
             }
         }
 

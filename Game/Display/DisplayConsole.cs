@@ -9,8 +9,13 @@ namespace PacificEngine.OW_CommonResources.Game.Display
     public enum ConsoleLocation
     {
         TopLeft,
+        TopCenter,
         TopRight,
+        CenterLeft,
+        Center,
+        CenterRight,
         BottomLeft,
+        BottomCenter,
         BottomRight
     }
 
@@ -63,41 +68,41 @@ namespace PacificEngine.OW_CommonResources.Game.Display
         public void onGUI()
         {
             var elements = new List<Tuple<float, string>>(_elements.Values);
-            if (_location == ConsoleLocation.TopLeft)
+            elements.Sort((x1, x2) => x1.Item1.CompareTo(x2.Item1));
+
+            float y = 0f;
+            float x = 0f;
+            switch (_location)
             {
-                float i = 0f;
-                elements.Sort((x1, x2) => x1.Item1.CompareTo(x2.Item1));
-                foreach (var element in elements)
-                {
-                    GUI.Label(new Rect(width, (heightPerElement * i++), width, heightPerElement), element.Item2);
-                }
+                case ConsoleLocation.CenterLeft:
+                case ConsoleLocation.Center:
+                case ConsoleLocation.CenterRight:
+                    y = ((float)Screen.height / 2f) - ((heightPerElement * (float)elements.Count) / 2f);
+                    break;
+                case ConsoleLocation.BottomLeft:
+                case ConsoleLocation.BottomCenter:
+                case ConsoleLocation.BottomRight:
+                    y = ((float)Screen.height) - (heightPerElement * (float)elements.Count);
+                    break;
             }
-            else if (_location == ConsoleLocation.TopRight)
+            switch (_location)
             {
-                float i = 0f;
-                elements.Sort((x1, x2) => x1.Item1.CompareTo(x2.Item1));
-                foreach (var element in elements)
-                {
-                    GUI.Label(new Rect(((float)Screen.width) - width, (heightPerElement * i++), width, heightPerElement), element.Item2);
-                }
+                case ConsoleLocation.TopCenter:
+                case ConsoleLocation.Center:
+                case ConsoleLocation.BottomCenter:
+                    x = ((float)Screen.width / 2f) - (width / 2f);
+                    break;
+                case ConsoleLocation.TopRight: 
+                case ConsoleLocation.CenterRight:
+                case ConsoleLocation.BottomRight:
+                    x = ((float)Screen.width) - width;
+                    break;
             }
-            else if (_location == ConsoleLocation.BottomLeft)
+
+            float i = 0f;
+            foreach (var element in elements)
             {
-                float i = 1f;
-                elements.Sort((x1, x2) => -1 * x1.Item1.CompareTo(x2.Item1));
-                foreach (var element in elements)
-                {
-                    GUI.Label(new Rect(width, ((float)Screen.height) - (heightPerElement * i++), width, heightPerElement), element.Item2);
-                }
-            }
-            else if (_location == ConsoleLocation.BottomRight)
-            {
-                float i = 1f;
-                elements.Sort((x1, x2) => -1 * x1.Item1.CompareTo(x2.Item1));
-                foreach (var element in elements)
-                {
-                    GUI.Label(new Rect(((float)Screen.width) - width, ((float)Screen.height) - (heightPerElement * i++), width, heightPerElement), element.Item2);
-                }
+                GUI.Label(new Rect(x, y + (heightPerElement * i++), width, heightPerElement), element.Item2);
             }
         }
     }
