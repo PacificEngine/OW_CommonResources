@@ -1,6 +1,7 @@
 ﻿using OWML.Common;
 using OWML.ModHelper;
 using OWML.Utils;
+using PacificEngine.OW_CommonResources.Game.Display;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
@@ -10,12 +11,10 @@ namespace PacificEngine.OW_CommonResources.Game.Resource
 {
     public static class Position
     {
+        private static string classId = "PacificEngine.OW_CommonResources.Game.Resource.Position";
+
         private static float lastUpdate = 0f;
         public static bool debugMode { get; set; } = false;
-
-        private static ScreenPrompt parentPrompt = new ScreenPrompt("");
-        private static ScreenPrompt positionPrompt = new ScreenPrompt("");
-        private static ScreenPrompt velocityPrompt = new ScreenPrompt("");
 
         private delegate OWRigidbody body();
         public delegate Vector3 vector();
@@ -115,15 +114,9 @@ namespace PacificEngine.OW_CommonResources.Game.Resource
 
         public static void Update()
         {
+            var console = DisplayConsole.getConsole(ConsoleLocation.BottomRight);
             if (debugMode && Locator.GetPlayerBody())
             {
-                if (Locator.GetPromptManager()?.GetScreenPromptList(PromptPosition.LowerLeft)?.Contains(parentPrompt) == false)
-                {
-                    Locator.GetPromptManager().AddScreenPrompt(parentPrompt, PromptPosition.LowerLeft, true);
-                    Locator.GetPromptManager().AddScreenPrompt(positionPrompt, PromptPosition.LowerLeft, true);
-                    Locator.GetPromptManager().AddScreenPrompt(velocityPrompt, PromptPosition.LowerLeft, true);
-                }
-
                 if (Time.time - lastUpdate > 0.2f)
                 {
                     lastUpdate = Time.time;
@@ -132,20 +125,23 @@ namespace PacificEngine.OW_CommonResources.Game.Resource
                     var parent = Position.getBody(item.Item1);
                     if (parent)
                     {
-                        parentPrompt.SetText("Parent: " + item.Item1);
-                        positionPrompt.SetText("Position: " + (parent.transform.InverseTransformPoint(getPlayerBody().GetPosition())));
-                        velocityPrompt.SetText("Velocity: " + (getPlayerBody().GetVelocity() - parent.GetVelocity()));
+                        console.setElement(classId + ".Base.Parent", "Parent: " + item.Item1, 10.1f);
+                        console.setElement(classId + ".Base.Position", "Position: " + (parent.transform.InverseTransformPoint(getPlayerBody().GetPosition())), 10.2f);
+                        console.setElement(classId + ".Base.Velocity", "Velocity: " + (getPlayerBody().GetVelocity() - parent.GetVelocity()), 10.3f);
                     }
-                    parentPrompt?.SetVisibility(parent != null);
-                    positionPrompt?.SetVisibility(parent != null);
-                    velocityPrompt?.SetVisibility(parent != null);
+                    else
+                    {
+                        console.setElement(classId + ".Base.Parent", "", 0f);
+                        console.setElement(classId + ".Base.Position", "", 0f);
+                        console.setElement(classId + ".Base.Velocity", "", 0f);
+                    }
                 }
             }
             else
             {
-                parentPrompt?.SetVisibility(false);
-                positionPrompt?.SetVisibility(false);
-                velocityPrompt?.SetVisibility(false);
+                console.setElement(classId + ".Base.Parent", "", 0f);
+                console.setElement(classId + ".Base.Position", "", 0f);
+                console.setElement(classId + ".Base.Velocity", "", 0f);
             }
         }
 

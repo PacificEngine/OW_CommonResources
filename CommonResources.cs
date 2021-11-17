@@ -1,6 +1,8 @@
 ﻿using OWML.Common;
 using OWML.ModHelper;
 using OWML.Utils;
+using PacificEngine.OW_CommonResources.Game;
+using PacificEngine.OW_CommonResources.Game.Display;
 using PacificEngine.OW_CommonResources.Game.Player;
 using PacificEngine.OW_CommonResources.Game.Resource;
 using PacificEngine.OW_CommonResources.Game.State;
@@ -60,6 +62,7 @@ namespace PacificEngine.OW_CommonResources
 
         void OnGUI()
         {
+            DisplayConsole.OnGUI();
         }
 
         void Update()

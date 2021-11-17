@@ -82,10 +82,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Game\Display\DisplayConsole.cs" />
     <Compile Include="Game\Player\Possession.cs" />
     <Compile Include="Game\State\Anglerfish.cs" />
     <Compile Include="CommonResources.cs" />
-    <Compile Include="Config.cs" />
+    <Compile Include="Game\Config\Config.cs" />
     <Compile Include="Game\Player\Data.cs" />
     <Compile Include="Game\State\BramblePortals.cs" />
     <Compile Include="Game\State\EyeCoordinates.cs" />
@@ -93,9 +94,9 @@
     <Compile Include="Geometry\Circle.cs" />
     <Compile Include="Geometry\Coordinates.cs" />
     <Compile Include="Geometry\Sphere.cs" />
-    <Compile Include="Helper.cs" />
+    <Compile Include="Game\Helper.cs" />
     <Compile Include="Game\State\Inhabitants.cs" />
-    <Compile Include="Inputs.cs" />
+    <Compile Include="Game\Config\Inputs.cs" />
     <Compile Include="Game\Resource\Items.cs" />
     <Compile Include="Game\Player\Player.cs" />
     <Compile Include="Game\Resource\Position.cs" />
@@ -105,7 +106,7 @@
     <Compile Include="Game\Player\Ship.cs" />
     <Compile Include="Game\State\SuperNova.cs" />
     <Compile Include="Game\Player\Teleportation.cs" />
-    <Compile Include="RandomizerSeeds.cs" />
+    <Compile Include="Game\Config\RandomizerSeeds.cs" />
   </ItemGroup>
   <ItemGroup>
     <WCFMetadata Include="Connected Services\" />
@@ -115,6 +116,7 @@
     <None Include="manifest.json" />
     <None Include="README.md" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>

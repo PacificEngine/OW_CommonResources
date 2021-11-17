@@ -1,9 +1,9 @@
 ﻿using OWML.Common;
 using System;
 
-namespace PacificEngine.OW_CommonResources
+namespace PacificEngine.OW_CommonResources.Config
 {
-    public static class Config
+    public static class ConfigHelper
     {
         public static T getConfigOrDefault<T>(IModConfig config, string id, T defaultValue)
         {

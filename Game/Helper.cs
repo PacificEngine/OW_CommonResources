@@ -1,7 +1,7 @@
 ﻿using OWML.ModHelper;
 using System.Collections.Generic;
 
-namespace PacificEngine.OW_CommonResources
+namespace PacificEngine.OW_CommonResources.Game
 {
     public static class Helper
     {
