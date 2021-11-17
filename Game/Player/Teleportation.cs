@@ -354,7 +354,7 @@ namespace PacificEngine.OW_CommonResources.Game.Player
             if (teleportTo)
             {
                 var newPosition = teleportTo.transform.TransformPoint(position);
-                var newVelocity = velocity + teleportTo.GetVelocity();
+                var newVelocity = velocity + teleportTo.GetPointTangentialVelocity(newPosition) + teleportTo.GetVelocity();
                 var newAnglarVelocity = angularVelocity + teleportTo.GetAngularVelocity();
                 var newAcceleration = acceleration + teleportTo.GetAcceleration();
                 var parentRotation = teleportTo.GetRotation();

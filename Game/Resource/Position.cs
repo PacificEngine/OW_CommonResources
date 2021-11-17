@@ -143,7 +143,7 @@ namespace PacificEngine.OW_CommonResources.Game.Resource
                 var root = Position.getBody(rootBody.Value);
                 if (parent)
                 {
-                    listValue(id, name, index, body, (parent.transform.InverseTransformPoint(comparison.GetPosition())), (comparison.GetVelocity() - parent.GetVelocity()), (root.transform.InverseTransformPoint(comparison.GetPosition())), (comparison.GetVelocity() - root.GetVelocity()));
+                    listValue(id, name, index, body, (parent.transform.InverseTransformPoint(comparison.GetPosition())), (comparison.GetVelocity() - (parent.GetPointTangentialVelocity(comparison.GetPosition()) + parent.GetVelocity())), (root.transform.InverseTransformPoint(comparison.GetPosition())), (comparison.GetVelocity() - root.GetVelocity()));
                 }
                 else
                 {
