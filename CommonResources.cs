@@ -27,6 +27,7 @@ namespace PacificEngine.OW_CommonResources
             EyeCoordinates.Start();
             BramblePortals.Start();
             WarpPad.Start();
+            Data.Start();
             ModHelper.Console.WriteLine("Common Resources Mod: Started!");
         }
 

@@ -10,6 +10,10 @@ namespace PacificEngine.OW_CommonResources.Game.Player
 {
     public static class Data
     {
+        public static bool debugFacts { get; set; } = false;
+        public static bool debugPersistentConditions { get; set; } = false;
+        public static bool debugDialogConditions { get; set; } = false;
+
         public static bool launchCodes
         {
             get
@@ -290,6 +294,38 @@ namespace PacificEngine.OW_CommonResources.Game.Player
                         shipEntry.SetAltSprite(altSprite);
                     }
                 }
+            }
+        }
+
+        public static void Start()
+        {
+            Helper.helper.HarmonyHelper.AddPostfix<ShipLogFact>("Reveal", typeof(Data), "onShipLogFactReveal");
+            Helper.helper.HarmonyHelper.AddPostfix<GameSave>("SetPersistentCondition", typeof(Data), "onGameSaveSetPersistentCondition");
+            Helper.helper.HarmonyHelper.AddPostfix<DialogueConditionManager>("SetConditionState", typeof(Data), "onDialogueConditionManagerSetConditionState");
+            Helper.helper.HarmonyHelper.AddPostfix<DialogueConditionManager>("AddCondition", typeof(Data), "onDialogueConditionManagerSetConditionState");
+        }
+
+        private static void onShipLogFactReveal(ShipLogFact __instance)
+        {
+            if (debugFacts)
+            {
+                Helper.helper.Console.WriteLine("Fact: " + __instance.GetID() + " (" + __instance.GetEntryID() + ")");
+            }
+        }
+
+        private static void onGameSaveSetPersistentCondition(ref string condition, ref bool state)
+        {
+            if (debugPersistentConditions)
+            {
+                Helper.helper.Console.WriteLine("Condition: " + condition + "(" + state + ")");
+            }
+        }
+
+        private static void onDialogueConditionManagerSetConditionState(ref string conditionName, ref bool conditionState)
+        {
+            if (debugDialogConditions)
+            {
+                Helper.helper.Console.WriteLine("Dialogue: " + conditionName + "(" + conditionState + ")");
             }
         }
     }

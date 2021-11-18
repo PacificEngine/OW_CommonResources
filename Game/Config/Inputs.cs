@@ -1,6 +1,7 @@
 ﻿using OWML.Common;
 using OWML.ModHelper;
 using OWML.ModHelper.Events;
+using PacificEngine.OW_CommonResources.Game;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
@@ -46,12 +47,29 @@ namespace PacificEngine.OW_CommonResources.Config
             }
         }
 
+        public List<Key> getKeys()
+        {
+            return new List<Key>(keys);
+        }
+
         public static InputClass fromString(string keysString)
         {
             HashSet<Key> keys = new HashSet<Key>();
             foreach (string keyString in keysString.Split(split))
             {
-                keys.Add((Key)Enum.Parse(Key.A.GetType(), keyString));
+                try
+                {
+                    var key = (Key)Enum.Parse(Key.A.GetType(), keyString, true);
+                    int keyInt;
+                    if (int.TryParse(keyString, out keyInt))
+                    {
+                        Helper.helper.Console.WriteLine("Key `" + keyString + "` is not recgonized.", MessageType.Warning);
+                    }
+                    keys.Add(key);
+                } catch (Exception e)
+                {
+                    Helper.helper.Console.WriteLine("Key `" + keyString + "` is not recgonized.", MessageType.Warning);
+                }
             }
             return new InputClass(keys);
         }
@@ -133,6 +151,11 @@ namespace PacificEngine.OW_CommonResources.Config
             {
                 pressed = 0;
             }
+        }
+
+        public List<InputClass> getKeysCombos()
+        {
+            return new List<InputClass>(keys);
         }
 
         public static MultiInputClass fromString(string keysString)
