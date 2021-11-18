@@ -85,19 +85,34 @@ namespace PacificEngine.OW_CommonResources.Config
             return value.Substring(0, value.Length - 1);
         }
 
-        public override bool Equals(object obj)
+        public override bool Equals(System.Object other)
         {
-            return Equals(obj as InputClass);
-        }
-
-        public bool Equals(InputClass other)
-        {
-            return other != null && other.keys.Equals(keys);
+            if (other != null && other is InputClass)
+            {
+                var obj = other as InputClass;
+                if (obj.keys.Count == keys.Count)
+                {
+                    foreach (var key in keys)
+                    {
+                        if (!obj.keys.Contains(key))
+                        {
+                            return false;
+                        }
+                    }
+                    return true;
+                }
+            }
+            return false;
         }
 
         public override int GetHashCode()
         {
-            return keys.GetHashCode();
+            int hash = 0;
+            foreach (var key in keys)
+            {
+                hash += ((int)key) * 4;
+            }
+            return hash;
         }
 
         public bool isPressedThisFrame()
@@ -179,19 +194,34 @@ namespace PacificEngine.OW_CommonResources.Config
             return value.Substring(0, value.Length - 1);
         }
 
-        public override bool Equals(object obj)
+        public override bool Equals(System.Object other)
         {
-            return Equals(obj as MultiInputClass);
-        }
-
-        public bool Equals(MultiInputClass other)
-        {
-            return other != null && other.keys.Equals(keys);
+            if (other != null && other is MultiInputClass)
+            {
+                var obj = other as MultiInputClass;
+                if (obj.keys.Count == keys.Count)
+                {
+                    foreach (var key in keys)
+                    {
+                        if (!obj.keys.Contains(key))
+                        {
+                            return false;
+                        }
+                    }
+                    return true;
+                }
+            }
+            return false;
         }
 
         public override int GetHashCode()
         {
-            return keys.GetHashCode();
+            int hash = 0;
+            foreach (var key in keys)
+            {
+                hash += key.GetHashCode() * 16;
+            }
+            return hash;
         }
 
         public bool isPressedThisFrame()
