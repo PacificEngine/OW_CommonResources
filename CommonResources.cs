@@ -53,7 +53,7 @@ namespace PacificEngine.OW_CommonResources
             Inhabitants.Awake();
             EyeCoordinates.Awake();
             BramblePortals.Awake();
-            WarpPad.Destroy();
+            WarpPad.Awake();
             ModHelper.Console.WriteLine("Common Resources Mod: Player Awakes");
         }
 

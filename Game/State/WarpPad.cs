@@ -22,7 +22,7 @@ namespace PacificEngine.OW_CommonResources.Game.State
         private static bool requireUpdate = false;
         private static List<NomaiWarpPlatform> unprocessedPortals = new List<NomaiWarpPlatform>();
         private static Dictionary<Position.HeavenlyBodies, List<Tuple<NomaiWarpPlatform, float>>> _portals = new Dictionary<Position.HeavenlyBodies, List<Tuple<NomaiWarpPlatform, float>>>();
-        private static Dictionary<Tuple<Position.HeavenlyBodies, int>, Tuple<Position.HeavenlyBodies, int>> _mapping = null;
+        private static Dictionary<Tuple<Position.HeavenlyBodies, int>, Tuple<Position.HeavenlyBodies, int>> _mapping = defaultMapping;
 
         public static List<Position.HeavenlyBodies> bodies
         {
@@ -70,11 +70,7 @@ namespace PacificEngine.OW_CommonResources.Game.State
                 var allPortals = portals;
                 if (allPortals.Count < 1)
                 {
-                    if (_mapping != null)
-                    {
-                        return _mapping;
-                    }
-                    return defaultMapping;
+                    return _mapping;
                 }
 
                 updateLists();
@@ -265,9 +261,9 @@ namespace PacificEngine.OW_CommonResources.Game.State
 
         private static Position.HeavenlyBodies? findBody(NomaiWarpPlatform volume)
         {
-            if (volume == null || volume.transform == null || volume.transform.position == null)
+            if (volume == null || volume.GetAttachedOWRigidbody() == null || volume.GetAttachedOWRigidbody().GetPosition() == null)
                 return null;
-            return Position.getClosest(volume.transform.position)[0].Item1;
+            return Position.getClosest(volume.GetAttachedOWRigidbody().GetPosition())[0].Item1;
         }
 
         private static int? findIndex(NomaiWarpPlatform volume, Position.HeavenlyBodies body)
