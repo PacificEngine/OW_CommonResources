@@ -43,9 +43,9 @@ namespace PacificEngine.OW_CommonResources.Game.Display
             }
         }
 
-        private static float heightPerElement = 20f;
-        private static float width = 300f;
-        private static Dictionary<string, Tuple<float, string>> _elements = new Dictionary<string, Tuple<float, string>>();
+        private float heightPerElement = 20f;
+        private float width = 400f;
+        private Dictionary<string, Tuple<float, string>> _elements = new Dictionary<string, Tuple<float, string>>();
         private ConsoleLocation _location;
 
         private DisplayConsole(ConsoleLocation location)
@@ -67,8 +67,11 @@ namespace PacificEngine.OW_CommonResources.Game.Display
 
         public void onGUI()
         {
-            var elements = new List<Tuple<float, string>>(_elements.Values);
-            elements.Sort((x1, x2) => x1.Item1.CompareTo(x2.Item1));
+            var elements = _elements.ToList();
+            elements.Sort((x1, x2) => {
+                var comp = x1.Value.Item1.CompareTo(x2.Value.Item1);
+                return comp != 0 ? comp : x1.Key.CompareTo(x2.Key);
+            });
 
             float y = 0f;
             float x = 0f;
@@ -102,7 +105,7 @@ namespace PacificEngine.OW_CommonResources.Game.Display
             float i = 0f;
             foreach (var element in elements)
             {
-                GUI.Label(new Rect(x, y + (heightPerElement * i++), width, heightPerElement), element.Item2);
+                GUI.Label(new Rect(x, y + (heightPerElement * i++), width, heightPerElement), element.Value.Item2);
             }
         }
     }

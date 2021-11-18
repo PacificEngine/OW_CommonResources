@@ -11,7 +11,7 @@ namespace PacificEngine.OW_CommonResources.Game.Resource
 {
     public static class Position
     {
-        private static string classId = "PacificEngine.OW_CommonResources.Game.Resource.Position";
+        private const string classId = "PacificEngine.OW_CommonResources.Game.Resource.Position";
 
         private static float lastUpdate = 0f;
         public static bool debugMode { get; set; } = false;
@@ -74,21 +74,23 @@ namespace PacificEngine.OW_CommonResources.Game.Resource
             bodyLookup.Add(HeavenlyBodies.ProbeCannon, () => Locator.GetAstroObject(AstroObject.Name.ProbeCannon)?.GetAttachedOWRigidbody());
             bodyLookup.Add(HeavenlyBodies.NomaiProbe, () => Locator.GetAstroObject(AstroObject.Name.ProbeCannon)?.GetComponent<OrbitalProbeLaunchController>()?.GetValue<OWRigidbody>("_probeBody"));
             bodyLookup.Add(HeavenlyBodies.DarkBramble, () => Locator.GetAstroObject(AstroObject.Name.DarkBramble)?.GetAttachedOWRigidbody());
-            bodyLookup.Add(HeavenlyBodies.InnerDarkBramble_Hub, () => Helper.getSector(Sector.Name.BrambleDimension).Find(body => OuterFogWarpVolume.Name.Hub.Equals(body?.GetComponentInChildren<OuterFogWarpVolume>()?.GetName()))?.GetAttachedOWRigidbody());
-            bodyLookup.Add(HeavenlyBodies.InnerDarkBramble_EscapePod, () => Helper.getSector(Sector.Name.BrambleDimension).Find(body => OuterFogWarpVolume.Name.EscapePod.Equals(body?.GetComponentInChildren<OuterFogWarpVolume>()?.GetName()))?.GetAttachedOWRigidbody());
-            bodyLookup.Add(HeavenlyBodies.InnerDarkBramble_Nest, () => Helper.getSector(Sector.Name.BrambleDimension).Find(body => OuterFogWarpVolume.Name.AnglerNest.Equals(body?.GetComponentInChildren<OuterFogWarpVolume>()?.GetName()))?.GetAttachedOWRigidbody());
-            bodyLookup.Add(HeavenlyBodies.InnerDarkBramble_Feldspar, () => Helper.getSector(Sector.Name.BrambleDimension).Find(body => OuterFogWarpVolume.Name.Pioneer.Equals(body?.GetComponentInChildren<OuterFogWarpVolume>()?.GetName()))?.GetAttachedOWRigidbody());
-            bodyLookup.Add(HeavenlyBodies.InnerDarkBramble_Gutter, () => Helper.getSector(Sector.Name.BrambleDimension).Find(body => OuterFogWarpVolume.Name.ExitOnly.Equals(body?.GetComponentInChildren<OuterFogWarpVolume>()?.GetName()))?.GetAttachedOWRigidbody());
-            bodyLookup.Add(HeavenlyBodies.InnerDarkBramble_Vessel, () => Helper.getSector(Sector.Name.VesselDimension).Find(body => OuterFogWarpVolume.Name.Vessel.Equals(body?.GetComponentInChildren<OuterFogWarpVolume>()?.GetName()))?.GetAttachedOWRigidbody());
-            bodyLookup.Add(HeavenlyBodies.InnerDarkBramble_Maze, () => Helper.getSector(Sector.Name.BrambleDimension).Find(body => OuterFogWarpVolume.Name.Cluster.Equals(body?.GetComponentInChildren<OuterFogWarpVolume>()?.GetName()))?.GetAttachedOWRigidbody());
-            bodyLookup.Add(HeavenlyBodies.InnerDarkBramble_SmallNest, () => Helper.getSector(Sector.Name.BrambleDimension).Find(body => OuterFogWarpVolume.Name.SmallNest.Equals(body?.GetComponentInChildren<OuterFogWarpVolume>()?.GetName()))?.GetAttachedOWRigidbody());
-            bodyLookup.Add(HeavenlyBodies.InnerDarkBramble_Secret, () => Helper.getSector(Sector.Name.BrambleDimension).Find(body => body?.GetComponentInChildren<SecretFogWarpVolume>() != null)?.GetAttachedOWRigidbody());
+            bodyLookup.Add(HeavenlyBodies.InnerDarkBramble_Hub, () => Helper.getSector(Sector.Name.BrambleDimension)?.Find(body => OuterFogWarpVolume.Name.Hub ==  body?.GetComponentInChildren<OuterFogWarpVolume>()?.GetName())?.GetAttachedOWRigidbody());
+            bodyLookup.Add(HeavenlyBodies.InnerDarkBramble_EscapePod, () => Helper.getSector(Sector.Name.BrambleDimension)?.Find(body => OuterFogWarpVolume.Name.EscapePod ==  body?.GetComponentInChildren<OuterFogWarpVolume>()?.GetName())?.GetAttachedOWRigidbody());
+            bodyLookup.Add(HeavenlyBodies.InnerDarkBramble_Nest, () => Helper.getSector(Sector.Name.BrambleDimension)?.Find(body => OuterFogWarpVolume.Name.AnglerNest == body?.GetComponentInChildren<OuterFogWarpVolume>()?.GetName())?.GetAttachedOWRigidbody());
+            bodyLookup.Add(HeavenlyBodies.InnerDarkBramble_Feldspar, () => Helper.getSector(Sector.Name.BrambleDimension)?.Find(body => OuterFogWarpVolume.Name.Pioneer == body?.GetComponentInChildren<OuterFogWarpVolume>()?.GetName())?.GetAttachedOWRigidbody());
+            bodyLookup.Add(HeavenlyBodies.InnerDarkBramble_Gutter, () => Helper.getSector(Sector.Name.BrambleDimension)?.Find(body => OuterFogWarpVolume.Name.ExitOnly ==  body?.GetComponentInChildren<OuterFogWarpVolume>()?.GetName())?.GetAttachedOWRigidbody());
+            bodyLookup.Add(HeavenlyBodies.InnerDarkBramble_Vessel, () => Helper.getSector(Sector.Name.VesselDimension)?.Find(body => OuterFogWarpVolume.Name.Vessel == body?.GetComponentInChildren<OuterFogWarpVolume>()?.GetName())?.GetAttachedOWRigidbody());
+            bodyLookup.Add(HeavenlyBodies.InnerDarkBramble_Maze, () => Helper.getSector(Sector.Name.BrambleDimension)?.Find(body => OuterFogWarpVolume.Name.Cluster == body?.GetComponentInChildren<OuterFogWarpVolume>()?.GetName())?.GetAttachedOWRigidbody());
+            bodyLookup.Add(HeavenlyBodies.InnerDarkBramble_SmallNest, () => Helper.getSector(Sector.Name.BrambleDimension)?.Find(body => OuterFogWarpVolume.Name.SmallNest == body?.GetComponentInChildren<OuterFogWarpVolume>()?.GetName())?.GetAttachedOWRigidbody());
+            bodyLookup.Add(HeavenlyBodies.InnerDarkBramble_Secret, () => Helper.getSector(Sector.Name.BrambleDimension)?.Find(body => body?.GetComponentInChildren<SecretFogWarpVolume>() != null)?.GetAttachedOWRigidbody());
             bodyLookup.Add(HeavenlyBodies.Interloper, () => Locator.GetAstroObject(AstroObject.Name.Comet)?.GetAttachedOWRigidbody());
             bodyLookup.Add(HeavenlyBodies.WhiteHole, () => Locator.GetAstroObject(AstroObject.Name.WhiteHole)?.GetAttachedOWRigidbody());
             bodyLookup.Add(HeavenlyBodies.WhiteHoleStation, () => Locator.GetAstroObject(AstroObject.Name.WhiteHoleTarget)?.GetAttachedOWRigidbody());
             bodyLookup.Add(HeavenlyBodies.Stranger, () => Locator.GetAstroObject(AstroObject.Name.RingWorld)?.GetAttachedOWRigidbody());
             bodyLookup.Add(HeavenlyBodies.DreamWorld, () => Locator.GetAstroObject(AstroObject.Name.DreamWorld)?.GetAttachedOWRigidbody());
             bodyLookup.Add(HeavenlyBodies.QuantumMoon, () => Locator.GetAstroObject(AstroObject.Name.QuantumMoon)?.GetAttachedOWRigidbody());
+            bodyLookup.Add(HeavenlyBodies.EyeOfTheUniverse, () => Helper.getSector(Sector.Name.EyeOfTheUniverse)?.Find(body => true)?.GetAttachedOWRigidbody());
+            bodyLookup.Add(HeavenlyBodies.EyeOfTheUniverse_Vessel, () => Helper.getSector(Sector.Name.Vessel)?.Find(body => Sector.Name.EyeOfTheUniverse == body.GetRootSector().GetName())?.GetAttachedOWRigidbody());
         }
 
         public static void Awake()
@@ -111,13 +113,19 @@ namespace PacificEngine.OW_CommonResources.Game.Resource
                     listValue("Player", "Player", 10f, Locator.GetPlayerBody());
                     listValue("Ship", "Ship", 10.1f, Locator.GetShipBody());
                     listValue("Probe", "Probe", 10.2f, Locator.GetProbe()?.GetAttachedOWRigidbody());
+                    listValue("Player.Root", "Player Root", 10.3f, HeavenlyBodies.Sun, Locator.GetPlayerBody());
+                    listValue("Ship.Root", "Ship Root", 10.4f, HeavenlyBodies.Sun, Locator.GetShipBody());
+                    listValue("Probe.Root", "Probe Root", 10.5f, HeavenlyBodies.Sun, Locator.GetProbe()?.GetAttachedOWRigidbody());
                 }
             }
             else
             {
-                listValue("Player", "", 0f, null, Vector3.zero, Vector3.zero, Vector3.zero, Vector3.zero);
-                listValue("Ship", "", 0f, null, Vector3.zero, Vector3.zero, Vector3.zero, Vector3.zero);
-                listValue("Probe", "", 0f, null, Vector3.zero, Vector3.zero, Vector3.zero, Vector3.zero);
+                listValue("Player", "", 0f, null, Vector3.zero, Vector3.zero);
+                listValue("Ship", "", 0f, null, Vector3.zero, Vector3.zero);
+                listValue("Probe", "", 0f, null, Vector3.zero, Vector3.zero);
+                listValue("Player.Root", "", 0f, null, Vector3.zero, Vector3.zero);
+                listValue("Ship.Root", "", 0f, null, Vector3.zero, Vector3.zero);
+                listValue("Probe.Root", "", 0f, null, Vector3.zero, Vector3.zero);
             }
         }
 
@@ -127,36 +135,37 @@ namespace PacificEngine.OW_CommonResources.Game.Resource
             {
                 var list = Position.getClosest(comparison.GetPosition());
                 var item = list[0].Item1 == Position.HeavenlyBodies.TimberHearthProbe ? list[1] : list[0];
-                listValue(id, name, index, item.Item1, Position.HeavenlyBodies.Sun, comparison);
+                listValue(id, name, index, item.Item1, comparison);
             }
             else
             {
-                listValue(id, name, index, null, Vector3.zero, Vector3.zero, Vector3.zero, Vector3.zero);
+                listValue(id, name, index, null, Vector3.zero, Vector3.zero);
             }
         }
 
-        private static void listValue(string id, string name, float index, Position.HeavenlyBodies? body, Position.HeavenlyBodies? rootBody, OWRigidbody comparison)
+        private static void listValue(string id, string name, float index, Position.HeavenlyBodies? body, OWRigidbody comparison)
         {
-            if (body.HasValue)
+            if (body.HasValue && comparison)
             {
                 var parent = Position.getBody(body.Value);
-                var root = Position.getBody(rootBody.Value);
                 if (parent)
                 {
-                    listValue(id, name, index, body, (parent.transform.InverseTransformPoint(comparison.GetPosition())), (comparison.GetVelocity() - (parent.GetPointTangentialVelocity(comparison.GetPosition()) + parent.GetVelocity())), (root.transform.InverseTransformPoint(comparison.GetPosition())), (comparison.GetVelocity() - root.GetVelocity()));
+                    var p = parent.transform.InverseTransformPoint(comparison.GetPosition());
+                    var v = comparison.GetVelocity() - (parent.GetPointTangentialVelocity(comparison.GetPosition()) + parent.GetVelocity());
+                    listValue(id, name, index, body, p, v);
                 }
                 else
                 {
-                    listValue(id, name, index, null, Vector3.zero, Vector3.zero, Vector3.zero, Vector3.zero);
+                    listValue(id, name, index, null, Vector3.zero, Vector3.zero);
                 }
             }
             else
             {
-                listValue(id, name, index, null, Vector3.zero, Vector3.zero, Vector3.zero, Vector3.zero);
+                listValue(id, name, index, null, Vector3.zero, Vector3.zero);
             }
         }
 
-        private static void listValue(string id, string name, float index, Position.HeavenlyBodies? body, Vector3 position, Vector3 velocity, Vector3 rootPosition, Vector3 rootVelocity)
+        private static void listValue(string id, string name, float index, Position.HeavenlyBodies? body, Vector3 position, Vector3 velocity)
         {
             var console = DisplayConsole.getConsole(ConsoleLocation.BottomRight);
             if (!body.HasValue)
@@ -164,16 +173,12 @@ namespace PacificEngine.OW_CommonResources.Game.Resource
                 console.setElement(classId + "." + id + ".Parent", "", 0f);
                 console.setElement(classId + "." + id + ".Position", "", 0f);
                 console.setElement(classId + "." + id + ".Velocity", "", 0f);
-                console.setElement(classId + "." + id + ".Root.Position", "", 0f);
-                console.setElement(classId + "." + id + ".Root.Velocity", "", 0f);
             }
             else
             {
                 console.setElement(classId + "." + id + ".Parent", name + " Parent: " + body.Value, index + 0.01f);
                 console.setElement(classId + "." + id + ".Position", name + " Position: " + position, index + 0.02f);
                 console.setElement(classId + "." + id + ".Velocity", name + " Velocity: " + velocity, index + 0.03f);
-                console.setElement(classId + "." + id + ".Root.Position", name + " Root Position: " + rootPosition, index + 0.04f);
-                console.setElement(classId + "." + id + ".Root.Velocity", name + " Root Velocity: " + rootVelocity, index + 0.05f);
             }
         }
 

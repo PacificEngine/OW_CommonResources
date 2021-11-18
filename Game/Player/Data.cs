@@ -230,12 +230,15 @@ namespace PacificEngine.OW_CommonResources.Game.Player
             }
 
             var library = Locator.GetShipLogManager().GetValue<ShipLogLibrary>("_shipLogLibrary");
-            for (int i = 0; i < library.entryData.Length; i++)
+            if (library != null && library.entryData != null)
             {
-                var libraryEntry = library.entryData[i];
-                if (factId.Equals(libraryEntry.id))
+                for (int i = 0; i < library.entryData.Length; i++)
                 {
-                    return libraryEntry;
+                    var libraryEntry = library.entryData[i];
+                    if (factId.Equals(libraryEntry.id))
+                    {
+                        return libraryEntry;
+                    }
                 }
             }
 
@@ -249,33 +252,43 @@ namespace PacificEngine.OW_CommonResources.Game.Player
                 return;
             }
 
-            var library = Locator.GetShipLogManager().GetValue<ShipLogLibrary>("_shipLogLibrary");
-            for(int i = 0; i < library.entryData.Length; i++)
+            var library = Locator.GetShipLogManager()?.GetValue<ShipLogLibrary>("_shipLogLibrary");
+            if (library != null && library.entryData != null)
             {
-                var libraryEntry = library.entryData[i];
-                if (factId.Equals(libraryEntry.id))
+                for (int i = 0; i < library.entryData.Length; i++)
                 {
-                    libraryEntry.sprite = sprite;
-                    libraryEntry.altSprite = altSprite;
-                    library.entryData[i] = libraryEntry;
+                    var libraryEntry = library.entryData[i];
+                    if (factId.Equals(libraryEntry.id))
+                    {
+                        libraryEntry.sprite = sprite;
+                        libraryEntry.altSprite = altSprite;
+                        library.entryData[i] = libraryEntry;
+                    }
                 }
             }
 
-            var dictionary = Locator.GetShipLogManager().GetValue<Dictionary<string, EntryData>>("_entryDataDict");
-            EntryData dictionaryEntry;
-            if (dictionary.TryGetValue(factId, out dictionaryEntry))
+            var dictionary = Locator.GetShipLogManager()?.GetValue<Dictionary<string, EntryData>>("_entryDataDict");
+            if (dictionary != null)
             {
-                dictionaryEntry.sprite = sprite;
-                dictionaryEntry.altSprite = altSprite;
-                dictionary[factId] = dictionaryEntry;
+                EntryData dictionaryEntry;
+                if (dictionary.TryGetValue(factId, out dictionaryEntry))
+                {
+                    dictionaryEntry.sprite = sprite;
+                    dictionaryEntry.altSprite = altSprite;
+                    dictionary[factId] = dictionaryEntry;
+                }
             }
 
-            foreach(var shipEntry in Locator.GetShipLogManager().GetEntryList())
+            var entryList = Locator.GetShipLogManager()?.GetEntryList();
+            if (entryList != null)
             {
-                if (factId.Equals(shipEntry.GetID()))
+                foreach (var shipEntry in Locator.GetShipLogManager().GetEntryList())
                 {
-                    shipEntry.SetSprite(sprite);
-                    shipEntry.SetAltSprite(altSprite);
+                    if (factId.Equals(shipEntry.GetID()))
+                    {
+                        shipEntry.SetSprite(sprite);
+                        shipEntry.SetAltSprite(altSprite);
+                    }
                 }
             }
         }

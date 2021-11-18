@@ -6,24 +6,17 @@ using System.Linq;
 using System.Text;
 using PacificEngine.OW_CommonResources.Game.Resource;
 using UnityEngine;
+using PacificEngine.OW_CommonResources.Game.Display;
 
 namespace PacificEngine.OW_CommonResources.Game.State
 {
-    /*	
-InnerFogWarpVolume._linkedOuterWarpVolume
-InnerFogWarpVolume._linkedOuterWarpName
-
-InnerFogWarpVolume._containerWarpVolume
-
-OuterFogWarpVolume._linkedInnerWarpVolume
-OuterFogWarpVolume._name
-
-InnerFogWarpVolume._senderWarps
-*/
-
-
     public static class BramblePortals
     {
+        private const string classId = "PacificEngine.OW_CommonResources.Game.State.BramblePortals";
+        public static bool debugMode { get; set; } = false;
+        private static float _lastUpdate = 0f;
+        private static List<string> debugIds = new List<string>();
+
         public delegate void BrambleWarpEvent(FogWarpDetector.Name warpObject, bool isInnerPortal, Tuple<Position.HeavenlyBodies, int> portal);
 
         private static int processingFrame = -1;
@@ -104,6 +97,7 @@ InnerFogWarpVolume._senderWarps
                     return Tuple.Create(_outerPortalMap ?? defaultMapping.Item1, _innerPortalMap ?? defaultMapping.Item2);
                 }
 
+                updateLists();
                 var outerPortalMap = new Dictionary<Tuple<Position.HeavenlyBodies, int>, Tuple<Position.HeavenlyBodies, int>>();
                 var innerPortalMap = new Dictionary<Tuple<Position.HeavenlyBodies, int>, Tuple<Position.HeavenlyBodies, int>>();
                 foreach (var portal in allPortals)
@@ -154,7 +148,9 @@ InnerFogWarpVolume._senderWarps
                 {
                     _innerPortalMap[innerMapping.Key] = innerMapping.Value;
                 }
-                doMapping();
+
+                requireUpdate = true;
+                updateLists();
             }
         }
 
@@ -252,20 +248,145 @@ InnerFogWarpVolume._senderWarps
 
         public static void Update()
         {
+            var console = DisplayConsole.getConsole(ConsoleLocation.BottomLeft);
+            if (debugMode && _portals.Count > 0)
+            {
+                if (Time.time - _lastUpdate > 0.2f)
+                {
+                    _lastUpdate = Time.time;
+                    foreach (var id in debugIds)
+                    {
+                        console.setElement(id, "", 0f);
+                    }
+
+                    var map = mapping;
+                    var outer = map.Item1;
+                    var inner = map.Item2;
+                    float index = 11.1f;
+
+                    var allBodies = bodies;
+                    allBodies.Sort();
+
+                    console.setElement(getId("Outer"), "Bramble Outer Portals", 11.09f);
+                    foreach (var body in allBodies)
+                    {
+                        List<Tuple<FogWarpVolume, float>> portals;
+                        if (_portals.TryGetValue(body, out portals))
+                        {
+                            foreach (var portal in portals)
+                            {
+                                if (portal.Item1 is OuterFogWarpVolume)
+                                {
+                                    var portalIndex = findIndex(portal.Item1, body);
+                                    if (portalIndex.HasValue)
+                                    {
+                                        var portalValue = Tuple.Create(body, portalIndex.Value);
+                                        console.setElement(getId("Outer." + portalValue.Item1 + "." + portalValue.Item2), getString(portalValue, ref outer), index);
+                                        index += 0.01f;
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    console.setElement(getId("Inner"), "Bramble Inner Portals", index);
+                    index += 0.01f;
+                    foreach (var body in allBodies)
+                    {
+                        List<Tuple<FogWarpVolume, float>> portals;
+                        if (_portals.TryGetValue(body, out portals))
+                        {
+                            foreach (var portal in portals)
+                            {
+                                if (portal.Item1 is InnerFogWarpVolume)
+                                {
+                                    var portalIndex = findIndex(portal.Item1, body);
+                                    if (portalIndex.HasValue)
+                                    {
+                                        var portalValue = Tuple.Create(body, portalIndex.Value);
+                                        console.setElement(getId("Inner." + portalValue.Item1 + "." + portalValue.Item2), getString(portalValue, ref inner), index);
+                                        index += 0.01f;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            else
+            {
+                foreach (var id in debugIds)
+                {
+                    console.setElement(id, "", 0f);
+                }
+            }
+
             updateLists();
+        }
+
+        private static string getId(string postfix)
+        {
+            var id = classId + "." + postfix;
+            debugIds.Add(id);
+            return id;
+        }
+
+        private static string getString(Tuple<Position.HeavenlyBodies, int> sender, ref Dictionary<Tuple<Position.HeavenlyBodies, int>, Tuple<Position.HeavenlyBodies, int>> map)
+        {
+            Tuple<Position.HeavenlyBodies, int> reciever;
+            if (map.TryGetValue(sender, out reciever))
+            {
+                if (reciever != null)
+                {
+                    return "" + sender.Item1 + ":" + sender.Item2 + " -> " + reciever.Item1 + ":" + reciever.Item2 + "";
+                }
+                else
+                {
+                    return "" + sender.Item1 + ":" + sender.Item2 + " -> Nowhere";
+                }
+            }
+            else
+            {
+                return "" + sender.Item1 + ":" + sender.Item2 + " -> Nowhere";
+            }
         }
 
         public static InnerFogWarpVolume getInnerPortal(Position.HeavenlyBodies body, int index)
         {
-            var inner = innerPortals;
-            return getInnerPortal(ref inner, body, index);
+            List<Tuple<FogWarpVolume, float>> portal;
+            if (_portals.TryGetValue(body, out portal))
+            {
+                if (index < 0)
+                {
+                    var element = portal.FindAll(x => (x.Item1 is InnerFogWarpVolume) && (x.Item1?.IsProbeOnly() == true)).ElementAtOrDefault((-1 * index) - 1);
+                    return element == null ? null : element.Item1 as InnerFogWarpVolume;
+                }
+                else
+                {
+                    var element = portal.FindAll(x => (x.Item1 is InnerFogWarpVolume) && (x.Item1?.IsProbeOnly() == false)).ElementAtOrDefault(index);
+                    return element == null ? null : element.Item1 as InnerFogWarpVolume;
+                }
+            }
+            return null;
         }
 
         public static OuterFogWarpVolume getOuterPortal(Position.HeavenlyBodies body, int index)
         {
-            var outer = outerPortals;
-            var secret = secretPortals;
-            return getOuterPortal(ref outer, ref secret, body, index);
+            List<Tuple<FogWarpVolume, float>> portal;
+            if (_portals.TryGetValue(body, out portal))
+            {
+                if (index < 0)
+                {
+                    var element = portal.FindAll(x => (x.Item1 is SecretFogWarpVolume)).ElementAtOrDefault((-1 * index) - 1);
+                    return element == null ? null : element.Item1 as OuterFogWarpVolume;
+                }
+                else
+                {
+                    var element = portal.FindAll(x => (x.Item1 is OuterFogWarpVolume) && !(x.Item1 is SecretFogWarpVolume)).ElementAtOrDefault(index);
+                    return element == null ? null : element.Item1 as OuterFogWarpVolume;
+                }
+            }
+            return null;
         }
 
         public static List<InnerFogWarpVolume> getInnerPortals(OuterFogWarpVolume outer)
@@ -275,21 +396,34 @@ InnerFogWarpVolume._senderWarps
 
         public static Tuple<Position.HeavenlyBodies, int> find(FogWarpVolume volume)
         {
-            Position.HeavenlyBodies body = findBody(volume);
-            int? index = findIndex(volume, body);
+            Position.HeavenlyBodies? body = findBody(volume);
+            if (!body.HasValue)
+                return null;
 
-            if (index.HasValue)
-                return Tuple.Create(body, index.Value);
-            return null;
+            int? index = findIndex(volume, body.Value);
+            if (!index.HasValue)
+                return null;
+            return Tuple.Create(body.Value, index.Value);
         }
 
-        private static Position.HeavenlyBodies findBody(FogWarpVolume volume)
+        private static Position.HeavenlyBodies? findBody(FogWarpVolume volume)
         {
+            if (volume == null)
+            {
+                return null;
+            }
             if (volume is SecretFogWarpVolume)
             {
                 return Position.HeavenlyBodies.InnerDarkBramble_Secret;
             }
-            switch (volume.GetAttachedOWRigidbody()?.GetComponentInChildren<OuterFogWarpVolume>()?.GetName())
+            if (volume == null 
+                || volume?.GetAttachedOWRigidbody() == null
+                || volume?.GetAttachedOWRigidbody()?.GetComponentInChildren<OuterFogWarpVolume>() == null
+                || volume?.GetAttachedOWRigidbody()?.GetComponentInChildren<OuterFogWarpVolume>()?.GetName() == null)
+            {
+                return null;
+            }
+            switch (volume?.GetAttachedOWRigidbody()?.GetComponentInChildren<OuterFogWarpVolume>()?.GetName())
             {
                 case OuterFogWarpVolume.Name.Hub:
                     return Position.HeavenlyBodies.InnerDarkBramble_Hub;
@@ -309,6 +443,8 @@ InnerFogWarpVolume._senderWarps
                     return Position.HeavenlyBodies.InnerDarkBramble_SmallNest;
                 case null:
                 default:
+                    if (volume == null || volume.transform == null || volume.transform.position == null)
+                        return null;
                     return getClosest(volume.transform.position)[0].Item1;
             }
         }
@@ -354,48 +490,47 @@ InnerFogWarpVolume._senderWarps
 
         public static void remapOuterPortal(Tuple<Position.HeavenlyBodies, int> outer, Tuple<Position.HeavenlyBodies, int> inner)
         {
-            remapOuterPortal(getOuterPortal(outer.Item1, outer.Item2), getInnerPortal(inner.Item1, inner.Item2));
+            _remapOuterPortal(outer, inner);
+            if (inner != null && outer != null)
+            {
+                var map = _outerPortalMap ?? mapping.Item1;
+                map[outer] = inner;
+                _outerPortalMap = map;
+            }
         }
 
         public static void remapInnerPortal(Tuple<Position.HeavenlyBodies, int> outer, Tuple<Position.HeavenlyBodies, int> inner)
         {
-            remapInnerPortal(getOuterPortal(outer.Item1, outer.Item2), getInnerPortal(inner.Item1, inner.Item2));
-        }
-
-        private static InnerFogWarpVolume getInnerPortal(ref List<Tuple<Position.HeavenlyBodies, InnerFogWarpVolume>> inner, Position.HeavenlyBodies body, int index)
-        {
-            if (index < 0)
-            {
-                return inner.FindAll(x => x.Item1 == body && x.Item2.IsProbeOnly()).ElementAtOrDefault((-1 * index) - 1)?.Item2;
-            }
-            return inner.FindAll(x => x.Item1 == body && !x.Item2.IsProbeOnly()).ElementAtOrDefault(index)?.Item2;
-        }
-
-        private static OuterFogWarpVolume getOuterPortal(ref List<Tuple<Position.HeavenlyBodies, OuterFogWarpVolume>> outer, ref List<Tuple<Position.HeavenlyBodies, SecretFogWarpVolume>> secret, Position.HeavenlyBodies body, int index)
-        {
-            if (index < 0)
-            {
-                return secret.FindAll(x => x.Item1 == body).ElementAtOrDefault((-1 * index) - 1)?.Item2;
-            }
-            return outer.FindAll(x => x.Item1 == body).ElementAtOrDefault(index)?.Item2;
-        }
-
-        private static void remapOuterPortal(OuterFogWarpVolume outer, InnerFogWarpVolume inner)
-        {
+            _remapInnerPortal(outer, inner);
             if (inner != null && outer != null)
             {
-                outer.SetValue("_linkedInnerWarpVolume", inner);
+                var map = _innerPortalMap ?? mapping.Item2;
+                map[inner] = outer;
+                _innerPortalMap = map;
             }
         }
 
-        private static void remapInnerPortal(OuterFogWarpVolume outer, InnerFogWarpVolume inner)
+        private static void _remapOuterPortal(Tuple<Position.HeavenlyBodies, int> outer, Tuple<Position.HeavenlyBodies, int> inner)
         {
-            if (inner != null && outer != null)
+
+            var outerPortal = outer == null ? null : getOuterPortal(outer.Item1, outer.Item2);
+            var innerPortal = inner == null ? null : getInnerPortal(inner.Item1, inner.Item2);
+            if (innerPortal != null && outerPortal != null)
             {
-                inner.GetValue<OuterFogWarpVolume>("_linkedOuterWarpVolume").GetValue<List<InnerFogWarpVolume>>("_senderWarps").Remove(inner);
-                inner.SetValue("_linkedOuterWarpVolume", outer);
-                inner.SetValue("_linkedOuterWarpName", outer.GetName());
-                outer.RegisterSenderWarp(inner);
+                outerPortal.SetValue("_linkedInnerWarpVolume", innerPortal);
+            }
+        }
+
+        private static void _remapInnerPortal(Tuple<Position.HeavenlyBodies, int> outer, Tuple<Position.HeavenlyBodies, int> inner)
+        {
+            var outerPortal = outer == null ? null : getOuterPortal(outer.Item1, outer.Item2);
+            var innerPortal = inner == null ? null : getInnerPortal(inner.Item1, inner.Item2);
+            if (innerPortal != null && outerPortal != null)
+            {
+                innerPortal.GetValue<OuterFogWarpVolume>("_linkedOuterWarpVolume").GetValue<List<InnerFogWarpVolume>>("_senderWarps").Remove(innerPortal);
+                innerPortal.SetValue("_linkedOuterWarpVolume", outerPortal);
+                innerPortal.SetValue("_linkedOuterWarpName", outerPortal.GetName());
+                outerPortal.RegisterSenderWarp(innerPortal);
             }
         }
 
@@ -430,22 +565,14 @@ InnerFogWarpVolume._senderWarps
         private static void doMapping()
         {
             var currentMapping = Tuple.Create(_outerPortalMap ?? defaultMapping.Item1, _innerPortalMap ?? defaultMapping.Item2);
-            var outer = outerPortals;
-            var inner = innerPortals;
-            var secret = secretPortals;
-
             foreach (var outerMapping in currentMapping.Item1)
             {
-                var outerPortal = getOuterPortal(ref outer, ref secret, outerMapping.Key.Item1, outerMapping.Key.Item2);
-                var innerPortal = getInnerPortal(ref inner, outerMapping.Value.Item1, outerMapping.Value.Item2);
-                remapOuterPortal(outerPortal, innerPortal);
+                _remapOuterPortal(outerMapping.Key, outerMapping.Value);
             }
 
             foreach (var innerMapping in currentMapping.Item2)
             {
-                var innerPortal = getInnerPortal(ref inner, innerMapping.Key.Item1, innerMapping.Key.Item2);
-                var outerPortal = getOuterPortal(ref outer, ref secret, innerMapping.Value.Item1, innerMapping.Value.Item2);
-                remapInnerPortal(outerPortal, innerPortal);
+                _remapInnerPortal(innerMapping.Key, innerMapping.Value);
             }
         }
 
