@@ -82,6 +82,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Game\Config\InputMapping.cs" />
     <Compile Include="Game\Display\DisplayConsole.cs" />
     <Compile Include="Game\Player\Possession.cs" />
     <Compile Include="Game\State\Anglerfish.cs" />

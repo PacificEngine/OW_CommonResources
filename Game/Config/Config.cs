@@ -1,7 +1,7 @@
 ﻿using OWML.Common;
 using System;
 
-namespace PacificEngine.OW_CommonResources.Config
+namespace PacificEngine.OW_CommonResources.Game.Config
 {
     public static class ConfigHelper
     {

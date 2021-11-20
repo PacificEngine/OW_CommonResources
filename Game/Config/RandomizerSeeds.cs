@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace PacificEngine.OW_CommonResources.Config
+namespace PacificEngine.OW_CommonResources.Game.Config
 {
     public class RandomizerSeeds
     {
