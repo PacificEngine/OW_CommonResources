@@ -143,7 +143,7 @@ namespace PacificEngine.OW_CommonResources.Geometry
             vertex = Circle.getPointOnCircle(ref zero, endRadius, 0);
             bottomVertices[0] = addVertex(end + calculateRotation(new Vector3(vertex.x, vertex.y, 0f), 0, angles));
 
-            var increment = 2f * (float)Math.PI / (float)sides;
+            var increment = 360f / (float)sides;
             for (int i = 1; i < sides; i++)
             {
                 vertex = Circle.getPointOnCircle(ref zero, startRadius, increment * (float)i);
@@ -169,16 +169,16 @@ namespace PacificEngine.OW_CommonResources.Geometry
             var chordLength = Circle.getChordLength(radius, latIncrement);
             var length = chordLength * root3 / 2f;
             var height = radius - (float)Math.Sqrt(radius * radius - 0.25f * chordLength * chordLength);
-            var topLatitude = (float)(Math.PI) - (height / radius);
-            var bottomLattiude = (float)Math.PI - topLatitude;
+            var topLatitude = (float)(180f) - (height / radius);
+            var bottomLattiude = (float)180f - topLatitude;
 
             var totalLevels = (int)Math.Ceiling((topLatitude / latIncrement));
             var topTeirs = new Vector3[totalLevels / 2][];
             var bottomTeirs = new Vector3[totalLevels / 2][];
             var isTopRotated = totalLevels % 2 == 1;
             var isBottomRotated = false;
-            topTeirs[0] = makeASphereTierViaAngle(ref center, topLatitude, radius, (2f * (float)Math.PI) / 3, isTopRotated);
-            bottomTeirs[0] = makeASphereTierViaAngle(ref center, bottomLattiude, radius, (2f * (float)Math.PI) / 3, isBottomRotated);
+            topTeirs[0] = makeASphereTierViaAngle(ref center, topLatitude, radius, 120f, isTopRotated);
+            bottomTeirs[0] = makeASphereTierViaAngle(ref center, bottomLattiude, radius, 120f, isBottomRotated);
 
             addTriangle(ref topTeirs[0][0], ref topTeirs[0][1], ref topTeirs[0][2], false);
             addTriangle(ref bottomTeirs[0][0], ref bottomTeirs[0][1], ref bottomTeirs[0][2], true);
@@ -200,7 +200,7 @@ namespace PacificEngine.OW_CommonResources.Geometry
             var lastTier = bottomTeirs[bottomTeirs.Length - 1];
             if (totalLevels % 2 == 1)
             {
-                currentTier = makeASphereTierViaLength(ref center, (float)Math.PI / 2f, radius, length, false);
+                currentTier = makeASphereTierViaLength(ref center, 90f, radius, length, false);
 
                 connectTwoSphereTeirs(ref currentTier, ref topTeirs[topTeirs.Length - 1], false);
             }
@@ -225,7 +225,7 @@ namespace PacificEngine.OW_CommonResources.Geometry
             var currentTier = new Vector3[count];
             for (int j = 0; j < count; j++)
             {
-                currentTier[j] = Sphere.getPointOnSphere(ref center, ((float)j * arcAngle + rotation) - (float)Math.PI, latitude, radius);
+                currentTier[j] = Sphere.getPointOnSphere(ref center, ((float)j * arcAngle + rotation) - 180f, latitude, radius);
             }
 
             return currentTier;

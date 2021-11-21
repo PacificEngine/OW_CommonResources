@@ -93,8 +93,11 @@
     <Compile Include="Game\State\EyeCoordinates.cs" />
     <Compile Include="Game\State\Fog.cs" />
     <Compile Include="Game\State\WarpPad.cs" />
+    <Compile Include="Geometry\Angle.cs" />
     <Compile Include="Geometry\Circle.cs" />
     <Compile Include="Geometry\Coordinates.cs" />
+    <Compile Include="Geometry\Ellipse.cs" />
+    <Compile Include="Geometry\Orbit.cs" />
     <Compile Include="Geometry\Sphere.cs" />
     <Compile Include="Game\Helper.cs" />
     <Compile Include="Game\State\Inhabitants.cs" />

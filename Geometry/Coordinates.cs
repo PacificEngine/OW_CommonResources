@@ -8,7 +8,6 @@ namespace PacificEngine.OW_CommonResources.Geometry
 {
     public static class Coordinates
     {
-
         public static Vector3[] nearestPoint(Vector3 point, params Vector3[] points)
         {
             Array.Sort(points, (p1, p2) => ((point - p1).magnitude.CompareTo((point - p2).magnitude)));
@@ -80,9 +79,9 @@ namespace PacificEngine.OW_CommonResources.Geometry
             value = value % (2d * Math.PI);
             if (value > Math.PI)
             {
-                return (float)(Math.PI - value);
+                return Angle.toDegrees((float)(Math.PI - value));
             }
-            return (float)value;
+            return Angle.toDegrees((float)value);
         }
 
         public static float angle(Vector3 p1, Vector3 p2)
@@ -96,9 +95,9 @@ namespace PacificEngine.OW_CommonResources.Geometry
             value = value % (2d * Math.PI);
             if (value > Math.PI)
             {
-                return (float)(Math.PI - value);
+                return Angle.toDegrees((float)(Math.PI - value));
             }
-            return (float)value;
+            return Angle.toDegrees((float)value);
         }
 
         private static float angleX(Vector3 p1, Vector3 p2)
@@ -150,9 +149,9 @@ namespace PacificEngine.OW_CommonResources.Geometry
         public static Vector3 rotatePoint(ref Vector3 point, ref Vector3 rotation)
         {
             var rotate = point;
-            rotate = Coordinates.rotatePointX(ref rotate, rotation.x);
-            rotate = Coordinates.rotatePointY(ref rotate, rotation.y);
-            rotate = Coordinates.rotatePointZ(ref rotate, rotation.z);
+            rotate = Coordinates.rotatePointX(ref rotate, Angle.toRadian(rotation.x));
+            rotate = Coordinates.rotatePointY(ref rotate, Angle.toRadian(rotation.y));
+            rotate = Coordinates.rotatePointZ(ref rotate, Angle.toRadian(rotation.z));
             return rotate;
         }
     }

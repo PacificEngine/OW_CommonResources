@@ -16,13 +16,16 @@ namespace PacificEngine.OW_CommonResources.Game.Resource
         private static float lastUpdate = 0f;
         public static bool debugMode { get; set; } = false;
 
-        private delegate OWRigidbody body();
+        private delegate AstroObject AstroLookup();
+        private delegate OWRigidbody BodyLookup();
         public delegate Vector3 vector();
 
         public enum HeavenlyBodies
         {
+            None,
             Sun,
             SunStation,
+            HourglassTwins,
             AshTwin,
             EmberTwin,
             TimberHearth,
@@ -50,19 +53,59 @@ namespace PacificEngine.OW_CommonResources.Game.Resource
             Stranger,
             DreamWorld,
             QuantumMoon,
+            BackerSatilite,
+            MapSatilite,
             EyeOfTheUniverse,
             EyeOfTheUniverse_Vessel
         }
 
-        private static Dictionary<HeavenlyBodies, body> bodyLookup = new Dictionary<HeavenlyBodies, body>();
+        private static Dictionary<HeavenlyBodies, AstroLookup> astroLookup = new Dictionary<HeavenlyBodies, AstroLookup>();
+        private static Dictionary<HeavenlyBodies, BodyLookup> bodyLookup = new Dictionary<HeavenlyBodies, BodyLookup>();
+        private static Dictionary<HeavenlyBodies, AstroObject> astros = new Dictionary<HeavenlyBodies, AstroObject>();
         private static Dictionary<HeavenlyBodies, OWRigidbody> bodies = new Dictionary<HeavenlyBodies, OWRigidbody>();
 
         public static void Start()
         {
+            astros.Clear();
+            astroLookup.Clear();
+            astroLookup.Add(HeavenlyBodies.Sun, () => Locator.GetAstroObject(AstroObject.Name.Sun));
+            astroLookup.Add(HeavenlyBodies.SunStation, () => Locator.GetMinorAstroObject("Sun Station"));
+            astroLookup.Add(HeavenlyBodies.HourglassTwins, () => Locator.GetAstroObject(AstroObject.Name.TowerTwin)?.GetPrimaryBody());
+            astroLookup.Add(HeavenlyBodies.AshTwin, () => Locator.GetAstroObject(AstroObject.Name.TowerTwin));
+            astroLookup.Add(HeavenlyBodies.EmberTwin, () => Locator.GetAstroObject(AstroObject.Name.CaveTwin));
+            astroLookup.Add(HeavenlyBodies.TimberHearth, () => Locator.GetAstroObject(AstroObject.Name.TimberHearth));
+            astroLookup.Add(HeavenlyBodies.TimberHearthProbe, () => Locator.GetAstroObject(AstroObject.Name.TimberHearth)?.GetSatellite());
+            astroLookup.Add(HeavenlyBodies.Attlerock, () => Locator.GetAstroObject(AstroObject.Name.TimberHearth)?.GetMoon());
+            astroLookup.Add(HeavenlyBodies.BrittleHollow, () => Locator.GetAstroObject(AstroObject.Name.BrittleHollow));
+            astroLookup.Add(HeavenlyBodies.HollowLantern, () => Locator.GetAstroObject(AstroObject.Name.BrittleHollow)?.GetMoon());
+            astroLookup.Add(HeavenlyBodies.GiantsDeep, () => Locator.GetAstroObject(AstroObject.Name.GiantsDeep));
+            astroLookup.Add(HeavenlyBodies.ProbeCannon, () => Locator.GetAstroObject(AstroObject.Name.ProbeCannon));
+            astroLookup.Add(HeavenlyBodies.DarkBramble, () => Locator.GetAstroObject(AstroObject.Name.DarkBramble));
+            astroLookup.Add(HeavenlyBodies.InnerDarkBramble_Hub, () => Locator.GetMinorAstroObject("Hub Dimension"));
+            astroLookup.Add(HeavenlyBodies.InnerDarkBramble_EscapePod, () => Locator.GetMinorAstroObject("Escape Pod Dimension"));
+            astroLookup.Add(HeavenlyBodies.InnerDarkBramble_Nest, () => Locator.GetMinorAstroObject("Angler Nest Dimension"));
+            astroLookup.Add(HeavenlyBodies.InnerDarkBramble_Feldspar, () => Locator.GetMinorAstroObject("Pioneer Dimension"));
+            astroLookup.Add(HeavenlyBodies.InnerDarkBramble_Gutter, () => Helper.getSector(Sector.Name.BrambleDimension)?.Find(body => OuterFogWarpVolume.Name.ExitOnly == body?.GetComponentInChildren<OuterFogWarpVolume>()?.GetName()).GetAttachedOWRigidbody().GetComponent<AstroObject>());
+            astroLookup.Add(HeavenlyBodies.InnerDarkBramble_Vessel, () => Locator.GetMinorAstroObject("Vessel Dimension"));
+            astroLookup.Add(HeavenlyBodies.InnerDarkBramble_Maze, () => Locator.GetMinorAstroObject("Cluster Dimension"));
+            astroLookup.Add(HeavenlyBodies.InnerDarkBramble_SmallNest, () => Helper.getSector(Sector.Name.BrambleDimension)?.Find(body => OuterFogWarpVolume.Name.SmallNest == body?.GetComponentInChildren<OuterFogWarpVolume>()?.GetName()).GetAttachedOWRigidbody().GetComponent<AstroObject>());
+            astroLookup.Add(HeavenlyBodies.InnerDarkBramble_Secret, () => Locator.GetMinorAstroObject("Elsinore Dimension"));
+            astroLookup.Add(HeavenlyBodies.Interloper, () => Locator.GetAstroObject(AstroObject.Name.Comet));
+            astroLookup.Add(HeavenlyBodies.WhiteHole, () => Locator.GetAstroObject(AstroObject.Name.WhiteHole));
+            astroLookup.Add(HeavenlyBodies.WhiteHoleStation, () => Locator.GetAstroObject(AstroObject.Name.WhiteHoleTarget));
+            astroLookup.Add(HeavenlyBodies.Stranger, () => Locator.GetAstroObject(AstroObject.Name.RingWorld));
+            astroLookup.Add(HeavenlyBodies.DreamWorld, () => Locator.GetAstroObject(AstroObject.Name.DreamWorld));
+            astroLookup.Add(HeavenlyBodies.QuantumMoon, () => Locator.GetAstroObject(AstroObject.Name.QuantumMoon));
+            astroLookup.Add(HeavenlyBodies.BackerSatilite, () => Locator.GetMinorAstroObject("Backer's Satellite"));
+            astroLookup.Add(HeavenlyBodies.MapSatilite, () => Helper.getSector(Sector.Name.Unnamed)?.Find(body => "Sector_HearthianMapSatellite".Equals(body?.gameObject?.name))?.GetAttachedOWRigidbody()?.GetComponent<AstroObject>());
+            astroLookup.Add(HeavenlyBodies.EyeOfTheUniverse, () => Helper.getSector(Sector.Name.EyeOfTheUniverse)?.Find(body => true)?.GetAttachedOWRigidbody()?.GetComponent<AstroObject>());
+            astroLookup.Add(HeavenlyBodies.EyeOfTheUniverse_Vessel, () => Helper.getSector(Sector.Name.Vessel)?.Find(body => Sector.Name.EyeOfTheUniverse == body.GetRootSector().GetName())?.GetAttachedOWRigidbody()?.GetComponent<AstroObject>());
+
             bodies.Clear();
             bodyLookup.Clear();
             bodyLookup.Add(HeavenlyBodies.Sun, () => Locator.GetAstroObject(AstroObject.Name.Sun)?.GetAttachedOWRigidbody());
             bodyLookup.Add(HeavenlyBodies.SunStation, () => Locator.GetWarpReceiver(NomaiWarpPlatform.Frequency.SunStation)?.GetAttachedOWRigidbody());
+            bodyLookup.Add(HeavenlyBodies.HourglassTwins, () => Locator.GetAstroObject(AstroObject.Name.TowerTwin)?.GetPrimaryBody()?.GetAttachedOWRigidbody());
             bodyLookup.Add(HeavenlyBodies.AshTwin, () => Locator.GetAstroObject(AstroObject.Name.TowerTwin)?.GetAttachedOWRigidbody());
             bodyLookup.Add(HeavenlyBodies.EmberTwin, () => Locator.GetAstroObject(AstroObject.Name.CaveTwin)?.GetAttachedOWRigidbody());
             bodyLookup.Add(HeavenlyBodies.TimberHearth, () => Locator.GetAstroObject(AstroObject.Name.TimberHearth)?.GetAttachedOWRigidbody());
@@ -89,6 +132,8 @@ namespace PacificEngine.OW_CommonResources.Game.Resource
             bodyLookup.Add(HeavenlyBodies.Stranger, () => Locator.GetAstroObject(AstroObject.Name.RingWorld)?.GetAttachedOWRigidbody());
             bodyLookup.Add(HeavenlyBodies.DreamWorld, () => Locator.GetAstroObject(AstroObject.Name.DreamWorld)?.GetAttachedOWRigidbody());
             bodyLookup.Add(HeavenlyBodies.QuantumMoon, () => Locator.GetAstroObject(AstroObject.Name.QuantumMoon)?.GetAttachedOWRigidbody());
+            bodyLookup.Add(HeavenlyBodies.BackerSatilite, () => Locator.GetMinorAstroObject("Backer's Satellite")?.GetAttachedOWRigidbody());
+            bodyLookup.Add(HeavenlyBodies.MapSatilite, () => Helper.getSector(Sector.Name.Unnamed)?.Find(body => "Sector_HearthianMapSatellite".Equals(body?.gameObject?.name))?.GetAttachedOWRigidbody());
             bodyLookup.Add(HeavenlyBodies.EyeOfTheUniverse, () => Helper.getSector(Sector.Name.EyeOfTheUniverse)?.Find(body => true)?.GetAttachedOWRigidbody());
             bodyLookup.Add(HeavenlyBodies.EyeOfTheUniverse_Vessel, () => Helper.getSector(Sector.Name.Vessel)?.Find(body => Sector.Name.EyeOfTheUniverse == body.GetRootSector().GetName())?.GetAttachedOWRigidbody());
         }
@@ -182,18 +227,101 @@ namespace PacificEngine.OW_CommonResources.Game.Resource
             }
         }
 
+        public static HeavenlyBodies getRoot(HeavenlyBodies body)
+        {
+            switch(body)
+            {
+                case HeavenlyBodies.Sun:
+                case HeavenlyBodies.EyeOfTheUniverse:
+                    return HeavenlyBodies.None;
+                case HeavenlyBodies.EyeOfTheUniverse_Vessel:
+                    return HeavenlyBodies.EyeOfTheUniverse;
+                case HeavenlyBodies.AshTwin:
+                case HeavenlyBodies.EmberTwin:
+                    return HeavenlyBodies.HourglassTwins;
+                case HeavenlyBodies.SunStation:
+                case HeavenlyBodies.HourglassTwins:
+                case HeavenlyBodies.TimberHearth:
+                case HeavenlyBodies.TimberHearthProbe:
+                case HeavenlyBodies.Attlerock:
+                case HeavenlyBodies.BrittleHollow:
+                case HeavenlyBodies.HollowLantern:
+                case HeavenlyBodies.GiantsDeep:
+                case HeavenlyBodies.ProbeCannon:
+                case HeavenlyBodies.NomaiProbe:
+                case HeavenlyBodies.DarkBramble:
+                case HeavenlyBodies.InnerDarkBramble_Hub:
+                case HeavenlyBodies.InnerDarkBramble_EscapePod:
+                case HeavenlyBodies.InnerDarkBramble_Nest:
+                case HeavenlyBodies.InnerDarkBramble_Feldspar:
+                case HeavenlyBodies.InnerDarkBramble_Gutter:
+                case HeavenlyBodies.InnerDarkBramble_Vessel:
+                case HeavenlyBodies.InnerDarkBramble_Maze:
+                case HeavenlyBodies.InnerDarkBramble_Felspar:
+                case HeavenlyBodies.InnerDarkBramble_SmallNest:
+                case HeavenlyBodies.InnerDarkBramble_Secret:
+                case HeavenlyBodies.Interloper:
+                case HeavenlyBodies.WhiteHole:
+                case HeavenlyBodies.WhiteHoleStation:
+                case HeavenlyBodies.Stranger:
+                case HeavenlyBodies.DreamWorld:
+                case HeavenlyBodies.QuantumMoon:
+                case HeavenlyBodies.MapSatilite:
+                    return HeavenlyBodies.Sun;
+                default:
+                    Helper.helper.Console.WriteLine("HeavenlyBodies `" + body + "` is not programmed for getRoot.", MessageType.Warning);
+                    return HeavenlyBodies.Sun;
+            }
+        }
+
+        private static AstroObject lookupAstro(HeavenlyBodies value)
+        {
+            AstroLookup obj;
+            if (astroLookup.TryGetValue(value, out obj))
+            {
+                var owBody = obj.Invoke();
+                if (owBody != null)
+                {
+                    astros[value] = owBody;
+                }
+                return owBody;
+            }
+            return null;
+        }
+
+        public static AstroObject getAstro(HeavenlyBodies body)
+        {
+            AstroObject obj;
+            if (!astros.TryGetValue(body, out obj)
+                || obj == null || obj?.gameObject == null)
+            {
+                obj = lookupAstro(body);
+            }
+            return obj == null || obj?.gameObject == null ? null : obj;
+        }
+
+        private static OWRigidbody lookupBody(HeavenlyBodies value)
+        {
+            BodyLookup obj;
+            if (bodyLookup.TryGetValue(value, out obj))
+            {
+                var owBody = obj.Invoke();
+                if (owBody != null)
+                {
+                    bodies[value] = owBody;
+                }
+                return owBody;
+            }
+            return null;
+        }
+
         public static OWRigidbody getBody(HeavenlyBodies body)
         {
             OWRigidbody obj;
-            if (!bodies.TryGetValue(body, out obj))
+            if (!bodies.TryGetValue(body, out obj)
+                || obj == null || obj?.gameObject == null)
             {
-                obj = bodyLookup[body].Invoke();
-                bodies[body] = obj;
-            }
-            else if (obj == null || obj?.gameObject == null)
-            {
-                obj = bodyLookup[body].Invoke();
-                bodies[body] = obj;
+                obj = lookupBody(body);
             }
             return obj == null || obj?.gameObject == null ? null : obj;
         }
