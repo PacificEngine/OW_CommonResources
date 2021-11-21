@@ -2,10 +2,12 @@
 using OWML.ModHelper;
 using OWML.Utils;
 using PacificEngine.OW_CommonResources.Game.Display;
+using PacificEngine.OW_CommonResources.Geometry;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using static PacificEngine.OW_CommonResources.Geometry.Orbit;
 
 namespace PacificEngine.OW_CommonResources.Game.Resource
 {
@@ -14,7 +16,9 @@ namespace PacificEngine.OW_CommonResources.Game.Resource
         private const string classId = "PacificEngine.OW_CommonResources.Game.Resource.Position";
 
         private static float lastUpdate = 0f;
-        public static bool debugMode { get; set; } = false;
+        private static List<string> debugIds = new List<string>();
+        public static bool debugPlayerPosition { get; set; } = false;
+        public static bool debugPlanetPosition { get; set; } = false;
 
         private delegate AstroObject AstroLookup();
         private delegate OWRigidbody BodyLookup();
@@ -150,11 +154,17 @@ namespace PacificEngine.OW_CommonResources.Game.Resource
         public static void Update()
         {
             var console = DisplayConsole.getConsole(ConsoleLocation.BottomRight);
-            if (debugMode && Locator.GetPlayerBody())
+            if (Time.time - lastUpdate > 0.2f)
             {
-                if (Time.time - lastUpdate > 0.2f)
+                lastUpdate = Time.time;
+                foreach (var id in debugIds)
                 {
-                    lastUpdate = Time.time;
+                    console.setElement(id, "", 0f);
+                }
+                debugIds.Clear();
+
+                if (debugPlayerPosition && Locator.GetPlayerBody())
+                {
                     listValue("Player", "Player", 10f, Locator.GetPlayerBody());
                     listValue("Ship", "Ship", 10.1f, Locator.GetShipBody());
                     listValue("Probe", "Probe", 10.2f, Locator.GetProbe()?.GetAttachedOWRigidbody());
@@ -162,15 +172,44 @@ namespace PacificEngine.OW_CommonResources.Game.Resource
                     listValue("Ship.Root", "Ship Root", 10.4f, HeavenlyBodies.Sun, Locator.GetShipBody());
                     listValue("Probe.Root", "Probe Root", 10.5f, HeavenlyBodies.Sun, Locator.GetProbe()?.GetAttachedOWRigidbody());
                 }
-            }
-            else
-            {
-                listValue("Player", "", 0f, null, Vector3.zero, Vector3.zero);
-                listValue("Ship", "", 0f, null, Vector3.zero, Vector3.zero);
-                listValue("Probe", "", 0f, null, Vector3.zero, Vector3.zero);
-                listValue("Player.Root", "", 0f, null, Vector3.zero, Vector3.zero);
-                listValue("Ship.Root", "", 0f, null, Vector3.zero, Vector3.zero);
-                listValue("Probe.Root", "", 0f, null, Vector3.zero, Vector3.zero);
+
+                if (debugPlanetPosition)
+                {
+                    var index = 10.6001f;
+                    foreach (HeavenlyBodies body in Enum.GetValues(typeof(HeavenlyBodies)))
+                    {
+                        var astro = getAstro(body);
+                        if (astro == null)
+                        {
+                            continue;
+                        }
+                        var parent = getParent(body);
+                        var kepler = getKepler(body) ?? KelperCoordinates.zero;
+                        var gravity = astro?.GetGravityVolume()?.GetStandardGravitationalParameter() ?? 0f;
+                        var position = getRelativePosition(parent, astro?.GetAttachedOWRigidbody()) ?? Vector3.zero;
+                        var velocity = getRelativeVelocity(parent, astro?.GetAttachedOWRigidbody()) ?? Vector3.zero;
+                        var rotation = astro?.GetAttachedOWRigidbody()?.GetRotation() ?? Quaternion.identity;
+                        var angularVelocity = astro?.GetAttachedOWRigidbody()?.GetAngularVelocity() ?? Vector3.zero;
+
+                        var id = classId + ".Planet." + body;
+                        debugIds.Add(id + ".1");
+                        debugIds.Add(id + ".2");
+                        debugIds.Add(id + ".3");
+                        debugIds.Add(id + ".4");
+
+                        console.setElement(id + ".1", body + " Parent: " + parent + " Gravity: " + gravity, index + 0.0001f);
+                        if (kepler != null && kepler != KelperCoordinates.zero)
+                        {
+                            console.setElement(id + ".2", " Kepler: " + kepler, index + 0.0002f);
+                        }
+                        console.setElement(id + ".3", " Position: " + position + " Velocity: " + velocity, index + 0.0003f);
+                        if (rotation != Quaternion.identity || angularVelocity != Vector3.zero)
+                        {
+                            console.setElement(id + ".4", " Rotation: " + rotation + " AngularVelocity: " + angularVelocity, index + 0.0004f);
+                        }
+                        index += 0.0004f;
+                    }
+                }
             }
         }
 
@@ -213,18 +252,29 @@ namespace PacificEngine.OW_CommonResources.Game.Resource
         private static void listValue(string id, string name, float index, Position.HeavenlyBodies? body, Vector3 position, Vector3 velocity)
         {
             var console = DisplayConsole.getConsole(ConsoleLocation.BottomRight);
-            if (!body.HasValue)
+            if (body.HasValue)
             {
-                console.setElement(classId + "." + id + ".Parent", "", 0f);
-                console.setElement(classId + "." + id + ".Position", "", 0f);
-                console.setElement(classId + "." + id + ".Velocity", "", 0f);
-            }
-            else
-            {
+                debugIds.Add(classId + "." + id + ".Parent");
+                debugIds.Add(classId + "." + id + ".Position");
+                debugIds.Add(classId + "." + id + ".Velocity");
                 console.setElement(classId + "." + id + ".Parent", name + " Parent: " + body.Value, index + 0.01f);
                 console.setElement(classId + "." + id + ".Position", name + " Position: " + position, index + 0.02f);
                 console.setElement(classId + "." + id + ".Velocity", name + " Velocity: " + velocity, index + 0.03f);
             }
+        }
+
+        public static HeavenlyBodies getParent(HeavenlyBodies body)
+        {
+            var parent = getAstro(body)?.GetPrimaryBody();
+            foreach (HeavenlyBodies pp in Enum.GetValues(typeof(HeavenlyBodies)))
+            {
+                if (getAstro(pp) == parent)
+                {
+                    return pp;
+                }
+            }
+
+            return HeavenlyBodies.None;
         }
 
         public static HeavenlyBodies getRoot(HeavenlyBodies body)
@@ -345,5 +395,59 @@ namespace PacificEngine.OW_CommonResources.Game.Resource
             return obj;
         }
 
+        public static Vector3? getRelativePosition(HeavenlyBodies parent, OWRigidbody target)
+        {
+            var parentPosition = getBody(parent)?.GetPosition();
+            if (!parentPosition.HasValue)
+            {
+                return null;
+            }
+            return target.GetPosition() - parentPosition.Value;
+        }
+
+        public static Vector3? getRelativeVelocity(HeavenlyBodies parent, OWRigidbody target)
+        {
+            var parentVelocity = getBody(parent)?.GetVelocity();
+            if (!parentVelocity.HasValue)
+            {
+                return null;
+            }
+            return target.GetVelocity() - parentVelocity.Value;
+        }
+
+        public static Vector3? getSurfaceVelocity(HeavenlyBodies parent, OWRigidbody target)
+        {
+            var parentVelocity = getBody(parent)?.GetPointTangentialVelocity(target.GetPosition());
+            if (!parentVelocity.HasValue)
+            {
+                return null;
+            }
+            return target.GetVelocity() - parentVelocity.Value;
+        }
+
+        public static KelperCoordinates getKepler(HeavenlyBodies body)
+        {
+            var astro = getAstro(body);
+            if (astro == null)
+            {
+                return null;
+            }
+            var parent = getParent(body);
+            if (parent == HeavenlyBodies.None)
+            {
+                return null;
+            }
+            var parentAstro = getAstro(parent);
+
+            var gravity = parentAstro?.GetGravityVolume()?.GetStandardGravitationalParameter();
+            if (!gravity.HasValue)
+            {
+                return null;
+            }
+
+            var position = getRelativePosition(parent, astro?.GetAttachedOWRigidbody()) ?? Vector3.zero;
+            var velocity = getRelativeVelocity(parent, astro?.GetAttachedOWRigidbody()) ?? Vector3.zero;
+            return Orbit.toKeplerCoordinates(GravityVolume.GRAVITATIONAL_CONSTANT, gravity.Value, 0f, position, velocity);
+        }
     }
 }
