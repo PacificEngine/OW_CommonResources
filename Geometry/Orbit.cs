@@ -141,7 +141,7 @@ namespace PacificEngine.OW_CommonResources.Geometry
             meanAnomaly = Angle.toRadian(meanAnomaly);
 
             var trueAnomalyAngle = getTrueAnomaly(eccentricity, meanAnomaly); 
-            return toCartesianTrueAnomaly(gravityConstant, mass, radiusExponent, eccentricity, semiMajorRadius, inclinationAngle, periapseAngle, ascendingAngle, (float)trueAnomalyAngle);
+            return toCartesianTrueAnomaly(gravityConstant, mass, radiusExponent, eccentricity, semiMajorRadius, inclinationAngle, periapseAngle, ascendingAngle, Angle.toDegrees((float)trueAnomalyAngle));
         }
 
         public static Tuple<Vector3, Vector3> toCartesianTrueAnomaly(float gravityConstant, float mass, float radiusExponent, float eccentricity, float semiMajorRadius, float inclinationAngle, float periapseAngle, float ascendingAngle, float trueAnomaly)
@@ -153,7 +153,7 @@ namespace PacificEngine.OW_CommonResources.Geometry
 
             var mu = getMu(gravityConstant, mass);
             var essentricAnomalyAngle = getEsscentricAnomaly(eccentricity, trueAnomaly);
-            var radius = Ellipse.getRadius(semiMajorRadius, eccentricity, Angle.toDegrees((float)essentricAnomalyAngle) + 90);
+            var radius = semiMajorRadius * (1d - eccentricity * Math.Cos(essentricAnomalyAngle));
             var semiAxisRectum = Ellipse.getAxisRectum(semiMajorRadius, eccentricity);
 
             double angularMomentum;
