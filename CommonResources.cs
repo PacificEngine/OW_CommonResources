@@ -28,6 +28,7 @@ namespace PacificEngine.OW_CommonResources
             BramblePortals.Start();
             WarpPad.Start();
             Data.Start();
+            Planet.Start();
             ModHelper.Console.WriteLine("Common Resources Mod: Started!");
         }
 
@@ -42,6 +43,7 @@ namespace PacificEngine.OW_CommonResources
             EyeCoordinates.Destroy();
             BramblePortals.Destroy();
             WarpPad.Destroy();
+            Planet.Destroy();
             ModHelper.Console.WriteLine("Common Resources Mod: Clean Up!");
         }
 
@@ -55,6 +57,7 @@ namespace PacificEngine.OW_CommonResources
             EyeCoordinates.Awake();
             BramblePortals.Awake();
             WarpPad.Awake();
+            Planet.Awake();
             ModHelper.Console.WriteLine("Common Resources Mod: Player Awakes");
         }
 
@@ -80,6 +83,7 @@ namespace PacificEngine.OW_CommonResources
             EyeCoordinates.Update();
             BramblePortals.Update();
             WarpPad.Update();
+            Planet.Update();
         }
     }
 }

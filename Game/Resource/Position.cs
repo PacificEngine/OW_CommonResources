@@ -18,7 +18,6 @@ namespace PacificEngine.OW_CommonResources.Game.Resource
         private static float lastUpdate = 0f;
         private static List<string> debugIds = new List<string>();
         public static bool debugPlayerPosition { get; set; } = false;
-        public static bool debugPlanetPosition { get; set; } = false;
 
         private delegate AstroObject AstroLookup();
         private delegate OWRigidbody BodyLookup();
@@ -172,44 +171,6 @@ namespace PacificEngine.OW_CommonResources.Game.Resource
                     listValue("Ship.Root", "Ship Root", 10.4f, HeavenlyBodies.Sun, Locator.GetShipBody());
                     listValue("Probe.Root", "Probe Root", 10.5f, HeavenlyBodies.Sun, Locator.GetProbe()?.GetAttachedOWRigidbody());
                 }
-
-                if (debugPlanetPosition)
-                {
-                    var index = 10.6001f;
-                    foreach (HeavenlyBodies body in Enum.GetValues(typeof(HeavenlyBodies)))
-                    {
-                        var astro = getAstro(body);
-                        if (astro == null)
-                        {
-                            continue;
-                        }
-                        var parent = getParent(body);
-                        var kepler = getKepler(body) ?? KelperCoordinates.zero;
-                        var gravity = astro?.GetGravityVolume()?.GetStandardGravitationalParameter() ?? 0f;
-                        var position = getRelativePosition(parent, astro?.GetAttachedOWRigidbody()) ?? Vector3.zero;
-                        var velocity = getRelativeVelocity(parent, astro?.GetAttachedOWRigidbody()) ?? Vector3.zero;
-                        var rotation = astro?.GetAttachedOWRigidbody()?.GetRotation() ?? Quaternion.identity;
-                        var angularVelocity = astro?.GetAttachedOWRigidbody()?.GetAngularVelocity() ?? Vector3.zero;
-
-                        var id = classId + ".Planet." + body;
-                        debugIds.Add(id + ".1");
-                        debugIds.Add(id + ".2");
-                        debugIds.Add(id + ".3");
-                        debugIds.Add(id + ".4");
-
-                        console.setElement(id + ".1", body + " Parent: " + parent + " Gravity: " + gravity, index + 0.0001f);
-                        if (kepler != null && kepler != KelperCoordinates.zero)
-                        {
-                            console.setElement(id + ".2", " Kepler: " + kepler, index + 0.0002f);
-                        }
-                        console.setElement(id + ".3", " Position: " + position + " Velocity: " + velocity, index + 0.0003f);
-                        if (rotation != Quaternion.identity || angularVelocity != Vector3.zero)
-                        {
-                            console.setElement(id + ".4", " Rotation: " + rotation + " AngularVelocity: " + angularVelocity, index + 0.0004f);
-                        }
-                        index += 0.0004f;
-                    }
-                }
             }
         }
 
@@ -217,7 +178,7 @@ namespace PacificEngine.OW_CommonResources.Game.Resource
         {
             if (comparison)
             {
-                var list = Position.getClosest(comparison.GetPosition());
+                var list = Position.getClosest(comparison.GetWorldCenterOfMass());
                 var item = list[0].Item1 == Position.HeavenlyBodies.TimberHearthProbe ? list[1] : list[0];
                 listValue(id, name, index, item.Item1, comparison);
             }
@@ -234,9 +195,9 @@ namespace PacificEngine.OW_CommonResources.Game.Resource
                 var parent = Position.getBody(body.Value);
                 if (parent)
                 {
-                    var p = parent.transform.InverseTransformPoint(comparison.GetPosition());
-                    var v = comparison.GetVelocity() - (parent.GetPointTangentialVelocity(comparison.GetPosition()) + parent.GetVelocity());
-                    listValue(id, name, index, body, p, v);
+                    var p = getRelativePosition(body.Value, comparison);
+                    var v = getSurfaceVelocity(body.Value, comparison);
+                    listValue(id, name, index, body, p, v.Value);
                 }
                 else
                 {
@@ -257,24 +218,41 @@ namespace PacificEngine.OW_CommonResources.Game.Resource
                 debugIds.Add(classId + "." + id + ".Parent");
                 debugIds.Add(classId + "." + id + ".Position");
                 debugIds.Add(classId + "." + id + ".Velocity");
-                console.setElement(classId + "." + id + ".Parent", name + " Parent: " + body.Value, index + 0.01f);
-                console.setElement(classId + "." + id + ".Position", name + " Position: " + position, index + 0.02f);
-                console.setElement(classId + "." + id + ".Velocity", name + " Velocity: " + velocity, index + 0.03f);
+                console.setElement(classId + "." + id + ".Parent", $"{name} Parent: {body.Value}", index + 0.01f);
+                console.setElement(classId + "." + id + ".Position", $"{name} Position: {DisplayConsole.logVector(position)}", index + 0.02f);
+                console.setElement(classId + "." + id + ".Velocity", $"{name} Velocity: {DisplayConsole.logVector(velocity)}", index + 0.03f);
             }
         }
 
-        public static HeavenlyBodies getParent(HeavenlyBodies body)
+        public static HeavenlyBodies find(OWRigidbody body)
         {
-            var parent = getAstro(body)?.GetPrimaryBody();
             foreach (HeavenlyBodies pp in Enum.GetValues(typeof(HeavenlyBodies)))
             {
-                if (getAstro(pp) == parent)
+                if (getBody(pp) == body)
                 {
                     return pp;
                 }
             }
 
             return HeavenlyBodies.None;
+        }
+
+        public static HeavenlyBodies find(AstroObject body)
+        {
+            foreach (HeavenlyBodies pp in Enum.GetValues(typeof(HeavenlyBodies)))
+            {
+                if (getAstro(pp) == body)
+                {
+                    return pp;
+                }
+            }
+
+            return HeavenlyBodies.None;
+        }
+
+        public static HeavenlyBodies getParent(HeavenlyBodies body)
+        {
+            return find(getAstro(body)?.GetPrimaryBody());
         }
 
         public static HeavenlyBodies getRoot(HeavenlyBodies body)
@@ -286,11 +264,10 @@ namespace PacificEngine.OW_CommonResources.Game.Resource
                     return HeavenlyBodies.None;
                 case HeavenlyBodies.EyeOfTheUniverse_Vessel:
                     return HeavenlyBodies.EyeOfTheUniverse;
-                case HeavenlyBodies.AshTwin:
-                case HeavenlyBodies.EmberTwin:
-                    return HeavenlyBodies.HourglassTwins;
                 case HeavenlyBodies.SunStation:
                 case HeavenlyBodies.HourglassTwins:
+                case HeavenlyBodies.AshTwin:
+                case HeavenlyBodies.EmberTwin:
                 case HeavenlyBodies.TimberHearth:
                 case HeavenlyBodies.TimberHearthProbe:
                 case HeavenlyBodies.Attlerock:
@@ -319,7 +296,7 @@ namespace PacificEngine.OW_CommonResources.Game.Resource
                 case HeavenlyBodies.MapSatilite:
                     return HeavenlyBodies.Sun;
                 default:
-                    Helper.helper.Console.WriteLine("HeavenlyBodies `" + body + "` is not programmed for getRoot.", MessageType.Warning);
+                    Helper.helper.Console.WriteLine($"HeavenlyBodies `{body}` is not programmed for getRoot.", MessageType.Warning);
                     return HeavenlyBodies.Sun;
             }
         }
@@ -395,59 +372,75 @@ namespace PacificEngine.OW_CommonResources.Game.Resource
             return obj;
         }
 
-        public static Vector3? getRelativePosition(HeavenlyBodies parent, OWRigidbody target)
+        public static Vector3 getRelativePosition(HeavenlyBodies parent, OWRigidbody target)
         {
-            var parentPosition = getBody(parent)?.GetPosition();
-            if (!parentPosition.HasValue)
+            var targetPosition = target.GetWorldCenterOfMass();
+            if (targetPosition == null)
             {
-                return null;
+                targetPosition = target.GetPosition();
             }
-            return target.GetPosition() - parentPosition.Value;
+
+            var parentCenterOfMass = getBody(parent)?.GetWorldCenterOfMass();
+            var parentPosition = getBody(parent)?.GetPosition();
+
+            if ((parentCenterOfMass == null || !parentCenterOfMass.HasValue || parentCenterOfMass.Value == null) && (parentPosition == null || !parentPosition.HasValue || parentPosition.Value == null))
+            {
+                if (Locator.GetCenterOfTheUniverse() != null)
+                {
+                    return targetPosition - Locator.GetCenterOfTheUniverse().GetOffsetPosition();
+                }
+                return targetPosition;
+            }
+            return targetPosition - parentPosition.Value;
         }
 
-        public static Vector3? getRelativeVelocity(HeavenlyBodies parent, OWRigidbody target)
+        public static Vector3 getRelativeVelocity(HeavenlyBodies parent, OWRigidbody target)
         {
             var parentVelocity = getBody(parent)?.GetVelocity();
-            if (!parentVelocity.HasValue)
+            if (parentVelocity == null || !parentVelocity.HasValue || parentVelocity.Value == null)
             {
-                return null;
+                return target.GetVelocity();
             }
             return target.GetVelocity() - parentVelocity.Value;
         }
 
         public static Vector3? getSurfaceVelocity(HeavenlyBodies parent, OWRigidbody target)
         {
-            var parentVelocity = getBody(parent)?.GetPointTangentialVelocity(target.GetPosition());
-            if (!parentVelocity.HasValue)
+            var parentVelocity = getBody(parent)?.GetVelocity();
+            var parentTangentialVelocity = getBody(parent)?.GetPointTangentialVelocity(target.GetPosition());
+            if (parentVelocity == null || !parentVelocity.HasValue || parentVelocity.Value == null || parentTangentialVelocity == null || !parentTangentialVelocity.HasValue || parentTangentialVelocity.Value == null)
             {
                 return null;
             }
-            return target.GetVelocity() - parentVelocity.Value;
+            return target.GetVelocity() - (parentTangentialVelocity.Value + parentVelocity.Value);
         }
 
-        public static KelperCoordinates getKepler(HeavenlyBodies body)
+        public static KeplerCoordinates getKepler(HeavenlyBodies parent, OWRigidbody body)
         {
-            var astro = getAstro(body);
-            if (astro == null)
-            {
-                return null;
-            }
-            var parent = getParent(body);
-            if (parent == HeavenlyBodies.None)
-            {
-                return null;
-            }
-            var parentAstro = getAstro(parent);
-
-            var gravity = parentAstro?.GetGravityVolume()?.GetStandardGravitationalParameter();
-            if (!gravity.HasValue)
+            var parentBody = getBody(parent);
+            if (parentBody == null)
             {
                 return null;
             }
 
-            var position = getRelativePosition(parent, astro?.GetAttachedOWRigidbody()) ?? Vector3.zero;
-            var velocity = getRelativeVelocity(parent, astro?.GetAttachedOWRigidbody()) ?? Vector3.zero;
-            return Orbit.toKeplerCoordinates(GravityVolume.GRAVITATIONAL_CONSTANT, gravity.Value, 0f, position, velocity);
+            float exponent;
+            float mass;
+            if (parent == HeavenlyBodies.HourglassTwins)
+            {
+                var emberTwin = getBody(HeavenlyBodies.EmberTwin);
+                var ashTwin = getBody(HeavenlyBodies.AshTwin);
+                exponent = ((emberTwin?.GetAttachedGravityVolume()?.GetValue<float>("_falloffExponent") ?? 1) + (ashTwin?.GetAttachedGravityVolume()?.GetValue<float>("_falloffExponent") ?? 1)) / 2f;
+                mass = ((emberTwin?.GetAttachedGravityVolume()?.GetValue<float>("_gravitationalMass") ?? ((emberTwin?.GetMass() ?? 0f) * 1000f)) + (ashTwin?.GetAttachedGravityVolume()?.GetValue<float>("_gravitationalMass") ?? ((ashTwin?.GetMass() ?? 0f) * 1000f))) / 4f;
+            }
+            else
+            {
+                exponent = parentBody?.GetAttachedGravityVolume()?.GetValue<float>("_falloffExponent") ?? 1;
+                mass = parentBody?.GetAttachedGravityVolume()?.GetValue<float>("_gravitationalMass") ?? ((parentBody?.GetMass() ?? 0f) * 1000f);
+            }
+
+            var position = getRelativePosition(parent, body);
+            var velocity = getRelativeVelocity(parent, body);
+            return Orbit.toKeplerCoordinates(GravityVolume.GRAVITATIONAL_CONSTANT, mass, exponent, Time.timeSinceLevelLoad, position, velocity);
         }
     }
 }

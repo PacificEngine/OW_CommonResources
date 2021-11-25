@@ -215,16 +215,16 @@ namespace PacificEngine.OW_CommonResources.Game.State
             {
                 if (reciever != null)
                 {
-                    return "" + sender.Item1 + ":" + sender.Item2 + " -> " + reciever.Item1 + ":" + reciever.Item2 + "";
+                    return $"{sender.Item1}:{sender.Item2} -> {reciever.Item1}:{reciever.Item2}";
                 }
                 else
                 {
-                    return "" + sender.Item1 + ":" + sender.Item2 + " -> Nowhere";
+                    return $"{sender.Item1}:{sender.Item2} -> Nowhere";
                 }
             }
             else
             {
-                return "" + sender.Item1 + ":" + sender.Item2 + " -> Nowhere";
+                return $"{sender.Item1}:{sender.Item2} -> Nowhere";
             }
         }
 

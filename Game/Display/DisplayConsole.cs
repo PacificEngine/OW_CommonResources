@@ -108,5 +108,25 @@ namespace PacificEngine.OW_CommonResources.Game.Display
                 GUI.Label(new Rect(x, y + (heightPerElement * i++), width, heightPerElement), element.Value.Item2);
             }
         }
+
+        public static string logVector(Vector3? vector)
+        {
+            return !vector.HasValue ? "" : logVector(vector.Value);
+        }
+
+        public static string logVector(Vector3 vector)
+        {
+            return vector == null ? "" : $"({Math.Round(vector.x, 7).ToString("G7")},{Math.Round(vector.y, 7).ToString("G7")},{Math.Round(vector.z, 7).ToString("G7")})";
+        }
+
+        public static string logQuaternion(Quaternion? quaternion)
+        {
+            return !quaternion.HasValue ? "" : logQuaternion(quaternion.Value);
+        }
+
+        public static string logQuaternion(Quaternion quaternion)
+        {
+            return quaternion == null ? "" : $"({Math.Round(quaternion.x, 3).ToString("G3")},{Math.Round(quaternion.y, 3).ToString("G3")},{Math.Round(quaternion.z, 3).ToString("G3")},{Math.Round(quaternion.w, 3).ToString("G3")})";
+        }
     }
 }
