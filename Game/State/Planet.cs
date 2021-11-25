@@ -208,7 +208,6 @@ namespace PacificEngine.OW_CommonResources.Game.State
                                 var aecending = Orbit.getAscending(GravityVolume.GRAVITATIONAL_CONSTANT, parentMass.Item2, parentMass.Item1, map.Value.orbit);
                                 var semiMinorAscending = Orbit.getSemiMinorAscending(GravityVolume.GRAVITATIONAL_CONSTANT, parentMass.Item2, parentMass.Item1, map.Value.orbit);
 
-
                                 var angle1 = Orbit.getMeanAnomalyAngle(GravityVolume.GRAVITATIONAL_CONSTANT, parentMass.Item2, parentMass.Item1, 0f, map.Value.orbit);
                                 var angle2 = Orbit.getTrueAnomalyAngle(GravityVolume.GRAVITATIONAL_CONSTANT, parentMass.Item2, parentMass.Item1, 0f, map.Value.orbit);
                                 var angle3 = Orbit.getEsscentricAnomalyAngle(GravityVolume.GRAVITATIONAL_CONSTANT, parentMass.Item2, parentMass.Item1, 0f, map.Value.orbit);
@@ -254,7 +253,23 @@ namespace PacificEngine.OW_CommonResources.Game.State
                         }
                         else
                         {
-                            var result = Orbit.toCartesian(GravityVolume.GRAVITATIONAL_CONSTANT, parentMap.mass, parentMap.falloffExponent, Time.timeSinceLevelLoad, map.Value.orbit);
+                            float exponent;
+                            float mass;
+                            if (parent == HeavenlyBodies.HourglassTwins)
+                            {
+                                var emberTwin = _mapping[HeavenlyBodies.EmberTwin];
+                                var ashTwin = _mapping[HeavenlyBodies.AshTwin];
+                                exponent = (emberTwin.falloffExponent + ashTwin.falloffExponent) / 2f;
+                                mass = (emberTwin.mass + ashTwin.mass) / 4f;
+                            }
+                            else
+                            {
+                                exponent = parentMap.falloffExponent;
+                                mass = parentMap.mass;
+                            }
+
+
+                            var result = Orbit.toCartesian(GravityVolume.GRAVITATIONAL_CONSTANT, mass, exponent, Time.timeSinceLevelLoad, map.Value.orbit);
                             position = result.Item1;
                             velocity = result.Item2;
                         }
@@ -284,7 +299,7 @@ namespace PacificEngine.OW_CommonResources.Game.State
                 var _upperSurfaceRadius = gravity.GetValue<float>("_upperSurfaceRadius");
                 var _surfaceAcceleration = (GravityVolume.GRAVITATIONAL_CONSTANT * mass) / Mathf.Pow(_upperSurfaceRadius, falloffExponent);
 
-                gravity.SetValue("_falloffExponent", 2f);
+                gravity.SetValue("_falloffExponent", falloffExponent);
                 gravity.SetValue("_gravitationalMass", mass);
                 gravity.SetValue("_surfaceAcceleration", _surfaceAcceleration);
             }
@@ -295,13 +310,12 @@ namespace PacificEngine.OW_CommonResources.Game.State
             {
                 if (owParent.transform != null)
                 {
-                    /* TODO: Handle Reparenting
                     if (owBody?.transform != null)
                     {
                         owBody.transform.parent = owParent.transform;
                     }
                     owBody.SetValue("_origParent", owParent.transform);
-                    */
+                    owBody.SetValue("_origParentBody", owParent);
                     position += owParent.transform.position;
                 }
                 else
@@ -309,6 +323,17 @@ namespace PacificEngine.OW_CommonResources.Game.State
                     position += owParent.GetPosition();
                 }
                 velocity += owParent.GetVelocity();
+            }
+            else if (parent == HeavenlyBodies.None)
+            {
+                if (owBody?.transform != null)
+                {
+                    owBody.transform.parent = null;
+                }
+                owBody.SetValue("_origParent", null);
+                owBody.SetValue("_origParentBody", null);
+                position += Locator.GetCenterOfTheUniverse()?.GetOffsetPosition() ?? Vector3.zero;
+                velocity += Locator.GetCenterOfTheUniverse()?.GetOffsetVelocity() ?? Vector3.zero;
             }
             else
             {
@@ -365,11 +390,8 @@ namespace PacificEngine.OW_CommonResources.Game.State
             var _lineRenderer = __instance.GetValue<LineRenderer>("_lineRenderer");
             var _verts = new Vector3[_numVerts];
 
-            var semiAxis = new Vector2(kepler.semiMajorRadius, kepler.semiMinorRadius);
-
-
-
             var parentMass = Position.getMass(parent);
+            var semiAxis = new Vector2(kepler.semiMajorRadius, kepler.semiMinorRadius);
             var angle = Orbit.getEsscentricAnomalyAngle(GravityVolume.GRAVITATIONAL_CONSTANT, parentMass.Item2, parentMass.Item1, 0f, kepler);
             var increment = Circle.getPercentageAngle(1f / (float)(_numVerts - 1));
             for (int index = 0; index < _numVerts; ++index)
