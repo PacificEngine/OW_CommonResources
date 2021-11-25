@@ -415,7 +415,7 @@ namespace PacificEngine.OW_CommonResources.Game.Resource
             return target.GetVelocity() - (parentTangentialVelocity.Value + parentVelocity.Value);
         }
 
-        public static KeplerCoordinates getKepler(HeavenlyBodies parent, OWRigidbody body)
+        public static Tuple<float, float> getMass(HeavenlyBodies parent)
         {
             var parentBody = getBody(parent);
             if (parentBody == null)
@@ -438,9 +438,20 @@ namespace PacificEngine.OW_CommonResources.Game.Resource
                 mass = parentBody?.GetAttachedGravityVolume()?.GetValue<float>("_gravitationalMass") ?? ((parentBody?.GetMass() ?? 0f) * 1000f);
             }
 
+            return Tuple.Create(exponent, mass);
+        }
+
+        public static KeplerCoordinates getKepler(HeavenlyBodies parent, OWRigidbody body)
+        {
+            var mass = getMass(parent);
+            if (mass == null)
+            {
+                return null;
+            }
+
             var position = getRelativePosition(parent, body);
             var velocity = getRelativeVelocity(parent, body);
-            return Orbit.toKeplerCoordinates(GravityVolume.GRAVITATIONAL_CONSTANT, mass, exponent, Time.timeSinceLevelLoad, position, velocity);
+            return Orbit.toKeplerCoordinates(GravityVolume.GRAVITATIONAL_CONSTANT, mass.Item2, mass.Item1, Time.timeSinceLevelLoad, position, velocity);
         }
     }
 }

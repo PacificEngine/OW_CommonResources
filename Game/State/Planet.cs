@@ -16,6 +16,10 @@ namespace PacificEngine.OW_CommonResources.Game.State
     {
         private const string classId = "PacificEngine.OW_CommonResources.Game.State.Planet";
 
+        //EllipticOrbitLine
+        //OrbitLine
+        //MapSatelliteOrbitLine
+
         public class Plantoid
         {
             public float falloffExponent { get; }
@@ -139,7 +143,7 @@ namespace PacificEngine.OW_CommonResources.Game.State
                 mapping.Add(HeavenlyBodies.TimberHearthProbe, new Plantoid(1, 10, new Quaternion(0.7f, -0.7f, 0.1f, -0.1f), 0f, HeavenlyBodies.TimberHearth, 0f, new Vector3(-344.8f, 0, -60.8f), new Vector3(9.5f, 0, -53.9f), new Orbit.KeplerCoordinates(0, 350.1f, 90, 72.95632f, 0, 13.03968f)));
                 mapping.Add(HeavenlyBodies.Attlerock, new Plantoid(2, 50000000, new Quaternion(0, -0.6f, 0, -0.8f), 0.0609f, HeavenlyBodies.TimberHearth, 0f, new Vector3(886.3f, 0, 156.3f), new Vector3(9.5f, 0, -53.9f), new Orbit.KeplerCoordinates(0, 900.0001f, 90, 265.2352f, 0, 29.998f)));
                 mapping.Add(HeavenlyBodies.BrittleHollow, new Plantoid(1, 3000000, new Quaternion(0, 0.6f, 0, -0.8f), 0.02f, HeavenlyBodies.Sun, 0f, new Vector3(11513.3f, 0, -2030.1f), new Vector3(32.1f, 0, 182.2f), new Orbit.KeplerCoordinates(0, 11690.89f, 90, 170.0452f, 0, 198.5069f)));
-                mapping.Add(HeavenlyBodies.HollowLantern, new Plantoid(1, 910000, new Quaternion(-0.5f, 0.5f, -0.5f, -0.5f), 0.2f, HeavenlyBodies.BrittleHollow, 0f, new Vector3(984.8f, 0, -173.6f), new Vector3(9.5f, 0, 53.9f), new Orbit.KeplerCoordinates(0, 11690.89f, 90, 170.0452f, 0, 198.5069f)));
+                mapping.Add(HeavenlyBodies.HollowLantern, new Plantoid(1, 910000, new Quaternion(-0.5f, 0.5f, -0.5f, -0.5f), 0.2f, HeavenlyBodies.BrittleHollow, 0f, new Vector3(984.8f, 0, -173.6f), new Vector3(9.5f, 0, 53.9f), new Orbit.KeplerCoordinates(0, 999.227661f, 90, 122.3145f, 0, 72.51768f)));
                 mapping.Add(HeavenlyBodies.GiantsDeep, new Plantoid(1, 21780000, new Quaternion(0, 0.1f, 0, -1.0f), 0f, HeavenlyBodies.Sun, 0f, new Vector3(3421.7f, 0, -16098.0f), new Vector3(152.5f, 0, 32.4f), new Orbit.KeplerCoordinates(0, 16457.59f, 90, 101.9912f, 0, 331.6218f)));
                 mapping.Add(HeavenlyBodies.ProbeCannon, new Plantoid(1, 1000, new Quaternion(-0.3f, 0.5f, 0.4f, 0.7f), 0f, HeavenlyBodies.GiantsDeep, 0f, new Vector3(-1006.4f, 0, 653.6f), new Vector3(80.4f, 0, 123.8f), new Orbit.KeplerCoordinates(0, 1200, 90, 351.1121f, 180, 5.943623f)));
                 mapping.Add(HeavenlyBodies.DarkBramble, new Plantoid(1, 3250000, new Quaternion(0, 1, 0, 0.1f), 0f, HeavenlyBodies.Sun, 0f, new Vector3(-3473.0f, 0, 19696.2f), new Vector3(-139.3f, 0, -24.6f), new Orbit.KeplerCoordinates(0, 20000, 90, 280.0383f, 0, 444.1865f)));
@@ -154,6 +158,10 @@ namespace PacificEngine.OW_CommonResources.Game.State
 
         public static void Start()
         {
+            Helper.helper.HarmonyHelper.AddPrefix<OrbitLine>("Update", typeof(Planet), "onOrbitLineUpdate");
+            Helper.helper.HarmonyHelper.AddPrefix<EllipticOrbitLine>("Update", typeof(Planet), "onOrbitLineUpdate");
+            Helper.helper.HarmonyHelper.AddPrefix<MapSatelliteOrbitLine>("Update", typeof(Planet), "onOrbitLineUpdate");
+
             //Helper.helper.HarmonyHelper.AddPostfix<InitialMotion>("Start", typeof(Planet), "onInitialMotionStart");
             //Helper.helper.HarmonyHelper.AddPostfix<GravityVolume>("Awake", typeof(Planet), "onGravityVolumeAwake");
             //Helper.helper.HarmonyHelper.AddPrefix<GravityVolume>("CalculateGravityMagnitude", typeof(Planet), "onGravityVolumeCalculateGravityMagnitude");
@@ -202,6 +210,159 @@ namespace PacificEngine.OW_CommonResources.Game.State
                     }
                 }
             }
+        }
+
+        private static bool onOrbitLineUpdate(ref OrbitLine __instance)
+        {
+            var _astroObject = __instance.GetValue<AstroObject>("_astroObject");
+
+            AstroObject parentAstro = _astroObject != null ? _astroObject.GetPrimaryBody() : (AstroObject)null;
+            if (parentAstro == null)
+            {
+                return true;
+            }
+
+            var body = find(_astroObject);
+            Plantoid planet;
+            if (!_mapping.TryGetValue(body, out planet))
+            {
+                return true;
+            }
+
+            var parent = planet.parent;
+            var owBody = getBody(body);
+            var kepler = Position.getKepler(parent, owBody);
+            if (kepler == null && !kepler.isOrbit())
+            {
+                return true;
+            }
+
+
+            var parentMass = Position.getMass(parent);
+            var periapsis = Orbit.getPeriapsis(GravityVolume.GRAVITATIONAL_CONSTANT, parentMass.Item2, parentMass.Item1, kepler);
+            var decending = Orbit.getSemiMinorDecending(GravityVolume.GRAVITATIONAL_CONSTANT, parentMass.Item2, parentMass.Item1, kepler);
+            var apoapsis = Orbit.getApoapsis(GravityVolume.GRAVITATIONAL_CONSTANT, parentMass.Item2, parentMass.Item1, kepler);
+            var ascending = Orbit.getSemiMinorAscending(GravityVolume.GRAVITATIONAL_CONSTANT, parentMass.Item2, parentMass.Item1, kepler);
+            var angle = Angle.toRadian(Orbit.getEsscentricAnomalyAngle(GravityVolume.GRAVITATIONAL_CONSTANT, parentMass.Item2, parentMass.Item1, Time.timeSinceLevelLoad, kepler));
+
+            var _numVerts = __instance.GetValue<int>("_numVerts");
+            var _lineWidth = __instance.GetValue<float>("_lineWidth");
+            var _maxLineWidth = __instance.GetValue<float>("_maxLineWidth");
+            var _fade = __instance.GetValue<bool>("_fade");
+            var _fadeStartDist = __instance.GetValue<float>("_fadeStartDist");
+            var _fadeEndDist = __instance.GetValue<float>("_fadeEndDist");
+            var _color = __instance.GetValue<Color>("_color");
+            var _lineRenderer = __instance.GetValue<LineRenderer>("_lineRenderer");
+            var _verts = new Vector3[_numVerts];
+
+            var centering = periapsis.Item1.normalized * kepler.foci;
+
+            var _semiMajorAxis = periapsis.Item1 - centering;
+            var _semiMinorAxis = decending.Item1 + centering;
+            var position = parentAstro.transform.position - centering;
+
+            Vector3 vector3 = Vector3.Cross(apoapsis.Item1, decending.Item1);
+            var _upAxisDir = vector3.normalized;
+
+            for (int index = 0; index < _numVerts; ++index)
+            {
+                var radian = (index / (_numVerts - 1) * Math.PI * 2.0) - (angle + Math.PI);
+                _verts[index] = _semiMajorAxis * (float)Math.Cos(radian) + _semiMinorAxis * (float)Math.Sin(radian);
+            }
+            _lineRenderer.SetPositions(_verts);
+            __instance.transform.position = position;
+            __instance.transform.rotation = Quaternion.LookRotation(centering, _upAxisDir);
+
+            float ellipticalOrbitLine = DistanceToEllipticalOrbitLine(position, _semiMajorAxis, _semiMinorAxis, _upAxisDir, Locator.GetActiveCamera().transform.position);
+            float num1 = Mathf.Min(ellipticalOrbitLine * (_lineWidth / 1000f), _maxLineWidth);
+            float num2 = _fade ? 1f - Mathf.Clamp01((ellipticalOrbitLine - _fadeStartDist) / (_fadeEndDist - _fadeStartDist)) : 1f;
+            _lineRenderer.widthMultiplier = num1;
+            _lineRenderer.startColor = new Color(_color.r, _color.g, _color.b, num2 * num2);
+
+            return false;
+        }
+
+        /*private static bool onOrbitLineUpdate(ref OrbitLine __instance)
+        {
+            var _astroObject = __instance.GetValue<AstroObject>("_astroObject");
+
+            AstroObject parentAstro = _astroObject != null ? _astroObject.GetPrimaryBody() : (AstroObject)null;
+            if (parentAstro == null)
+            {
+                return true;
+            }
+
+            var body = find(_astroObject);
+            Plantoid planet;
+            if (!_mapping.TryGetValue(body, out planet))
+            {
+                return true;
+            }
+
+            var parent = planet.parent;
+            var owBody = getBody(body);
+            var kepler = Position.getKepler(parent, owBody);
+            if (kepler == null && !kepler.isOrbit())
+            {
+                return true;
+            }
+
+
+            var parentMass = Position.getMass(parent);
+            var periapsis = Orbit.getPeriapsis(GravityVolume.GRAVITATIONAL_CONSTANT, parentMass.Item2, parentMass.Item1, kepler);
+            var decending = Orbit.getDecending(GravityVolume.GRAVITATIONAL_CONSTANT, parentMass.Item2, parentMass.Item1, kepler);
+            //var apoapsis = Orbit.getApoapsis(GravityVolume.GRAVITATIONAL_CONSTANT, parentMass.Item2, parentMass.Item1, kepler);
+            //var ascending = Orbit.getAscending(GravityVolume.GRAVITATIONAL_CONSTANT, parentMass.Item2, parentMass.Item1, kepler);
+            var angle = Angle.toRadian(Orbit.getTrueAnomalyAngle(GravityVolume.GRAVITATIONAL_CONSTANT, parentMass.Item2, parentMass.Item1, kepler));
+
+            var _numVerts = __instance.GetValue<int>("_numVerts");
+            var _lineWidth = __instance.GetValue<float>("_lineWidth");
+            var _maxLineWidth = __instance.GetValue<float>("_maxLineWidth");
+            var _fade = __instance.GetValue<bool>("_fade");
+            var _fadeStartDist = __instance.GetValue<float>("_fadeStartDist");
+            var _fadeEndDist = __instance.GetValue<float>("_fadeEndDist");
+            var _color = __instance.GetValue<Color>("_color");
+            var _lineRenderer = __instance.GetValue<LineRenderer>("_lineRenderer");
+            var _verts = new Vector3[_numVerts];
+
+            var _semiMajorAxis = periapsis.Item1.normalized * kepler.semiMajorRadius;
+            var _semiMinorAxis = decending.Item1.normalized * kepler.semiMinorRadius;
+
+            Vector3 vector3 = Vector3.Cross(periapsis.Item1, decending.Item1);
+            var _upAxisDir = vector3.normalized;
+
+            Vector3 foci = parentAstro.transform.position;
+            for (int index = 0; index < _numVerts; ++index)
+            {
+                float f = (float)((double)index / (double)(_numVerts - 1) * Math.PI * 2.0 - ((double)angle + Math.PI));
+                _verts[index] = _semiMajorAxis * Mathf.Cos(f) + _semiMinorAxis * Mathf.Sin(f);
+            }
+            _lineRenderer.SetPositions(_verts);
+            __instance.transform.position = foci;
+            __instance.transform.rotation = Quaternion.LookRotation(_semiMinorAxis, _upAxisDir);
+
+            float ellipticalOrbitLine = DistanceToEllipticalOrbitLine(foci, _semiMajorAxis, _semiMinorAxis, _upAxisDir, Locator.GetActiveCamera().transform.position);
+            float num1 = Mathf.Min(ellipticalOrbitLine * (_lineWidth / 1000f), _maxLineWidth);
+            float num2 = _fade ? 1f - Mathf.Clamp01((ellipticalOrbitLine - _fadeStartDist) / (_fadeEndDist - _fadeStartDist)) : 1f;
+            _lineRenderer.widthMultiplier = num1;
+            _lineRenderer.startColor = new Color(_color.r, _color.g, _color.b, num2 * num2);
+
+            return false;
+        }*/
+
+        private static float CalcProjectedAngleToCenter(Vector3 foci, Vector3 semiMajorAxis, Vector3 semiMinorAxis, Vector3 point)
+        {
+            Vector3 lhs = point - foci;
+            Vector3 vector3 = new Vector3(Vector3.Dot(lhs, semiMajorAxis.normalized), 0.0f, Vector3.Dot(lhs, semiMinorAxis.normalized));
+            vector3.x *= semiMinorAxis.magnitude / semiMajorAxis.magnitude;
+            return Mathf.Atan2(vector3.z, vector3.x);
+        }
+
+        private static float DistanceToEllipticalOrbitLine(Vector3 foci, Vector3 semiMajorAxis, Vector3 semiMinorAxis, Vector3 upAxis, Vector3 point)
+        {
+            float center = CalcProjectedAngleToCenter(foci, semiMajorAxis, semiMinorAxis, point);
+            Vector3 b = foci + semiMajorAxis * Mathf.Cos(center) + semiMinorAxis * Mathf.Sin(center);
+            return Vector3.Distance(point, b);
         }
 
         private static void onInitialMotionStart(ref InitialMotion __instance)

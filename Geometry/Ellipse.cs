@@ -38,6 +38,11 @@ namespace PacificEngine.OW_CommonResources.Geometry
             return (float)Math.Sqrt(Math.Abs((radius.y * radius.y) - (radius.x * radius.x)));
         }
 
+        public static float getFocus(float majorRadius, float eccentricity)
+        {
+            return majorRadius * eccentricity;
+        }
+
         public static float getMinorRadius(float majorRadius, float focus)
         {
             return (float)Math.Sqrt(Math.Abs((majorRadius * majorRadius) - (focus * focus)));
@@ -48,19 +53,29 @@ namespace PacificEngine.OW_CommonResources.Geometry
             return (float)Math.Sqrt(Math.Abs((minorRadius * minorRadius) + (focus * focus)));
         }
 
+        public static float getAxisRectum(float majorRadius, float eccentricity)
+        {
+            return majorRadius * (1f - (eccentricity * eccentricity));
+        }
+
         public static Vector2 fromPolarToSlope(float polar, Vector2 radius)
         {
             polar = Angle.toRadian(polar);
             return new Vector2(-1f * radius.x * (float)Math.Sin(polar), radius.y * (float)Math.Cos(polar));
         }
 
-        public static float getDistanceFromCenter(float polar, Vector2 radius)
+        public static float getRadius(float polar, Vector2 radius)
         {
-            polar = Angle.toRadian(polar);
             var eccentricity = getEccentricity(radius);
             if (radius.y > radius.x)
-                return (radius.y * (1f - Math.Abs(eccentricity * (float)Math.Cos(polar))));
-            return (radius.x * (1f - Math.Abs(eccentricity * (float)Math.Sin(polar))));
+                return getRadius(polar, radius.y, polar - 90f);
+            return getRadius(polar, radius.x, polar);
+        }
+
+        public static float getRadius(float majorRadius, float eccentricity, float polar)
+        {
+            polar = Angle.toRadian(polar);
+            return (majorRadius * (1f - Math.Abs(eccentricity * (float)Math.Sin(polar))));
         }
 
         public static float getEccentricity(Vector2 radius)
