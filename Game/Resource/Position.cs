@@ -451,7 +451,7 @@ namespace PacificEngine.OW_CommonResources.Game.Resource
 
             var position = getRelativePosition(parent, body);
             var velocity = getRelativeVelocity(parent, body);
-            return Orbit.toKeplerCoordinates(GravityVolume.GRAVITATIONAL_CONSTANT, mass.Item2, mass.Item1, Time.timeSinceLevelLoad, position, velocity);
+            return Orbit.toKeplerCoordinates(GravityVolume.GRAVITATIONAL_CONSTANT, mass.Item2, mass.Item1, 0, position, velocity);
         }
     }
 }
