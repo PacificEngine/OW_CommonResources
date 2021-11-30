@@ -98,7 +98,7 @@ namespace PacificEngine.OW_CommonResources.Game.Player
                 {
                     teleportPlayerTo(parent, new Vector3(0, 0, -8f), Vector3.zero, Vector3.zero, Vector3.zero, Quaternion.identity);
                 }
-                
+
             }
         }
 
@@ -257,6 +257,16 @@ namespace PacificEngine.OW_CommonResources.Game.Player
         public static void teleportPlayerToWhiteHole()
         {
             var parent = Position.getBody(Position.HeavenlyBodies.WhiteHole);
+            if (Locator.GetPlayerBody() && parent)
+            {
+                ignoreSand(false);
+                teleportPlayerTo(parent, new Vector3(0f, 0f, 40f), Vector3.zero, Vector3.zero, Vector3.zero, Quaternion.identity);
+            }
+        }
+
+        public static void teleportPlayerToBackerSatellite()
+        {
+            var parent = Position.getBody(Position.HeavenlyBodies.BackerSatilite);
             if (Locator.GetPlayerBody() && parent)
             {
                 ignoreSand(false);
