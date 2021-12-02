@@ -110,7 +110,7 @@ namespace PacificEngine.OW_CommonResources.Geometry
             var ascendingAngle = normalizeRadian(Math.Atan2(angularMomemntumVector.x, -1f * angularMomemntumVector.y));
             var latitudeAngle = normalizeRadian(Math.Atan2(startPosition.z / Math.Sin(inclinationAngle), (startPosition.x * Math.Cos(ascendingAngle)) + (startPosition.y * Math.Sin(ascendingAngle))));
 
-            var semiAxisRectum = Ellipse.getAxisRectum((float)semiMajorRadius, (float)eccentricity);;
+            var semiAxisRectum = Ellipse.getAxisRectum((float)semiMajorRadius, (float)eccentricity);
             var trueAnomaly = normalizeRadian(Math.Atan2(Math.Sqrt(semiAxisRectum / mu) * product, semiAxisRectum - radius));
             var periapseAngle = normalizeRadian(latitudeAngle - trueAnomaly);
             var essentricAnomaly = getEsscentricAnomalyFromTrueAnomaly(eccentricity, trueAnomaly);
@@ -141,29 +141,28 @@ namespace PacificEngine.OW_CommonResources.Geometry
         {
             meanAnomaly = Angle.toRadian(meanAnomaly);
 
-            var trueAnomalyAngle = getTrueAnomalyFromMeanAnomaly(eccentricity, meanAnomaly); 
-            return toCartesianTrueAnomaly(gravityConstant, mass, radiusExponent, eccentricity, semiMajorRadius, inclinationAngle, periapseAngle, ascendingAngle, Angle.toDegrees((float)trueAnomalyAngle));
+            var esscentricAnomalyAngle = getEsscentricAnomalyFromMeanAnomaly(eccentricity, meanAnomaly); 
+            return toCartesianEsscentricAnomaly(gravityConstant, mass, radiusExponent, eccentricity, semiMajorRadius, inclinationAngle, periapseAngle, ascendingAngle, Angle.toDegrees((float)esscentricAnomalyAngle));
+        }
+
+        public static Tuple<Vector3, Vector3> toCartesianEsscentricAnomaly(float gravityConstant, float mass, float radiusExponent, float eccentricity, float semiMajorRadius, float inclinationAngle, float periapseAngle, float ascendingAngle, float esscentricAnomaly)
+        {
+            esscentricAnomaly = Angle.toRadian(esscentricAnomaly);
+
+            var essentricAnomalyAngle = getEsscentricAnomalyFromTrueAnomaly(eccentricity, esscentricAnomaly);
+            return toCartesianTrueAnomaly(gravityConstant, mass, radiusExponent, eccentricity, semiMajorRadius, inclinationAngle, periapseAngle, ascendingAngle, Angle.toDegrees((float)essentricAnomalyAngle));
         }
 
         public static Tuple<Vector3, Vector3> toCartesianTrueAnomaly(float gravityConstant, float mass, float radiusExponent, float eccentricity, float semiMajorRadius, float inclinationAngle, float periapseAngle, float ascendingAngle, float trueAnomaly)
         {
-            trueAnomaly = Angle.toRadian(trueAnomaly);
-
-            var essentricAnomalyAngle = getEsscentricAnomalyFromTrueAnomaly(eccentricity, trueAnomaly);
-            return toCartesianEsscentricAnomaly(gravityConstant, mass, radiusExponent, eccentricity, semiMajorRadius, inclinationAngle, periapseAngle, ascendingAngle, Angle.toDegrees((float)essentricAnomalyAngle));
-        }
-
-        public static Tuple<Vector3, Vector3> toCartesianEsscentricAnomaly(float gravityConstant, float mass, float radiusExponent, float eccentricity, float semiMajorRadius, float inclinationAngle, float periapseAngle, float ascendingAngle, float essentricAnomaly)
-        {
             inclinationAngle = Angle.toRadian(inclinationAngle);
             periapseAngle = Angle.toRadian(periapseAngle);
             ascendingAngle = Angle.toRadian(ascendingAngle);
-            essentricAnomaly = Angle.toRadian(essentricAnomaly);
+            trueAnomaly = Angle.toRadian(trueAnomaly);
 
             var mu = getMu(gravityConstant, mass);
-            var radius = semiMajorRadius * (1d - eccentricity * Math.Cos(essentricAnomaly));
             var semiAxisRectum = Ellipse.getAxisRectum(semiMajorRadius, eccentricity);
-            var trueAnomaly = getTrueAnomalyFromEsscentricAnomaly(eccentricity, essentricAnomaly);
+            var radius = semiAxisRectum / (1.0 + eccentricity * Math.Cos(trueAnomaly));
 
             double angularMomentum;
             if (radiusExponent < 1.5d)
@@ -235,16 +234,16 @@ namespace PacificEngine.OW_CommonResources.Geometry
             return Angle.toDegrees((float)getMeanAnomalyFromTime(period, timeSinceStart + timeSincePeriapse));
         }
 
-        public static float getTrueAnomalyAngle(float gravityConstant, float mass, float radiusExponent, float timeSinceStart, KeplerCoordinates keplerCoordinates)
-        {
-            var meanAnomaly = Angle.toRadian(getMeanAnomalyAngle(gravityConstant, mass, radiusExponent, timeSinceStart, keplerCoordinates));
-            return Angle.toDegrees((float)getTrueAnomalyFromMeanAnomaly(keplerCoordinates.eccentricity, meanAnomaly));
-        }
-
         public static float getEsscentricAnomalyAngle(float gravityConstant, float mass, float radiusExponent, float timeSinceStart, KeplerCoordinates keplerCoordinates)
         {
-            var trueAnomaly = Angle.toRadian(getTrueAnomalyAngle(gravityConstant, mass, radiusExponent, timeSinceStart, keplerCoordinates));
-            return Angle.toDegrees((float)getEsscentricAnomalyFromTrueAnomaly(keplerCoordinates.eccentricity, trueAnomaly));
+            var meanAnomaly = Angle.toRadian(getMeanAnomalyAngle(gravityConstant, mass, radiusExponent, timeSinceStart, keplerCoordinates));
+            return Angle.toDegrees((float)getEsscentricAnomalyFromMeanAnomaly(keplerCoordinates.eccentricity, meanAnomaly));
+        }
+
+        public static float getTrueAnomalyAngle(float gravityConstant, float mass, float radiusExponent, float timeSinceStart, KeplerCoordinates keplerCoordinates)
+        {
+            var esscentricAnomaly = Angle.toRadian(getEsscentricAnomalyAngle(gravityConstant, mass, radiusExponent, timeSinceStart, keplerCoordinates));
+            return Angle.toDegrees((float)getTrueAnomalyFromEsscentricAnomaly(keplerCoordinates.eccentricity, esscentricAnomaly));
         }
 
         public static float getPeriod(float gravityConstant, float mass, float radiusExponent, double semiMajorRadius)
@@ -270,10 +269,15 @@ namespace PacificEngine.OW_CommonResources.Geometry
             }
         }
 
-        private static double getTrueAnomalyFromMeanAnomaly(double eccentricity, double meanAnomaly)
+        /*private static double getTrueAnomalyFromMeanAnomaly(double eccentricity, double meanAnomaly)
         {
-            return normalizeRadian(meanAnomaly + (((2d * eccentricity) - ((1d / 4d) * eccentricity * eccentricity * eccentricity)) * Math.Sin(meanAnomaly)) + ((5d / 4d) * eccentricity * eccentricity * Math.Sin(2.0 * meanAnomaly)) + ((13d / 12d) * eccentricity * eccentricity * eccentricity * Math.Sin(3d * meanAnomaly)));
-        }
+            return normalizeRadian(meanAnomaly
+                + (2d * eccentricity) * Math.Sin(meanAnomaly));
+            /*return normalizeRadian(meanAnomaly
+                + (((2d * eccentricity) - ((0.25) * eccentricity * eccentricity * eccentricity)) * Math.Sin(meanAnomaly))
+                + ((1.25) * eccentricity * eccentricity * Math.Sin(2.0 * meanAnomaly))
+                + ((13d / 12d) * eccentricity * eccentricity * eccentricity * Math.Sin(3d * meanAnomaly)));*/
+        //}
 
         private static double getTrueAnomalyFromEsscentricAnomaly(double eccentricity, double esscentricAnomaly)
         {
@@ -281,7 +285,11 @@ namespace PacificEngine.OW_CommonResources.Geometry
                 return normalizeRadian(2d * Math.Atan2(Math.Sin(esscentricAnomaly) * Math.Sqrt(1d - (eccentricity * eccentricity)), Math.Cos(esscentricAnomaly) - eccentricity));
             return normalizeRadian(2d * Math.Atan(Math.Sqrt(Math.Abs((1d + eccentricity) / (1d - eccentricity))) * Math.Tan(esscentricAnomaly / 2d)));*/
 
-            return normalizeRadian(2d * Math.Atan(Math.Sqrt(Math.Abs((1d - eccentricity) / (1d + eccentricity))) * Math.Tan(esscentricAnomaly / 2d)));
+            // return normalizeRadian(2d * Math.Atan(Math.Sqrt(Math.Abs((1d - eccentricity) / (1d + eccentricity))) * Math.Tan(esscentricAnomaly / 2d)));
+
+            if (0.9999f < eccentricity && eccentricity < 1.0001f)
+                return normalizeRadian(2d * Math.Atan2(Math.Sin(esscentricAnomaly) * Math.Sqrt(1d - (eccentricity * eccentricity)), Math.Cos(esscentricAnomaly) - eccentricity));
+            return normalizeRadian(2d * Math.Atan(Math.Sqrt(Math.Abs((1d + eccentricity) / (1d - eccentricity))) * Math.Tan(esscentricAnomaly / 2d)));
         }
 
         private static double getEsscentricAnomalyFromTrueAnomaly(double eccentricity, double trueAnomaly)
@@ -297,6 +305,16 @@ namespace PacificEngine.OW_CommonResources.Geometry
         private static double getMeanAnomalyFromEsscentricAnomaly(double eccentricity, double esscentricAnomaly)
         {
             return normalizeRadian(esscentricAnomaly - eccentricity * Math.Sin(esscentricAnomaly));
+        }
+
+        private static double getEsscentricAnomalyFromMeanAnomaly(double eccentricity, double meanAnomaly)
+        {
+            double estimate = meanAnomaly;
+            for (int i = 0; i < 10; i++)
+            {
+                estimate += (meanAnomaly - getMeanAnomalyFromEsscentricAnomaly(eccentricity, estimate)) / 2.0;
+            }
+            return normalizeRadian(estimate);
         }
 
         private static double getMeanAnomalyFromTime(double period, double timeSincePeriapse)
