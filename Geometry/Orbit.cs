@@ -312,7 +312,7 @@ namespace PacificEngine.OW_CommonResources.Geometry
             double estimate = meanAnomaly;
             for (int i = 0; i < 10; i++)
             {
-                estimate += (meanAnomaly - getMeanAnomalyFromEsscentricAnomaly(eccentricity, estimate)) / 2.0;
+                estimate += (meanAnomaly - getMeanAnomalyFromEsscentricAnomaly(eccentricity, estimate)) / 1.2;
             }
             return normalizeRadian(estimate);
         }

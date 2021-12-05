@@ -12,6 +12,9 @@ using static PacificEngine.OW_CommonResources.Game.Resource.Position;
 
 namespace PacificEngine.OW_CommonResources.Game.State
 {
+    // TODO: Handle Ship, Player, Probe, ModelShip, And nomai Shuttle
+    // TODO: Handle Probe Cannon Debris and Probe
+    // TODO: Handle Giant's Deep Islands
     public static class Planet
     {
         private const string classId = "PacificEngine.OW_CommonResources.Game.State.Planet";
@@ -43,8 +46,10 @@ namespace PacificEngine.OW_CommonResources.Game.State
 
             public override string ToString()
             {
+                var position = startPosition == null ? "null" : DisplayConsole.logVector(startPosition.Value);
+                var velocity = startVelocity == null ? "null" : DisplayConsole.logVector(startVelocity.Value);
                 var orbit = (this.orbit?.ToString() ?? "");
-                return $"({Math.Round(falloffExponent,1).ToString("G1")}, {Math.Round(mass, 4).ToString("G4")}, {DisplayConsole.logQuaternion(orientation)}, {Math.Round(rotationalSpeed, 4).ToString("G4")}, {parent}, {DisplayConsole.logVector(startPosition.Value)}, {DisplayConsole.logVector(startVelocity.Value)}, {orbit})";
+                return $"({Math.Round(falloffExponent,1).ToString("G1")}, {Math.Round(mass, 4).ToString("G4")}, {DisplayConsole.logQuaternion(orientation)}, {Math.Round(rotationalSpeed, 4).ToString("G4")}, {parent}, {position}, {velocity}, {orbit})";
             }
 
             public override bool Equals(System.Object other)
@@ -191,31 +196,10 @@ namespace PacificEngine.OW_CommonResources.Game.State
                         var id = classId + ".Planet." + map.Key;
                         debugIds.Add(id + ".1");
                         debugIds.Add(id + ".2");
-                        debugIds.Add(id + ".3");
-                        debugIds.Add(id + ".4");
-                        debugIds.Add(id + ".5");
                         console.setElement(id + ".1", $" {map.Key.ToString()}: {Math.Round(map.Value.falloffExponent, 1).ToString("G1")}, {Math.Round(map.Value.mass, 4).ToString("G4")}, {DisplayConsole.logQuaternion(map.Value.orientation)}, {Math.Round(map.Value.rotationalSpeed, 4).ToString("G4")}, {map.Value.parent.ToString()}", index + 0.0001f);
                         if (map.Value.orbit != null && map.Value.orbit.isOrbit())
                         {
                             console.setElement(id + ".2", $"{map.Value.time.ToString()}, {map.Value.orbit.ToString()}", index + 0.0002f);
-                            var parentMass = Position.getMass(map.Value.parent);
-                            if (parentMass != null)
-                            {
-                                var periapsis = Orbit.getPeriapsis(GravityVolume.GRAVITATIONAL_CONSTANT, parentMass.Item2, parentMass.Item1, map.Value.orbit);
-                                var decending = Orbit.getDecending(GravityVolume.GRAVITATIONAL_CONSTANT, parentMass.Item2, parentMass.Item1, map.Value.orbit);
-                                var semiMinorDecending = Orbit.getSemiMinorDecending(GravityVolume.GRAVITATIONAL_CONSTANT, parentMass.Item2, parentMass.Item1, map.Value.orbit);
-                                var apoapsis = Orbit.getApoapsis(GravityVolume.GRAVITATIONAL_CONSTANT, parentMass.Item2, parentMass.Item1, map.Value.orbit);
-                                var aecending = Orbit.getAscending(GravityVolume.GRAVITATIONAL_CONSTANT, parentMass.Item2, parentMass.Item1, map.Value.orbit);
-                                var semiMinorAscending = Orbit.getSemiMinorAscending(GravityVolume.GRAVITATIONAL_CONSTANT, parentMass.Item2, parentMass.Item1, map.Value.orbit);
-
-                                var angle1 = Orbit.getMeanAnomalyAngle(GravityVolume.GRAVITATIONAL_CONSTANT, parentMass.Item2, parentMass.Item1, Time.timeSinceLevelLoad, map.Value.orbit);
-                                var angle2 = Orbit.getTrueAnomalyAngle(GravityVolume.GRAVITATIONAL_CONSTANT, parentMass.Item2, parentMass.Item1, Time.timeSinceLevelLoad, map.Value.orbit);
-                                var angle3 = Orbit.getEsscentricAnomalyAngle(GravityVolume.GRAVITATIONAL_CONSTANT, parentMass.Item2, parentMass.Item1, Time.timeSinceLevelLoad, map.Value.orbit);
-
-                                console.setElement(id + ".3", $"{angle1},{DisplayConsole.logVector(periapsis.Item1)},{DisplayConsole.logVector(apoapsis.Item1)}", index + 0.0003f);
-                                console.setElement(id + ".4", $"{angle2},{DisplayConsole.logVector(decending.Item1)},{DisplayConsole.logVector(aecending.Item1)}", index + 0.0004f);
-                                console.setElement(id + ".5", $"{angle3},{DisplayConsole.logVector(semiMinorDecending.Item1)},{DisplayConsole.logVector(semiMinorAscending.Item1)}", index + 0.0005f);
-                            }
                         }
                         else
                         {
@@ -235,53 +219,53 @@ namespace PacificEngine.OW_CommonResources.Game.State
             if (update)
             {
                 update = false;
-                foreach (var map in _mapping)
+                foreach (var body in _mapping.Keys)
                 {
-                    var parent = map.Value.parent;
+                    updatePlanet(body);
+                }
+            }
+        }
 
-                    if (_mapping.ContainsKey(parent))
+        private static void updatePlanet(HeavenlyBodies body)
+        {
+            if (!_mapping.ContainsKey(body))
+            {
+                return;
+            }
+
+            var planet = _mapping[body];
+            var parent = planet.parent;
+
+            var position = planet.startPosition ?? Vector3.zero;
+            var velocity = planet.startVelocity ?? Vector3.zero;
+
+            if (_mapping.ContainsKey(parent))
+            {
+                var parentMap = _mapping[parent];
+                if (planet.orbit != null && planet.orbit.isOrbit())
+                { 
+                    float exponent;
+                    float mass;
+                    if (parent == HeavenlyBodies.HourglassTwins)
                     {
-                        var parentMap = _mapping[parent];
-
-                        Vector3 position;
-                        Vector3 velocity;
-
-                        if (map.Value.orbit == null || !map.Value.orbit.isOrbit())
-                        {
-                            position = map.Value.startPosition ?? Vector3.zero;
-                            velocity = map.Value.startVelocity ?? Vector3.zero;
-                        }
-                        else
-                        {
-                            float exponent;
-                            float mass;
-                            if (parent == HeavenlyBodies.HourglassTwins)
-                            {
-                                var emberTwin = _mapping[HeavenlyBodies.EmberTwin];
-                                var ashTwin = _mapping[HeavenlyBodies.AshTwin];
-                                exponent = (emberTwin.falloffExponent + ashTwin.falloffExponent) / 2f;
-                                mass = (emberTwin.mass + ashTwin.mass) / 4f;
-                            }
-                            else
-                            {
-                                exponent = parentMap.falloffExponent;
-                                mass = parentMap.mass;
-                            }
-
-
-                            var result = Orbit.toCartesian(GravityVolume.GRAVITATIONAL_CONSTANT, mass, exponent, Time.timeSinceLevelLoad, map.Value.orbit);
-                            position = result.Item1;
-                            velocity = result.Item2;
-                        }
-
-                        updatePlanet(map.Key, map.Value.parent, map.Value.mass, map.Value.falloffExponent, position, velocity, map.Value.orientation, map.Value.rotationalSpeed);
+                        var emberTwin = _mapping[HeavenlyBodies.EmberTwin];
+                        var ashTwin = _mapping[HeavenlyBodies.AshTwin];
+                        exponent = (emberTwin.falloffExponent + ashTwin.falloffExponent) / 2f;
+                        mass = (emberTwin.mass + ashTwin.mass) / 4f;
                     }
                     else
                     {
-                        updatePlanet(map.Key, map.Value.parent, map.Value.mass, map.Value.falloffExponent, map.Value.startPosition ?? Vector3.zero, map.Value.startVelocity ?? Vector3.zero, map.Value.orientation, map.Value.rotationalSpeed);
+                        exponent = parentMap.falloffExponent;
+                        mass = parentMap.mass;
                     }
-                }
+
+                    var result = Orbit.toCartesian(GravityVolume.GRAVITATIONAL_CONSTANT, mass, exponent, Time.timeSinceLevelLoad, planet.orbit);
+                    position = result.Item1;
+                    velocity = result.Item2;
+                }                
             }
+
+            updatePlanet(body, planet.parent, planet.mass, planet.falloffExponent, position, velocity, planet.orientation, planet.rotationalSpeed);
         }
 
         private static void updatePlanet(HeavenlyBodies body, HeavenlyBodies parent, float mass, float falloffExponent, Vector3 position, Vector3 velocity, Quaternion orientation, float rotationalSpeed)
@@ -340,7 +324,7 @@ namespace PacificEngine.OW_CommonResources.Game.State
                 position += Locator.GetCenterOfTheUniverse()?.GetOffsetPosition() ?? Vector3.zero;
                 velocity += Locator.GetCenterOfTheUniverse()?.GetOffsetVelocity() ?? Vector3.zero;
             }
-            var angularVelocity = new Vector3(1, 0, 1).normalized * rotationalSpeed;
+            var angularVelocity = orientation * (Vector3.up * rotationalSpeed);
 
             owBody.SetPosition(position);
             owBody.SetVelocity(velocity);
@@ -458,6 +442,7 @@ namespace PacificEngine.OW_CommonResources.Game.State
             var body = Position.find(owBody);
             if (_mapping.ContainsKey(body))
             {
+                update = true;
                 return false;
             }
 

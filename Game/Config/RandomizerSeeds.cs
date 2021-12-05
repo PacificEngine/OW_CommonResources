@@ -202,6 +202,11 @@ namespace PacificEngine.OW_CommonResources.Game.Config
             return NextDouble(type);
         }
 
+        public double NextRange(double min, double max)
+        {
+            return NextRange(type, min, max);
+        }
+
         public int Next(Type type)
         {
             return getValue(type, (random) => random.Next());
@@ -225,6 +230,11 @@ namespace PacificEngine.OW_CommonResources.Game.Config
         public double NextDouble(Type type)
         {
             return getValue(type, (random) => random.NextDouble());
+        }
+
+        public double NextRange(Type type, double min, double max)
+        {
+            return (NextDouble(type) * (max - min)) + min;
         }
     }
 }
