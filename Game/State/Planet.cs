@@ -286,8 +286,6 @@ namespace PacificEngine.OW_CommonResources.Game.State
 
         private static void updatePlanet(HeavenlyBodies body, HeavenlyBodies parent, float mass, float falloffExponent, Vector3 position, Vector3 velocity, Quaternion orientation, float rotationalSpeed)
         {
-            Helper.helper.Console.WriteLine($"{body}-{parent}: {mass}, {falloffExponent}, {DisplayConsole.logVector(position)}, {DisplayConsole.logVector(velocity)}, {DisplayConsole.logQuaternion(orientation)}, {rotationalSpeed}");
-
             var owBody = Position.getBody(body);
             if (owBody == null)
             {
@@ -343,9 +341,6 @@ namespace PacificEngine.OW_CommonResources.Game.State
                 velocity += Locator.GetCenterOfTheUniverse()?.GetOffsetVelocity() ?? Vector3.zero;
             }
             var angularVelocity = new Vector3(1, 0, 1).normalized * rotationalSpeed;
-
-
-            Helper.helper.Console.WriteLine($"{body}-{parent}: {DisplayConsole.logVector(position)}, {DisplayConsole.logVector(velocity)}, {DisplayConsole.logQuaternion(orientation)}, {DisplayConsole.logVector(angularVelocity)}");
 
             owBody.SetPosition(position);
             owBody.SetVelocity(velocity);
@@ -410,12 +405,12 @@ namespace PacificEngine.OW_CommonResources.Game.State
             var semiMinorDecending = Orbit.getSemiMinorDecending(GravityVolume.GRAVITATIONAL_CONSTANT, parentMass.Item2, parentMass.Item1, kepler);
             var _semiMajorAxis = periapsis.Item1.normalized * kepler.semiMajorRadius;
             var _semiMinorAxis = semiMinorDecending.Item1.normalized * kepler.semiMinorRadius;
-            var _upAxisDir = Vector3.Cross(periapsis.Item2, periapsis.Item1).normalized;
+            var _upAxisDir = Vector3.Cross(periapsis.Item1, semiMinorDecending.Item1);
 
             Vector3 foci = parentAstro.transform.position - periapsis.Item1.normalized * kepler.foci;
 
             __instance.transform.position = foci;
-            __instance.transform.rotation = Quaternion.LookRotation(foci - parentAstro.transform.position, Vector3.up);
+            __instance.transform.rotation = Quaternion.LookRotation(foci - parentAstro.transform.position, _upAxisDir);
 
             var _lineWidth = __instance.GetValue<float>("_lineWidth");
             var _maxLineWidth = __instance.GetValue<float>("_maxLineWidth");
@@ -424,7 +419,7 @@ namespace PacificEngine.OW_CommonResources.Game.State
             var _fadeEndDist = __instance.GetValue<float>("_fadeEndDist");
             var _color = __instance.GetValue<Color>("_color");
 
-            float ellipticalOrbitLine = DistanceToEllipticalOrbitLine(foci, _semiMajorAxis, _semiMinorAxis, Vector3.up, Locator.GetActiveCamera().transform.position);
+            float ellipticalOrbitLine = DistanceToEllipticalOrbitLine(foci, _semiMajorAxis, _semiMinorAxis, _upAxisDir, Locator.GetActiveCamera().transform.position);
             float num1 = Mathf.Min(ellipticalOrbitLine * (_lineWidth / 1000f), _maxLineWidth);
             float num2 = _fade ? 1f - Mathf.Clamp01((ellipticalOrbitLine - _fadeStartDist) / (_fadeEndDist - _fadeStartDist)) : 1f;
             _lineRenderer.widthMultiplier = num1;

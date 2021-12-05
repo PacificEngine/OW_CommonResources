@@ -106,6 +106,11 @@ namespace PacificEngine.OW_CommonResources.Geometry
                 semiMajorRadius = Math.Abs(mu / (2d * specificEnergy));
                 eccentricity = Math.Sqrt(Math.Abs(1 - ((angularMomemntum * angularMomemntum) / (semiMajorRadius * mu))));
             }
+            if (eccentricity < 0.01)
+            {
+                // This is a hack
+                eccentricity = 0;
+            }
             var inclinationAngle = normalizeRadian(Math.Acos(angularMomemntumVector.z/angularMomemntum)) % Math.PI;
             var ascendingAngle = normalizeRadian(Math.Atan2(angularMomemntumVector.x, -1f * angularMomemntumVector.y));
             var latitudeAngle = normalizeRadian(Math.Atan2(startPosition.z / Math.Sin(inclinationAngle), (startPosition.x * Math.Cos(ascendingAngle)) + (startPosition.y * Math.Sin(ascendingAngle))));
