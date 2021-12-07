@@ -346,20 +346,6 @@ namespace PacificEngine.OW_CommonResources.Game.State
             owBody.SetVelocity(velocity);
             owBody.SetRotation(orientation);
             owBody.SetAngularVelocity(angularVelocity);
-
-            if (owBody?.transform != null)
-            {
-                owBody.transform.position = position;
-                owBody.transform.rotation = orientation;
-            }
-
-            owBody.SetValue("_lastPosition", position);
-            owBody.SetValue("_currentVelocity", velocity);
-            owBody.SetValue("_lastVelocity", velocity);
-            owBody.SetValue("_currentAngularVelocity", angularVelocity);
-            owBody.SetValue("_lastAngularVelocity", angularVelocity);
-            owBody.SetValue("_currentAccel", Vector3.zero);
-            owBody.SetValue("_lastAccel", Vector3.zero);
         }
 
         private static bool onOrbitLineUpdate(ref OrbitLine __instance)
