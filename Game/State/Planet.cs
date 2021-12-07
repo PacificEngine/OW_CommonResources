@@ -21,6 +21,8 @@ namespace PacificEngine.OW_CommonResources.Game.State
 
         public class Plantoid
         {
+            public float size { get; }
+            public float influence { get; }
             public float falloffExponent { get; }
             public float mass { get; }
             public Quaternion orientation { get; }
@@ -31,8 +33,10 @@ namespace PacificEngine.OW_CommonResources.Game.State
             public Vector3? startVelocity { get; }
             public Orbit.KeplerCoordinates orbit { get; }
 
-            public Plantoid(float falloffExponent, float mass, Quaternion orientation, float rotationalSpeed, HeavenlyBodies parent, float time, Vector3? position, Vector3? velocity, Orbit.KeplerCoordinates orbit)
+            public Plantoid(float size, float influence, float falloffExponent, float mass, Quaternion orientation, float rotationalSpeed, HeavenlyBodies parent, float time, Vector3? position, Vector3? velocity, Orbit.KeplerCoordinates orbit)
             {
+                this.size = size;
+                this.influence = influence;
                 this.falloffExponent = falloffExponent;
                 this.mass = mass;
                 this.orientation = orientation;
@@ -49,7 +53,7 @@ namespace PacificEngine.OW_CommonResources.Game.State
                 var position = startPosition == null ? "null" : DisplayConsole.logVector(startPosition.Value);
                 var velocity = startVelocity == null ? "null" : DisplayConsole.logVector(startVelocity.Value);
                 var orbit = (this.orbit?.ToString() ?? "");
-                return $"({Math.Round(falloffExponent,1).ToString("G1")}, {Math.Round(mass, 4).ToString("G4")}, {DisplayConsole.logQuaternion(orientation)}, {Math.Round(rotationalSpeed, 4).ToString("G4")}, {parent}, {position}, {velocity}, {orbit})";
+                return $"({Math.Round(size, 4).ToString("G4")}, {Math.Round(influence, 4).ToString("G4")}, {Math.Round(falloffExponent,1).ToString("G1")}, {Math.Round(mass, 4).ToString("G4")}, {DisplayConsole.logQuaternion(orientation)}, {Math.Round(rotationalSpeed, 4).ToString("G4")}, {parent}, {position}, {velocity}, {orbit})";
             }
 
             public override bool Equals(System.Object other)
@@ -95,7 +99,8 @@ namespace PacificEngine.OW_CommonResources.Game.State
         {
             get
             {
-                Dictionary<Position.HeavenlyBodies, Plantoid> mapping = new Dictionary<Position.HeavenlyBodies, Plantoid>();
+                var original = defaultMapping;
+                var mapping = new Dictionary<Position.HeavenlyBodies, Plantoid>();
                 foreach (HeavenlyBodies body in _mapping.Keys)
                 {
                     var owBody = Position.getBody(body);
@@ -105,6 +110,7 @@ namespace PacificEngine.OW_CommonResources.Game.State
 
                         var exponent = owBody?.GetAttachedGravityVolume()?.GetValue<float>("_falloffExponent") ?? 1;
                         var mass = owBody?.GetAttachedGravityVolume()?.GetValue<float>("_gravitationalMass") ?? ((owBody?.GetMass() ?? 0f) * 1000f);
+                        var size = owBody?.GetAttachedGravityVolume()?.GetValue<float>("_upperSurfaceRadius") ?? _mapping[body].size;
                         var position = Position.getRelativePosition(parent, owBody);
                         var velocity = Position.getRelativeVelocity(parent, owBody);
 
@@ -112,11 +118,11 @@ namespace PacificEngine.OW_CommonResources.Game.State
                         kepler = (kepler == null || !kepler.isOrbit()) ? null : kepler;
                         var time = Time.timeSinceLevelLoad;
 
-                        mapping.Add(body, new Plantoid(exponent, mass, owBody?.GetRotation() ?? Quaternion.identity, owBody?.GetAngularVelocity().magnitude ?? 0f, parent, time, position, velocity, kepler));
+                        mapping.Add(body, new Plantoid(size, _mapping[body].influence, exponent, mass, owBody?.GetRotation() ?? Quaternion.identity, owBody?.GetAngularVelocity().magnitude ?? 0f, parent, time, position, velocity, kepler));
                     }
                     else
                     {
-                        mapping.Add(body, new Plantoid(_mapping[body].falloffExponent, _mapping[body].mass, _mapping[body].orientation, _mapping[body].rotationalSpeed, _mapping[body].parent, _mapping[body].time, _mapping[body].startPosition, _mapping[body].startVelocity, _mapping[body].orbit));
+                        mapping.Add(body, new Plantoid(_mapping[body].size, _mapping[body].influence, _mapping[body].falloffExponent, _mapping[body].mass, _mapping[body].orientation, _mapping[body].rotationalSpeed, _mapping[body].parent, _mapping[body].time, _mapping[body].startPosition, _mapping[body].startVelocity, _mapping[body].orbit));
                     }
                 }
 
@@ -124,7 +130,13 @@ namespace PacificEngine.OW_CommonResources.Game.State
             }
             set
             {
-                _mapping = value;
+                Dictionary<Position.HeavenlyBodies, Plantoid> mapping = defaultMapping;
+                foreach(var map in value)
+                {
+                    mapping[map.Key] = map.Value;
+                }
+                _mapping = mapping;
+                update = false;
                 updateList();
             }
         }
@@ -134,23 +146,23 @@ namespace PacificEngine.OW_CommonResources.Game.State
             get
             {
                 var mapping = new Dictionary<Position.HeavenlyBodies, Plantoid>();
-                mapping.Add(HeavenlyBodies.Sun, new Plantoid(2, 4E+11f, new Quaternion(0, 0, 0, 1), 0f, HeavenlyBodies.None, 0f, Vector3.zero, Vector3.zero, null));
-                mapping.Add(HeavenlyBodies.SunStation, new Plantoid(1, 1000, new Quaternion(0.5f, 0.5f, -0.5f, -0.5f), 0.1817f, HeavenlyBodies.Sun, 0f, new Vector3(0, 0, -2296), new Vector3(417.4f, 0, 0), new Orbit.KeplerCoordinates(0.0002f, 2295.80151f, 90, 90, 0, 17.27803f)));
-                mapping.Add(HeavenlyBodies.HourglassTwins, new Plantoid(1, 1000, new Quaternion(0, -0.9f, 0, 0.5f), 0f, HeavenlyBodies.Sun, 0f, new Vector3(-2867.9f, 0, 4095.8f), new Vector3(-231.7f, 0, -162.2f), new Orbit.KeplerCoordinates(0.0004f, 4999.06934f, 90, 334.142f, 0, 46.52228f)));
-                mapping.Add(HeavenlyBodies.AshTwin, new Plantoid(1, 1600000, new Quaternion(0, 1.0f, 0, 0.3f), 0.07f, HeavenlyBodies.HourglassTwins, 0f, new Vector3(204.8f, 0, 143.4f), new Vector3(16.2f, 0, -23.2f), new Orbit.KeplerCoordinates(0, 250, 90, 233.8092f, 180, 41.86327f)));
-                mapping.Add(HeavenlyBodies.EmberTwin, new Plantoid(1, 1600000, new Quaternion(0, 0.9f, 0, 0.5f), 0.05f, HeavenlyBodies.HourglassTwins, 0f, new Vector3(-204.8f, 0, -143.4f), new Vector3(-16.2f, 0, 23.2f), new Orbit.KeplerCoordinates(0.0004f, 250.119278f, 90, 53.8093f, 180, 41.86327f)));
-                mapping.Add(HeavenlyBodies.TimberHearth, new Plantoid(1, 3000000, new Quaternion(0, 1, 0, 0.1f), 0.01f, HeavenlyBodies.Sun, 0f, new Vector3(1492.2f, 0, -8462.5f), new Vector3(212.5f, 0, 37.5f), new Orbit.KeplerCoordinates(0.0004f, 8594.43066f, 90, 320.244f, 0, 222.33414f)));
-                mapping.Add(HeavenlyBodies.TimberHearthProbe, new Plantoid(1, 10, new Quaternion(0.7f, -0.7f, 0.1f, -0.1f), 0f, HeavenlyBodies.TimberHearth, 0f, new Vector3(-344.8f, 0, -60.8f), new Vector3(9.5f, 0, -53.9f), new Orbit.KeplerCoordinates(0.0008f, 349.854706f, 90, 72.9561f, 0, 13.03971f)));
-                mapping.Add(HeavenlyBodies.Attlerock, new Plantoid(2, 50000000, new Quaternion(0, -0.6f, 0, -0.8f), 0.0609f, HeavenlyBodies.TimberHearth, 0f, new Vector3(886.3f, 0, 156.3f), new Vector3(9.5f, 0, -53.9f), new Orbit.KeplerCoordinates(0.0008f, 899.295593f, 90, 265.2355f, 0, 29.99792f)));
-                mapping.Add(HeavenlyBodies.BrittleHollow, new Plantoid(1, 3000000, new Quaternion(0, 0.6f, 0, -0.8f), 0.02f, HeavenlyBodies.Sun, 0f, new Vector3(11513.3f, 0, -2030.1f), new Vector3(32.1f, 0, 182.2f), new Orbit.KeplerCoordinates(0.0002f, 11693.7646f, 90, 20.21f, 0, 363.92078f)));
-                mapping.Add(HeavenlyBodies.HollowLantern, new Plantoid(1, 910000, new Quaternion(-0.5f, 0.5f, -0.5f, -0.5f), 0.2f, HeavenlyBodies.BrittleHollow, 0f, new Vector3(984.8f, 0, -173.6f), new Vector3(9.5f, 0, 53.9f), new Orbit.KeplerCoordinates(0.0008f, 999.227661f, 90, 122.3145f, 0, 72.51768f)));
-                mapping.Add(HeavenlyBodies.GiantsDeep, new Plantoid(1, 21780000, new Quaternion(0, 0.1f, 0, -1.0f), 0f, HeavenlyBodies.Sun, 0f, new Vector3(3421.7f, 0, -16098.0f), new Vector3(152.5f, 0, 32.4f), new Orbit.KeplerCoordinates(0.0003f, 16456.3711f, 90, 151.9485f, 0, 239.52866f)));
-                mapping.Add(HeavenlyBodies.ProbeCannon, new Plantoid(1, 1000, new Quaternion(-0.3f, 0.5f, 0.4f, 0.7f), 0f, HeavenlyBodies.GiantsDeep, 0f, new Vector3(-1006.4f, 0, 653.6f), new Vector3(80.4f, 0, 123.8f), new Orbit.KeplerCoordinates(0.0002f, 1200.30615f, 90, 351.1031f, 180, 5.94489f)));
-                mapping.Add(HeavenlyBodies.DarkBramble, new Plantoid(1, 3250000, new Quaternion(0, 1, 0, 0.1f), 0f, HeavenlyBodies.Sun, 0f, new Vector3(-3473.0f, 0, 19696.2f), new Vector3(-139.3f, 0, -24.6f), new Orbit.KeplerCoordinates(0.0005f, 20007.2539f, 90, 135.9328f, 0, 800.35431f)));
-                mapping.Add(HeavenlyBodies.Interloper, new Plantoid(1, 550000, new Quaternion(0, 1, 0, 0.1f), 0.0034f, HeavenlyBodies.Sun, 0f, new Vector3(-24100, 0, 0), new Vector3(0, 0, 54.8f), new Orbit.KeplerCoordinates(0.8191f, 13248.3867f, 90, 180, 180, 239.51747f)));
-                mapping.Add(HeavenlyBodies.Stranger, new Plantoid(1, 300000000, new Quaternion(-0.4f, -0.9f, 0, -0.2f), 0.05f, HeavenlyBodies.Sun, 0f, new Vector3(8168.2f, 8400f, 2049.5f), Vector3.zero, null)); ;
-                mapping.Add(HeavenlyBodies.BackerSatilite, new Plantoid(1, 100, new Quaternion(0, 0, 0, 1), 0f, HeavenlyBodies.Sun, 0f, new Vector3(41999.8f, 5001.7f, -22499.9f), new Vector3(-46.9f, 28.1f, 24.7f), new Orbit.KeplerCoordinates(0.8884588f, 30535.38f, 28.1183f, 81.81603f, 91.35296f, 1253.788f)));
-                mapping.Add(HeavenlyBodies.MapSatilite, new Plantoid(1, 500, new Quaternion(-0.1f, -0.8f, -0.1f, 0.6f), 0.0048f, HeavenlyBodies.Sun, 0f, new Vector3(24732.5f, -6729.5f, 4361), new Vector3(31.6f, 119.8f, 5.6f), new Orbit.KeplerCoordinates(0.0003f, 25992.3047f, 10.0033f, 241.6748f, 270.071f, 706.70221f)));
+                mapping.Add(HeavenlyBodies.Sun, new Plantoid(2000, 28000, 2, 4E+11f, new Quaternion(0, 0, 0, 1), 0f, HeavenlyBodies.None, 0f, Vector3.zero, Vector3.zero, null));
+                mapping.Add(HeavenlyBodies.SunStation, new Plantoid(100, 100, 1, 1000, new Quaternion(0.5f, 0.5f, -0.5f, -0.5f), 0.1817f, HeavenlyBodies.Sun, 0f, new Vector3(0, 0, -2296), new Vector3(417.4f, 0, 0), new Orbit.KeplerCoordinates(0.0002f, 2295.80151f, 90, 90, 0, 17.27803f)));
+                mapping.Add(HeavenlyBodies.HourglassTwins, new Plantoid(0, 0, 1, 1000, new Quaternion(0, -0.9f, 0, 0.5f), 0f, HeavenlyBodies.Sun, 0f, new Vector3(-2867.9f, 0, 4095.8f), new Vector3(-231.7f, 0, -162.2f), new Orbit.KeplerCoordinates(0.0004f, 4999.06934f, 90, 334.142f, 0, 46.52228f)));
+                mapping.Add(HeavenlyBodies.AshTwin, new Plantoid(180, 600, 1, 1600000, new Quaternion(0, 1.0f, 0, 0.3f), 0.07f, HeavenlyBodies.HourglassTwins, 0f, new Vector3(204.8f, 0, 143.4f), new Vector3(16.2f, 0, -23.2f), new Orbit.KeplerCoordinates(0, 250, 90, 233.8092f, 180, 41.86327f)));
+                mapping.Add(HeavenlyBodies.EmberTwin, new Plantoid(165, 600, 1, 1600000, new Quaternion(0, 0.9f, 0, 0.5f), 0.05f, HeavenlyBodies.HourglassTwins, 0f, new Vector3(-204.8f, 0, -143.4f), new Vector3(-16.2f, 0, 23.2f), new Orbit.KeplerCoordinates(0.0004f, 250.119278f, 90, 53.8093f, 180, 41.86327f)));
+                mapping.Add(HeavenlyBodies.TimberHearth, new Plantoid(280, 1000, 1, 3000000, new Quaternion(0, 1, 0, 0.1f), 0.01f, HeavenlyBodies.Sun, 0f, new Vector3(1492.2f, 0, -8462.5f), new Vector3(212.5f, 0, 37.5f), new Orbit.KeplerCoordinates(0.0004f, 8594.43066f, 90, 320.244f, 0, 222.33414f)));
+                mapping.Add(HeavenlyBodies.TimberHearthProbe, new Plantoid(0, 0, 1, 10, new Quaternion(0.7f, -0.7f, 0.1f, -0.1f), 0f, HeavenlyBodies.TimberHearth, 0f, new Vector3(-344.8f, 0, -60.8f), new Vector3(9.5f, 0, -53.9f), new Orbit.KeplerCoordinates(0.0008f, 349.854706f, 90, 72.9561f, 0, 13.03971f)));
+                mapping.Add(HeavenlyBodies.Attlerock, new Plantoid(90, 250, 2, 50000000, new Quaternion(0, -0.6f, 0, -0.8f), 0.0609f, HeavenlyBodies.TimberHearth, 0f, new Vector3(886.3f, 0, 156.3f), new Vector3(9.5f, 0, -53.9f), new Orbit.KeplerCoordinates(0.0008f, 899.295593f, 90, 265.2355f, 0, 29.99792f)));
+                mapping.Add(HeavenlyBodies.BrittleHollow, new Plantoid(250, 1000, 1, 3000000, new Quaternion(0, 0.6f, 0, -0.8f), 0.02f, HeavenlyBodies.Sun, 0f, new Vector3(11513.3f, 0, -2030.1f), new Vector3(32.1f, 0, 182.2f), new Orbit.KeplerCoordinates(0.0002f, 11693.7646f, 90, 20.21f, 0, 363.92078f)));
+                mapping.Add(HeavenlyBodies.HollowLantern, new Plantoid(150, 250, 1, 910000, new Quaternion(-0.5f, 0.5f, -0.5f, -0.5f), 0.2f, HeavenlyBodies.BrittleHollow, 0f, new Vector3(984.8f, 0, -173.6f), new Vector3(9.5f, 0, 53.9f), new Orbit.KeplerCoordinates(0.0008f, 999.227661f, 90, 122.3145f, 0, 72.51768f)));
+                mapping.Add(HeavenlyBodies.GiantsDeep, new Plantoid(1000, 2000, 1, 21780000, new Quaternion(0, 0.1f, 0, -1.0f), 0f, HeavenlyBodies.Sun, 0f, new Vector3(3421.7f, 0, -16098.0f), new Vector3(152.5f, 0, 32.4f), new Orbit.KeplerCoordinates(0.0003f, 16456.3711f, 90, 151.9485f, 0, 239.52866f)));
+                mapping.Add(HeavenlyBodies.ProbeCannon, new Plantoid(100, 100, 1, 1000, new Quaternion(-0.3f, 0.5f, 0.4f, 0.7f), 0f, HeavenlyBodies.GiantsDeep, 0f, new Vector3(-1006.4f, 0, 653.6f), new Vector3(80.4f, 0, 123.8f), new Orbit.KeplerCoordinates(0.0002f, 1200.30615f, 90, 351.1031f, 180, 5.94489f)));
+                mapping.Add(HeavenlyBodies.DarkBramble, new Plantoid(1000, 1500, 1, 3250000, new Quaternion(0, 1, 0, 0.1f), 0f, HeavenlyBodies.Sun, 0f, new Vector3(-3473.0f, 0, 19696.2f), new Vector3(-139.3f, 0, -24.6f), new Orbit.KeplerCoordinates(0.0005f, 20007.2539f, 90, 135.9328f, 0, 800.35431f)));
+                mapping.Add(HeavenlyBodies.Interloper, new Plantoid(120, 250, 1, 550000, new Quaternion(0, 1, 0, 0.1f), 0.0034f, HeavenlyBodies.Sun, 0f, new Vector3(-24100, 0, 0), new Vector3(0, 0, 54.8f), new Orbit.KeplerCoordinates(0.8191f, 13248.3867f, 90, 180, 180, 239.51747f)));
+                mapping.Add(HeavenlyBodies.Stranger, new Plantoid(600, 600, 1, 300000000, new Quaternion(-0.4f, -0.9f, 0, -0.2f), 0.05f, HeavenlyBodies.Sun, 0f, new Vector3(8168.2f, 8400f, 2049.5f), Vector3.zero, null));
+                mapping.Add(HeavenlyBodies.BackerSatilite, new Plantoid(5, 100, 1, 100, new Quaternion(0, 0, 0, 1), 0f, HeavenlyBodies.Sun, 0f, new Vector3(41999.8f, 5001.7f, -22499.9f), new Vector3(-46.9f, 28.1f, 24.7f), new Orbit.KeplerCoordinates(0.8884588f, 30535.38f, 28.1183f, 81.81603f, 91.35296f, 1253.788f)));
+                mapping.Add(HeavenlyBodies.MapSatilite, new Plantoid(5, 100, 1, 500, new Quaternion(-0.1f, -0.8f, -0.1f, 0.6f), 0.0048f, HeavenlyBodies.Sun, 0f, new Vector3(24732.5f, -6729.5f, 4361), new Vector3(31.6f, 119.8f, 5.6f), new Orbit.KeplerCoordinates(0.0003f, 25992.3047f, 10.0033f, 241.6748f, 270.071f, 706.70221f)));
                 
                 return mapping;
             }
@@ -218,6 +230,10 @@ namespace PacificEngine.OW_CommonResources.Game.State
         {
             if (update)
             {
+                if (Locator.GetPlayerBody())
+                {
+                    var playerParent = Position.getClosest(Locator.GetPlayerBody().GetPosition());
+                }
                 update = false;
                 foreach (var body in _mapping.Keys)
                 {
