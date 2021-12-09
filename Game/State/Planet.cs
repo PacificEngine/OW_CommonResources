@@ -462,7 +462,9 @@ BrambleIsland_Body (OWRigidbody): (-5370.667,4489.811,12388.8) (129.4764,285.289
                         velocity = velocity + parentBody.GetPointTangentialVelocity(position);
                     }
                     velocity = velocity + parentBody.GetVelocity();
-                    Teleportation.teleportObjectTo(movingItem.Item1, position, velocity, movingItem.Item1.GetAngularVelocity(), movingItem.Item1.GetAcceleration(), (movingItem.Item5 * parentBody.GetRotation()).normalized);
+
+                    var oreitnation = (movingItem.Item5 * parentBody.GetRotation()).normalized;
+                    Teleportation.teleportObjectTo(movingItem.Item1, position, velocity, movingItem.Item1.GetAngularVelocity(), movingItem.Item1.GetAcceleration(), oreitnation);
                 }
             }
         }
@@ -645,8 +647,8 @@ BrambleIsland_Body (OWRigidbody): (-5370.667,4489.811,12388.8) (129.4764,285.289
                 }
                 owBody.SetValue("_origParent", null);
                 owBody.SetValue("_origParentBody", null);
-                /*position += Locator.GetCenterOfTheUniverse()?.GetOffsetPosition() ?? Vector3.zero;
-                velocity += Locator.GetCenterOfTheUniverse()?.GetOffsetVelocity() ?? Vector3.zero;*/
+                position += Locator.GetCenterOfTheUniverse()?.GetOffsetPosition() ?? Vector3.zero;
+                velocity += Locator.GetCenterOfTheUniverse()?.GetOffsetVelocity() ?? Vector3.zero;
             }
             else
             {

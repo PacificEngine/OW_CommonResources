@@ -369,8 +369,8 @@ namespace PacificEngine.OW_CommonResources.Game.Player
 
             teleportObject.SetPosition(new Vector3(position.x, position.y, position.z));
             teleportObject.SetVelocity(new Vector3(velocity.x, velocity.y, velocity.z));
-            teleportObject.SetAngularVelocity(new Vector3(angularVelocity.x, angularVelocity.y, angularVelocity.z));
             teleportObject.SetRotation(new Quaternion(rotation.x, rotation.y, rotation.z, rotation.w));
+            teleportObject.SetAngularVelocity(new Vector3(angularVelocity.x, angularVelocity.y, angularVelocity.z));
 
             teleportObject.SetValue("_lastPosition", new Vector3(position.x, position.y, position.z));
             teleportObject.SetValue("_currentVelocity", new Vector3(velocity.x, velocity.y, velocity.z));
