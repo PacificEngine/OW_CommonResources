@@ -418,7 +418,7 @@ namespace PacificEngine.OW_CommonResources.Game.State
             {
                 if (volume == null || volume.transform == null || volume.transform.position == null)
                     return null;
-                return getClosest(volume.transform.position)[0].Item1;
+                return getClosest(volume.transform.position).Item1;
             }
 
             switch (volume?.GetAttachedOWRigidbody()?.GetComponentInChildren<OuterFogWarpVolume>()?.GetName())
@@ -443,7 +443,7 @@ namespace PacificEngine.OW_CommonResources.Game.State
                 default:
                     if (volume == null || volume.transform == null || volume.transform.position == null)
                         return null;
-                    return getClosest(volume.transform.position)[0].Item1;
+                    return getClosest(volume.transform.position).Item1;
             }
         }
 
@@ -540,7 +540,7 @@ namespace PacificEngine.OW_CommonResources.Game.State
                     if (volume != null && volume?.gameObject != null)
                     {
                         Tuple<Position.HeavenlyBodies, float> parent;
-                        parent = getClosest(volume.transform.position)[0];
+                        parent = getClosest(volume.transform.position);
                         _portals[parent.Item1].Add(Tuple.Create(volume, parent.Item2));
                         volume.OnWarpDetector += (detector) => onWarp(volume, parent.Item1, detector);
                     }
@@ -573,11 +573,11 @@ namespace PacificEngine.OW_CommonResources.Game.State
             }
         }
 
-        private static List<Tuple<Position.HeavenlyBodies, float>> getClosest(Vector3 position)
+        private static Tuple<Position.HeavenlyBodies, float> getClosest(Vector3 position)
         {
             var keys = new Position.HeavenlyBodies[_portals.Count];
             _portals.Keys.CopyTo(keys, 0);
-            return Position.getClosest(position, keys);
+            return Position.getClosest(position, keys)[0];
         }
 
         private static void onFogWarpVolumeAwake(FogWarpVolume __instance)

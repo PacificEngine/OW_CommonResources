@@ -136,8 +136,28 @@ namespace PacificEngine.OW_CommonResources.Game.State
 
         public static event PadWarpEvent onPadWarp;
 
+        private static void reset()
+        {
+            unprocessedPortals.Clear();
+            requireUpdate = false;
+
+            _portals.Clear();
+            _portals[Position.HeavenlyBodies.SunStation] = new List<Tuple<NomaiWarpPlatform, float>>();
+            _portals[Position.HeavenlyBodies.AshTwin] = new List<Tuple<NomaiWarpPlatform, float>>();
+            _portals[Position.HeavenlyBodies.EmberTwin] = new List<Tuple<NomaiWarpPlatform, float>>();
+            _portals[Position.HeavenlyBodies.TimberHearth] = new List<Tuple<NomaiWarpPlatform, float>>();
+            _portals[Position.HeavenlyBodies.BrittleHollow] = new List<Tuple<NomaiWarpPlatform, float>>();
+            _portals[Position.HeavenlyBodies.GiantsDeep] = new List<Tuple<NomaiWarpPlatform, float>>();
+            _portals[Position.HeavenlyBodies.WhiteHoleStation] = new List<Tuple<NomaiWarpPlatform, float>>();
+            _portals[Position.HeavenlyBodies.InnerDarkBramble_Vessel] = new List<Tuple<NomaiWarpPlatform, float>>();
+            _portals[Position.HeavenlyBodies.EyeOfTheUniverse] = new List<Tuple<NomaiWarpPlatform, float>>();
+            _portals[Position.HeavenlyBodies.EyeOfTheUniverse_Vessel] = new List<Tuple<NomaiWarpPlatform, float>>();
+        }
+
         public static void Start()
         {
+            reset();
+
             Helper.helper.HarmonyHelper.AddPostfix<NomaiWarpPlatform>("Awake", typeof(WarpPad), "onNomaiWarpPlatformAwake");
             Helper.helper.HarmonyHelper.AddPostfix<NomaiWarpTransmitter>("FixedUpdate", typeof(WarpPad), "onNomaiWarpTransmitterFixedUpdate");
             Helper.helper.HarmonyHelper.AddPrefix<NomaiWarpTransmitter>("GetViewAngleToTarget", typeof(WarpPad), "onNomaiWarpTransmitterGetViewAngleToTarget");
@@ -263,7 +283,7 @@ namespace PacificEngine.OW_CommonResources.Game.State
         {
             if (volume == null || volume.GetAttachedOWRigidbody() == null || volume.GetAttachedOWRigidbody().GetPosition() == null)
                 return null;
-            return Position.getClosest(volume.GetAttachedOWRigidbody().GetPosition())[0].Item1;
+            return getClosest(volume.GetAttachedOWRigidbody().GetPosition()).Item1;
         }
 
         private static int? findIndex(NomaiWarpPlatform volume, Position.HeavenlyBodies body)
@@ -336,7 +356,7 @@ namespace PacificEngine.OW_CommonResources.Game.State
                     if (volume != null && volume?.gameObject != null)
                     {
                         Tuple<Position.HeavenlyBodies, float> parent;
-                        parent = Position.getClosest(volume.transform.position)[0];
+                        parent = getClosest(volume.transform.position);
                         if (!_portals.ContainsKey(parent.Item1))
                         {
                             _portals.Add(parent.Item1, new List<Tuple<NomaiWarpPlatform, float>>());
@@ -357,6 +377,13 @@ namespace PacificEngine.OW_CommonResources.Game.State
 
                 doMapping();
             }
+        }
+
+        private static Tuple<Position.HeavenlyBodies, float> getClosest(Vector3 position)
+        {
+            var keys = new Position.HeavenlyBodies[_portals.Count];
+            _portals.Keys.CopyTo(keys, 0);
+            return Position.getClosest(position, keys)[0];
         }
 
         private static void doMapping()

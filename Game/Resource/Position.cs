@@ -26,6 +26,10 @@ namespace PacificEngine.OW_CommonResources.Game.Resource
         public enum HeavenlyBodies
         {
             None,
+            Player,
+            Ship,
+            Probe,
+            ModelShip,
             Sun,
             SunStation,
             HourglassTwins,
@@ -39,6 +43,8 @@ namespace PacificEngine.OW_CommonResources.Game.Resource
             GiantsDeep,
             ProbeCannon,
             NomaiProbe,
+            NomaiEmberTwinShuttle,
+            NomaiBrittleHollowShuttle,
             DarkBramble,
             InnerDarkBramble_Hub,
             InnerDarkBramble_EscapePod,
@@ -106,6 +112,10 @@ namespace PacificEngine.OW_CommonResources.Game.Resource
 
             bodies.Clear();
             bodyLookup.Clear();
+            bodyLookup.Add(HeavenlyBodies.Player, () => Locator.GetPlayerBody());
+            bodyLookup.Add(HeavenlyBodies.Ship, () => Locator.GetShipBody());
+            bodyLookup.Add(HeavenlyBodies.Probe, () => Locator.GetProbe()?.GetAttachedOWRigidbody());
+            bodyLookup.Add(HeavenlyBodies.ModelShip, () => GameObject.Find("ModelRocket_Body")?.GetAttachedOWRigidbody());
             bodyLookup.Add(HeavenlyBodies.Sun, () => Locator.GetAstroObject(AstroObject.Name.Sun)?.GetAttachedOWRigidbody());
             bodyLookup.Add(HeavenlyBodies.SunStation, () => Locator.GetWarpReceiver(NomaiWarpPlatform.Frequency.SunStation)?.GetAttachedOWRigidbody());
             bodyLookup.Add(HeavenlyBodies.HourglassTwins, () => Locator.GetAstroObject(AstroObject.Name.TowerTwin)?.GetPrimaryBody()?.GetAttachedOWRigidbody());
@@ -119,12 +129,14 @@ namespace PacificEngine.OW_CommonResources.Game.Resource
             bodyLookup.Add(HeavenlyBodies.GiantsDeep, () => Locator.GetAstroObject(AstroObject.Name.GiantsDeep)?.GetAttachedOWRigidbody());
             bodyLookup.Add(HeavenlyBodies.ProbeCannon, () => Locator.GetAstroObject(AstroObject.Name.ProbeCannon)?.GetAttachedOWRigidbody());
             bodyLookup.Add(HeavenlyBodies.NomaiProbe, () => Locator.GetAstroObject(AstroObject.Name.ProbeCannon)?.GetComponent<OrbitalProbeLaunchController>()?.GetValue<OWRigidbody>("_probeBody"));
+            bodyLookup.Add(HeavenlyBodies.NomaiEmberTwinShuttle, () => Locator.GetNomaiShuttle(NomaiShuttleController.ShuttleID.HourglassShuttle)?.GetOWRigidbody());
+            bodyLookup.Add(HeavenlyBodies.NomaiBrittleHollowShuttle, () => Locator.GetNomaiShuttle(NomaiShuttleController.ShuttleID.BrittleHollowShuttle)?.GetOWRigidbody());
             bodyLookup.Add(HeavenlyBodies.DarkBramble, () => Locator.GetAstroObject(AstroObject.Name.DarkBramble)?.GetAttachedOWRigidbody());
-            bodyLookup.Add(HeavenlyBodies.InnerDarkBramble_Hub, () => Helper.getSector(Sector.Name.BrambleDimension)?.Find(body => OuterFogWarpVolume.Name.Hub ==  body?.GetComponentInChildren<OuterFogWarpVolume>()?.GetName())?.GetAttachedOWRigidbody());
-            bodyLookup.Add(HeavenlyBodies.InnerDarkBramble_EscapePod, () => Helper.getSector(Sector.Name.BrambleDimension)?.Find(body => OuterFogWarpVolume.Name.EscapePod ==  body?.GetComponentInChildren<OuterFogWarpVolume>()?.GetName())?.GetAttachedOWRigidbody());
+            bodyLookup.Add(HeavenlyBodies.InnerDarkBramble_Hub, () => Helper.getSector(Sector.Name.BrambleDimension)?.Find(body => OuterFogWarpVolume.Name.Hub == body?.GetComponentInChildren<OuterFogWarpVolume>()?.GetName())?.GetAttachedOWRigidbody());
+            bodyLookup.Add(HeavenlyBodies.InnerDarkBramble_EscapePod, () => Helper.getSector(Sector.Name.BrambleDimension)?.Find(body => OuterFogWarpVolume.Name.EscapePod == body?.GetComponentInChildren<OuterFogWarpVolume>()?.GetName())?.GetAttachedOWRigidbody());
             bodyLookup.Add(HeavenlyBodies.InnerDarkBramble_Nest, () => Helper.getSector(Sector.Name.BrambleDimension)?.Find(body => OuterFogWarpVolume.Name.AnglerNest == body?.GetComponentInChildren<OuterFogWarpVolume>()?.GetName())?.GetAttachedOWRigidbody());
             bodyLookup.Add(HeavenlyBodies.InnerDarkBramble_Feldspar, () => Helper.getSector(Sector.Name.BrambleDimension)?.Find(body => OuterFogWarpVolume.Name.Pioneer == body?.GetComponentInChildren<OuterFogWarpVolume>()?.GetName())?.GetAttachedOWRigidbody());
-            bodyLookup.Add(HeavenlyBodies.InnerDarkBramble_Gutter, () => Helper.getSector(Sector.Name.BrambleDimension)?.Find(body => OuterFogWarpVolume.Name.ExitOnly ==  body?.GetComponentInChildren<OuterFogWarpVolume>()?.GetName())?.GetAttachedOWRigidbody());
+            bodyLookup.Add(HeavenlyBodies.InnerDarkBramble_Gutter, () => Helper.getSector(Sector.Name.BrambleDimension)?.Find(body => OuterFogWarpVolume.Name.ExitOnly == body?.GetComponentInChildren<OuterFogWarpVolume>()?.GetName())?.GetAttachedOWRigidbody());
             bodyLookup.Add(HeavenlyBodies.InnerDarkBramble_Vessel, () => Helper.getSector(Sector.Name.VesselDimension)?.Find(body => OuterFogWarpVolume.Name.Vessel == body?.GetComponentInChildren<OuterFogWarpVolume>()?.GetName())?.GetAttachedOWRigidbody());
             bodyLookup.Add(HeavenlyBodies.InnerDarkBramble_Maze, () => Helper.getSector(Sector.Name.BrambleDimension)?.Find(body => OuterFogWarpVolume.Name.Cluster == body?.GetComponentInChildren<OuterFogWarpVolume>()?.GetName())?.GetAttachedOWRigidbody());
             bodyLookup.Add(HeavenlyBodies.InnerDarkBramble_SmallNest, () => Helper.getSector(Sector.Name.BrambleDimension)?.Find(body => OuterFogWarpVolume.Name.SmallNest == body?.GetComponentInChildren<OuterFogWarpVolume>()?.GetName())?.GetAttachedOWRigidbody());
@@ -178,9 +190,9 @@ namespace PacificEngine.OW_CommonResources.Game.Resource
         {
             if (comparison)
             {
-                var list = Position.getClosest(comparison.GetWorldCenterOfMass());
-                var item = list[0].Item1 == Position.HeavenlyBodies.TimberHearthProbe ? list[1] : list[0];
-                listValue(id, name, index, item.Item1, comparison);
+                comparison.UpdateCenterOfMass();
+                var list = getClosest(comparison.GetWorldCenterOfMass(), false, HeavenlyBodies.Player, HeavenlyBodies.Ship, HeavenlyBodies.Probe, HeavenlyBodies.ModelShip, HeavenlyBodies.TimberHearthProbe);
+                listValue(id, name, index, list[0].Item1, comparison);
             }
             else
             {
@@ -257,8 +269,12 @@ namespace PacificEngine.OW_CommonResources.Game.Resource
 
         public static HeavenlyBodies getRoot(HeavenlyBodies body)
         {
-            switch(body)
+            switch (body)
             {
+                case HeavenlyBodies.Player:
+                case HeavenlyBodies.Ship:
+                case HeavenlyBodies.Probe:
+                case HeavenlyBodies.ModelShip:
                 case HeavenlyBodies.Sun:
                 case HeavenlyBodies.EyeOfTheUniverse:
                     return HeavenlyBodies.None;
@@ -276,6 +292,8 @@ namespace PacificEngine.OW_CommonResources.Game.Resource
                 case HeavenlyBodies.GiantsDeep:
                 case HeavenlyBodies.ProbeCannon:
                 case HeavenlyBodies.NomaiProbe:
+                case HeavenlyBodies.NomaiEmberTwinShuttle:
+                case HeavenlyBodies.NomaiBrittleHollowShuttle:
                 case HeavenlyBodies.DarkBramble:
                 case HeavenlyBodies.InnerDarkBramble_Hub:
                 case HeavenlyBodies.InnerDarkBramble_EscapePod:
@@ -357,16 +375,38 @@ namespace PacificEngine.OW_CommonResources.Game.Resource
         {
             var keys = new HeavenlyBodies[bodyLookup.Count];
             bodyLookup.Keys.CopyTo(keys, 0);
-            return getClosest(position, keys);
+            return getClosest(position, keys, new HeavenlyBodies[0]);
         }
 
         public static List<Tuple<HeavenlyBodies, float>> getClosest(Vector3 position, params HeavenlyBodies[] include)
         {
+            return getClosest(position, include, new HeavenlyBodies[0]);
+        }
+
+
+        public static List<Tuple<HeavenlyBodies, float>> getClosest(Vector3 position, bool isInclude = true, params HeavenlyBodies[] values)
+        {
+            if (isInclude)
+            {
+                return getClosest(position, values, new HeavenlyBodies[0]);
+            }
+
+            var keys = new HeavenlyBodies[bodyLookup.Count];
+            bodyLookup.Keys.CopyTo(keys, 0);
+            return getClosest(position, keys, values);
+        }
+
+        private static List<Tuple<HeavenlyBodies, float>> getClosest(Vector3 position, HeavenlyBodies[] include, HeavenlyBodies[] exclude)
+        {
+            var excl = new HashSet<HeavenlyBodies>(exclude);
             var obj = new List<Tuple<HeavenlyBodies, float>>(include.Length);
             foreach (HeavenlyBodies body in include)
             {
-                var distance = getBody(body)?.transform?.InverseTransformPoint(position).sqrMagnitude;
-                obj.Add(new Tuple<HeavenlyBodies, float>(body, distance.HasValue ? distance.Value : float.PositiveInfinity));
+                if (!excl.Contains(body))
+                {
+                    var distance = getBody(body)?.transform?.InverseTransformPoint(position).sqrMagnitude;
+                    obj.Add(new Tuple<HeavenlyBodies, float>(body, distance.HasValue ? distance.Value : float.PositiveInfinity));
+                }
             }
             obj.Sort((v1, v2) => v1.Item2.CompareTo(v2.Item2));
             return obj;
@@ -374,16 +414,18 @@ namespace PacificEngine.OW_CommonResources.Game.Resource
 
         public static Vector3 getRelativePosition(HeavenlyBodies parent, OWRigidbody target)
         {
+            target.UpdateCenterOfMass();
             var targetPosition = target.GetWorldCenterOfMass();
             if (targetPosition == null)
             {
                 targetPosition = target.GetPosition();
             }
 
-            var parentCenterOfMass = getBody(parent)?.GetWorldCenterOfMass();
-            var parentPosition = getBody(parent)?.GetPosition();
+            var parentBody = getBody(parent);
+            parentBody?.UpdateCenterOfMass();
+            var parentCenterOfMass = parentBody?.GetWorldCenterOfMass();
 
-            if ((parentCenterOfMass == null || !parentCenterOfMass.HasValue || parentCenterOfMass.Value == null) && (parentPosition == null || !parentPosition.HasValue || parentPosition.Value == null))
+            if ((parentCenterOfMass == null || !parentCenterOfMass.HasValue || parentCenterOfMass.Value == null))
             {
                 if (Locator.GetCenterOfTheUniverse() != null)
                 {
@@ -391,7 +433,7 @@ namespace PacificEngine.OW_CommonResources.Game.Resource
                 }
                 return targetPosition;
             }
-            return targetPosition - parentPosition.Value;
+            return targetPosition - parentCenterOfMass.Value;
         }
 
         public static Vector3 getRelativeVelocity(HeavenlyBodies parent, OWRigidbody target)
@@ -402,6 +444,16 @@ namespace PacificEngine.OW_CommonResources.Game.Resource
                 return target.GetVelocity();
             }
             return target.GetVelocity() - parentVelocity.Value;
+        }
+
+        public static Quaternion getRelativeOrientation(HeavenlyBodies parent, OWRigidbody target)
+        {
+            var parentRotation = getBody(parent)?.GetRotation();
+            if (parentRotation == null || !parentRotation.HasValue || parentRotation.Value == null)
+            {
+                return target.GetRotation();
+            }
+            return (target.GetRotation() * Quaternion.Inverse(parentRotation.Value)).normalized;
         }
 
         public static Vector3? getSurfaceVelocity(HeavenlyBodies parent, OWRigidbody target)

@@ -1,6 +1,7 @@
 ﻿using OWML.Common;
 using OWML.ModHelper;
 using OWML.Utils;
+using PacificEngine.OW_CommonResources.Game.Display;
 using PacificEngine.OW_CommonResources.Game.Resource;
 using System;
 using System.Collections.Generic;
@@ -357,14 +358,15 @@ namespace PacificEngine.OW_CommonResources.Game.Player
                 var newVelocity = velocity + teleportTo.GetPointTangentialVelocity(newPosition) + teleportTo.GetVelocity();
                 var newAnglarVelocity = angularVelocity + teleportTo.GetAngularVelocity();
                 var newAcceleration = acceleration + teleportTo.GetAcceleration();
-                var parentRotation = teleportTo.GetRotation();
-                var newRotation = new Quaternion(parentRotation.x + rotation.x, parentRotation.y + rotation.y, parentRotation.z + rotation.z, parentRotation.w + rotation.w);
+                var newRotation = rotation * teleportTo.GetRotation();
                 teleportObjectTo(teleportObject, newPosition, newVelocity, newAnglarVelocity, newAcceleration, newRotation);
             }
         }
 
         public static void teleportObjectTo(OWRigidbody teleportObject, Vector3 position, Vector3 velocity, Vector3 angularVelocity, Vector3 acceleration, Quaternion rotation)
         {
+            Helper.helper.Console.WriteLine($"{teleportObject}: {DisplayConsole.logVector(position)} {DisplayConsole.logVector(velocity)}");
+
             teleportObject.SetPosition(new Vector3(position.x, position.y, position.z));
             teleportObject.SetVelocity(new Vector3(velocity.x, velocity.y, velocity.z));
             teleportObject.SetAngularVelocity(new Vector3(angularVelocity.x, angularVelocity.y, angularVelocity.z));
