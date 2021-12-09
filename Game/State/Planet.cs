@@ -456,12 +456,12 @@ BrambleIsland_Body (OWRigidbody): (-5370.667,4489.811,12388.8) (129.4764,285.289
 
                     Helper.helper.Console.WriteLine($"{movingItem.Item1}: {parent} -> {DisplayConsole.logVector(position)} {DisplayConsole.logVector(velocity)}");
 
-                    position = parentBody.transform.TransformPoint(position);
+                    position += parentBody.transform.position;
                     if (isSurfaceVelocity)
                     {
-                        velocity = velocity + parentBody.GetPointTangentialVelocity(position);
+                        velocity += parentBody.GetPointTangentialVelocity(position);
                     }
-                    velocity = velocity + parentBody.GetVelocity();
+                    velocity += parentBody.GetVelocity();
 
                     var oreitnation = (movingItem.Item5 * parentBody.GetRotation()).normalized;
                     Teleportation.teleportObjectTo(movingItem.Item1, position, velocity, movingItem.Item1.GetAngularVelocity(), movingItem.Item1.GetAcceleration(), oreitnation);
@@ -631,7 +631,7 @@ BrambleIsland_Body (OWRigidbody): (-5370.667,4489.811,12388.8) (129.4764,285.289
                     }
                     owBody.SetValue("_origParent", owParent.transform);
                     owBody.SetValue("_origParentBody", owParent);
-                    position = owParent.transform.TransformPoint(position);
+                    position += owParent.transform.position;
                 }
                 else
                 {
@@ -762,7 +762,7 @@ BrambleIsland_Body (OWRigidbody): (-5370.667,4489.811,12388.8) (129.4764,285.289
             return false;
         }
 
-        private static bool onInitialVelocityStart(ref InitialMotion __instance)
+        private static bool onInitialVelocityStart(ref InitialVelocity __instance)
         {
             var owBody = __instance.GetValue<OWRigidbody>("_owRigidbody");
             var body = Position.find(owBody);

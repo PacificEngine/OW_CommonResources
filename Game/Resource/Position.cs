@@ -190,7 +190,6 @@ namespace PacificEngine.OW_CommonResources.Game.Resource
         {
             if (comparison)
             {
-                comparison.UpdateCenterOfMass();
                 var list = getClosest(comparison.GetWorldCenterOfMass(), false, HeavenlyBodies.Player, HeavenlyBodies.Ship, HeavenlyBodies.Probe, HeavenlyBodies.ModelShip, HeavenlyBodies.TimberHearthProbe);
                 listValue(id, name, index, list[0].Item1, comparison);
             }
@@ -414,7 +413,6 @@ namespace PacificEngine.OW_CommonResources.Game.Resource
 
         public static Vector3 getRelativePosition(HeavenlyBodies parent, OWRigidbody target)
         {
-            target.UpdateCenterOfMass();
             var targetPosition = target.GetWorldCenterOfMass();
             if (targetPosition == null)
             {
@@ -422,7 +420,6 @@ namespace PacificEngine.OW_CommonResources.Game.Resource
             }
 
             var parentBody = getBody(parent);
-            parentBody?.UpdateCenterOfMass();
             var parentCenterOfMass = parentBody?.GetWorldCenterOfMass();
 
             if ((parentCenterOfMass == null || !parentCenterOfMass.HasValue || parentCenterOfMass.Value == null))
