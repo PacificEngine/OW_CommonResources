@@ -222,8 +222,7 @@ namespace PacificEngine.OW_CommonResources.Game.Resource
         {
             if (comparison)
             {
-                var relaitveState = RelativeState.fromClosetInfluence(comparison, Position.HeavenlyBodies.Sun,
-                    Position.HeavenlyBodies.Player,
+                var relaitveState = RelativeState.fromClosetInfluence(comparison, Position.HeavenlyBodies.Player,
                     Position.HeavenlyBodies.Probe,
                     Position.HeavenlyBodies.Ship,
                     Position.HeavenlyBodies.ModelShip,
