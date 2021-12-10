@@ -94,7 +94,7 @@ BrambleIsland_Body (OWRigidbody): (-5370.667,4489.811,12388.8) (129.4764,285.289
                 this.gravity = gravity;
 
                 var angularVelocity = orientation * (Vector3.up * rotationalSpeed);
-                this.state = RelativeState.fromKepler(parent, orbit, orientation, angularVelocity, Vector3.zero);
+                this.state = RelativeState.fromKepler(parent, orbit, new OrientationState(orientation, angularVelocity, Vector3.zero));
             }
 
             public Plantoid(Position.Size size, Orbit.Gravity gravity, Quaternion orientation, float rotationalSpeed, Position.HeavenlyBodies parent, Vector3 position, Vector3 velocity)
@@ -103,7 +103,7 @@ BrambleIsland_Body (OWRigidbody): (-5370.667,4489.811,12388.8) (129.4764,285.289
                 this.gravity = gravity;
 
                 var angularVelocity = orientation * (Vector3.up * rotationalSpeed);
-                this.state = RelativeState.fromRelative(parent, position, velocity, Vector3.zero, orientation, angularVelocity, Vector3.zero);
+                this.state = RelativeState.fromRelative(parent, new MovementState(new PositionState(position, velocity, Vector3.zero), new OrientationState(orientation, angularVelocity, Vector3.zero)));
             }
 
             public Plantoid(Position.Size size, Orbit.Gravity gravity, Position.HeavenlyBodies parent, OWRigidbody target)
@@ -268,13 +268,13 @@ BrambleIsland_Body (OWRigidbody): (-5370.667,4489.811,12388.8) (129.4764,285.289
                         debugIds.Add(id + ".1");
                         debugIds.Add(id + ".2");
                         console.setElement(id + ".1", $" {map.Key.ToString()}: {map.Value.size}, {map.Value.gravity}, {map.Value.state.parent.ToString()}", index + 0.0001f);
-                        if (map.Value.state.orbit != null && map.Value.state.orbit.isOrbit())
+                        if (map.Value.state.orbit != null && map.Value.state.orbit.position != null && map.Value.state.orbit.position.isOrbit())
                         {
                             console.setElement(id + ".2", $"{map.Value.state.orbit.ToString()}", index + 0.0002f);
                         }
-                        else if (map.Value.state.position != null && map.Value.state.velocity != null)
+                        else if (map.Value.state.relative != null && map.Value.state.relative.position != null)
                         {
-                            console.setElement(id + ".2", $"{DisplayConsole.logVector(map.Value.state.position)}, {DisplayConsole.logVector(map.Value.state.velocity)}", index + 0.0002f);
+                            console.setElement(id + ".2", $"{map.Value.state.relative.position}", index + 0.0002f);
                         }                        
 
                         index += 0.0005f;
@@ -292,7 +292,7 @@ BrambleIsland_Body (OWRigidbody): (-5370.667,4489.811,12388.8) (129.4764,285.289
                 update = false;
 
                 var movingItems = trackMovingItems();
-                var newStates = new Dictionary<Position.HeavenlyBodies, AbsoluteState>();
+                var newStates = new Dictionary<Position.HeavenlyBodies, MovementState>();
                 foreach (var body in _mapping.Keys)
                 {
                     var state = updatePlanet(body, newStates);
@@ -375,7 +375,7 @@ BrambleIsland_Body (OWRigidbody): (-5370.667,4489.811,12388.8) (129.4764,285.289
             return bodies;
         }
 
-        private static void relocateMovingItems(Dictionary<Position.HeavenlyBodies, AbsoluteState> newStates, List<Tuple<OWRigidbody, RelativeState>> movingItems)
+        private static void relocateMovingItems(Dictionary<Position.HeavenlyBodies, MovementState> newStates, List<Tuple<OWRigidbody, RelativeState>> movingItems)
         {
             var probeCannon = Position.getBody(Position.HeavenlyBodies.ProbeCannon);
             RelativeState originalProbeCannon = null;
@@ -401,12 +401,12 @@ BrambleIsland_Body (OWRigidbody): (-5370.667,4489.811,12388.8) (129.4764,285.289
                 }
 
                 var gravity = getGravity(movingItem.Item2.parent);
-                AbsoluteState state = null;
+                MovementState parentState = null;
                 if (newStates.ContainsKey(movingItem.Item2.parent))
                 {
-                    state = newStates[movingItem.Item2.parent];
+                    parentState = newStates[movingItem.Item2.parent];
                 }
-                movingItem.Item2.applyState(state, gravity, movingItem.Item1);
+                movingItem.Item2.apply(movingItem.Item1, parentState, gravity);
             }
         }
 
@@ -451,7 +451,7 @@ BrambleIsland_Body (OWRigidbody): (-5370.667,4489.811,12388.8) (129.4764,285.289
             return null;
         }
 
-        private static AbsoluteState updatePlanet(Position.HeavenlyBodies body, Dictionary<Position.HeavenlyBodies, AbsoluteState> newStates)
+        private static MovementState updatePlanet(Position.HeavenlyBodies body, Dictionary<Position.HeavenlyBodies, MovementState> newStates)
         {
             var owBody = Position.getBody(body);
             if (owBody == null || !_mapping.ContainsKey(body))
@@ -468,7 +468,7 @@ BrambleIsland_Body (OWRigidbody): (-5370.667,4489.811,12388.8) (129.4764,285.289
             updatePlanetParent(planet.state.parent, owBody);
 
             var gravity = getGravity(planet.state.parent);
-            AbsoluteState parentState = null;
+            MovementState parentState = null;
             if (newStates.ContainsKey(planet.state.parent))
             {
                 parentState = newStates[planet.state.parent];
@@ -518,9 +518,9 @@ BrambleIsland_Body (OWRigidbody): (-5370.667,4489.811,12388.8) (129.4764,285.289
             }
         }
 
-        private static AbsoluteState updatePlanetPosition(AbsoluteState parentState, Orbit.Gravity gravity, RelativeState state, OWRigidbody owBody)
+        private static MovementState updatePlanetPosition(MovementState parentState, Orbit.Gravity gravity, RelativeState relativeState, OWRigidbody owBody)
         {
-            return state.applyState(parentState, gravity, owBody);
+            return relativeState.apply(owBody, parentState, gravity);
         }
 
         private static bool onOrbitLineUpdate(ref OrbitLine __instance)
@@ -540,8 +540,9 @@ BrambleIsland_Body (OWRigidbody): (-5370.667,4489.811,12388.8) (129.4764,285.289
             }
 
             var parent = planet.state.parent;
+            var gravity = Position.getGravity(parent);
             var owBody = Position.getBody(body);
-            var kepler = Position.getKepler(parent, owBody);
+            var kepler = RelativeState.getKepler(MovementState.fromCurrentState(parent), gravity, owBody.GetPosition(), owBody.GetVelocity());
             if (kepler == null && !kepler.isOrbit())
             {
                 return true;
