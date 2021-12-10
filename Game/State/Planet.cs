@@ -84,39 +84,45 @@ BrambleIsland_Body (OWRigidbody): (-5370.667,4489.811,12388.8) (129.4764,285.289
 
         public class Plantoid
         {
-            public float size { get; }
-            public float influence { get; }
-            public float falloffExponent { get; }
-            public float mass { get; }
-            public Quaternion orientation { get; }
-            public float rotationalSpeed { get; }
-            public Position.HeavenlyBodies parent { get; }
-            public float time { get; }
-            public Vector3? startPosition { get; }
-            public Vector3? startVelocity { get; }
-            public Orbit.KeplerCoordinates orbit { get; }
+            public Position.Size size { get; }
+            public Orbit.Gravity gravity { get; }
+            public MovementState state { get; }
 
-            public Plantoid(float size, float influence, float falloffExponent, float mass, Quaternion orientation, float rotationalSpeed, Position.HeavenlyBodies parent, float time, Vector3? position, Vector3? velocity, Orbit.KeplerCoordinates orbit)
+            public Plantoid(Position.Size size, Orbit.Gravity gravity, Quaternion orientation, float rotationalSpeed, Position.HeavenlyBodies parent, Orbit.KeplerCoordinates orbit)
             {
                 this.size = size;
-                this.influence = influence;
-                this.falloffExponent = falloffExponent;
-                this.mass = mass;
-                this.orientation = orientation;
-                this.rotationalSpeed = rotationalSpeed;
-                this.parent = parent;
-                this.time = time;
-                this.startPosition = position;
-                this.startVelocity = velocity;
-                this.orbit = orbit;
+                this.gravity = gravity;
+
+                var angularVelocity = orientation * (Vector3.up * rotationalSpeed);
+                this.state = MovementState.fromKepler(parent, orbit, orientation, angularVelocity, Vector3.zero);
+            }
+
+            public Plantoid(Position.Size size, Orbit.Gravity gravity, Quaternion orientation, float rotationalSpeed, Position.HeavenlyBodies parent, Vector3 position, Vector3 velocity)
+            {
+                this.size = size;
+                this.gravity = gravity;
+
+                var angularVelocity = orientation * (Vector3.up * rotationalSpeed);
+                this.state = MovementState.fromRelative(parent, position, velocity, Vector3.zero, orientation, angularVelocity, Vector3.zero);
+            }
+
+            public Plantoid(Position.Size size, Orbit.Gravity gravity, Position.HeavenlyBodies parent, OWRigidbody target)
+            {
+                this.size = size;
+                this.gravity = gravity;
+                this.state = MovementState.fromCurrentState(parent, target);
+            }
+
+            public Plantoid(Position.Size size, Orbit.Gravity gravity, MovementState state)
+            {
+                this.size = size;
+                this.gravity = gravity;
+                this.state = state;
             }
 
             public override string ToString()
-            {
-                var position = startPosition == null ? "null" : DisplayConsole.logVector(startPosition.Value);
-                var velocity = startVelocity == null ? "null" : DisplayConsole.logVector(startVelocity.Value);
-                var orbit = (this.orbit?.ToString() ?? "");
-                return $"({Math.Round(size, 4).ToString("G4")}, {Math.Round(influence, 4).ToString("G4")}, {Math.Round(falloffExponent,1).ToString("G1")}, {Math.Round(mass, 4).ToString("G4")}, {DisplayConsole.logQuaternion(orientation)}, {Math.Round(rotationalSpeed, 4).ToString("G4")}, {parent}, {position}, {velocity}, {orbit})";
+            { 
+                return $"({size}, {gravity}, {state})";
             }
 
             public override bool Equals(System.Object other)
@@ -124,28 +130,18 @@ BrambleIsland_Body (OWRigidbody): (-5370.667,4489.811,12388.8) (129.4764,285.289
                 if (other != null && other is Plantoid)
                 {
                     var obj = other as Plantoid;
-                    return falloffExponent == obj.falloffExponent
-                        && mass == obj.mass
-                        && orientation == obj.orientation
-                        && rotationalSpeed == obj.rotationalSpeed
-                        && parent == obj.parent
-                        && startPosition == obj.startPosition
-                        && startVelocity == obj.startVelocity
-                        && orbit == obj.orbit;
+                    return size == obj.size
+                        && gravity == obj.gravity
+                        && state == obj.state;
                 }
                 return false;
             }
 
             public override int GetHashCode()
             {
-                return (falloffExponent.GetHashCode() * 4)
-                    + (mass.GetHashCode() * 16)
-                    + (orientation.GetHashCode() * 64)
-                    + (rotationalSpeed.GetHashCode() * 256)
-                    + (parent.GetHashCode() * 1024)
-                    + ((startPosition?.GetHashCode() ?? 0) * 4096)
-                    + ((startVelocity?.GetHashCode() ?? 0) * 16384)
-                    + (orbit.GetHashCode() * 64884);
+                return (size.GetHashCode() * 4)
+                    + (gravity.GetHashCode() * 16)
+                    + (state.GetHashCode() * 64);
             }
         }
 
@@ -169,23 +165,16 @@ BrambleIsland_Body (OWRigidbody): (-5370.667,4489.811,12388.8) (129.4764,285.289
                     var owBody = Position.getBody(body);
                     if (owBody != null)
                     {
-                        var parent = _mapping[body].parent;
+                        var parent = _mapping[body].state.parent;
 
-                        var exponent = owBody?.GetAttachedGravityVolume()?.GetValue<float>("_falloffExponent") ?? 1;
-                        var mass = owBody?.GetAttachedGravityVolume()?.GetValue<float>("_gravitationalMass") ?? ((owBody?.GetMass() ?? 0f) * 1000f);
-                        var size = owBody?.GetAttachedGravityVolume()?.GetValue<float>("_upperSurfaceRadius") ?? _mapping[body].size;
-                        var position = Position.getRelativePosition(parent, owBody);
-                        var velocity = Position.getRelativeVelocity(parent, owBody);
+                        var gravity = Position.getGravity(body);
+                        var size = Position.getSize(body);
 
-                        var kepler = Position.getKepler(parent, owBody);
-                        kepler = (kepler == null || !kepler.isOrbit()) ? null : kepler;
-                        var time = Time.timeSinceLevelLoad;
-
-                        mapping.Add(body, new Plantoid(size, _mapping[body].influence, exponent, mass, owBody?.GetRotation() ?? Quaternion.identity, owBody?.GetAngularVelocity().magnitude ?? 0f, parent, time, position, velocity, kepler));
+                        mapping.Add(body, new Plantoid(size, gravity, parent, owBody));
                     }
                     else
                     {
-                        mapping.Add(body, new Plantoid(_mapping[body].size, _mapping[body].influence, _mapping[body].falloffExponent, _mapping[body].mass, _mapping[body].orientation, _mapping[body].rotationalSpeed, _mapping[body].parent, _mapping[body].time, _mapping[body].startPosition, _mapping[body].startVelocity, _mapping[body].orbit));
+                        mapping.Add(body, new Plantoid(_mapping[body].size, _mapping[body].gravity, _mapping[body].state));
                     }
                 }
 
@@ -209,25 +198,27 @@ BrambleIsland_Body (OWRigidbody): (-5370.667,4489.811,12388.8) (129.4764,285.289
             get
             {
                 var mapping = new Dictionary<Position.HeavenlyBodies, Plantoid>();
-                mapping.Add(Position.HeavenlyBodies.Sun, new Plantoid(2400, 28000, 2, 4E+11f, new Quaternion(0, 0, 0, 1), 0f, Position.HeavenlyBodies.None, 0f, Vector3.zero, Vector3.zero, null));
-                mapping.Add(Position.HeavenlyBodies.SunStation, new Plantoid(100, 100, 1, 1000, new Quaternion(0.5f, 0.5f, -0.5f, -0.5f), 0.1817f, Position.HeavenlyBodies.Sun, 0f, new Vector3(0, 0, -2296), new Vector3(417.4f, 0, 0), new Orbit.KeplerCoordinates(0.0002f, 2295.80151f, 90, 90, 0, 17.27803f)));
-                mapping.Add(Position.HeavenlyBodies.HourglassTwins, new Plantoid(1000, 2000, 1, 1000, new Quaternion(0, -0.9f, 0, 0.5f), 0f, Position.HeavenlyBodies.Sun, 0f, new Vector3(-2867.9f, 0, 4095.8f), new Vector3(-231.7f, 0, -162.2f), new Orbit.KeplerCoordinates(0.0004f, 4999.06934f, 90, 334.142f, 0, 46.52228f)));
-                mapping.Add(Position.HeavenlyBodies.AshTwin, new Plantoid(180, 600, 1, 1600000, new Quaternion(0, 1.0f, 0, 0.3f), 0.07f, Position.HeavenlyBodies.HourglassTwins, 0f, new Vector3(204.8f, 0, 143.4f), new Vector3(16.2f, 0, -23.2f), new Orbit.KeplerCoordinates(0, 250, 90, 233.8092f, 180, 41.86327f)));
-                mapping.Add(Position.HeavenlyBodies.EmberTwin, new Plantoid(165, 600, 1, 1600000, new Quaternion(0, 0.9f, 0, 0.5f), 0.05f, Position.HeavenlyBodies.HourglassTwins, 0f, new Vector3(-204.8f, 0, -143.4f), new Vector3(-16.2f, 0, 23.2f), new Orbit.KeplerCoordinates(0.0004f, 250.119278f, 90, 53.8093f, 180, 41.86327f)));
-                mapping.Add(Position.HeavenlyBodies.TimberHearth, new Plantoid(280, 1000, 1, 3000000, new Quaternion(0, 1, 0, 0.1f), 0.01f, Position.HeavenlyBodies.Sun, 0f, new Vector3(1492.2f, 0, -8462.5f), new Vector3(212.5f, 0, 37.5f), new Orbit.KeplerCoordinates(0.0004f, 8594.43066f, 90, 320.244f, 0, 222.33414f)));
-                mapping.Add(Position.HeavenlyBodies.TimberHearthProbe, new Plantoid(0, 0, 1, 10, new Quaternion(0.7f, -0.7f, 0.1f, -0.1f), 0f, Position.HeavenlyBodies.TimberHearth, 0f, new Vector3(-344.8f, 0, -60.8f), new Vector3(9.5f, 0, -53.9f), new Orbit.KeplerCoordinates(0.0008f, 349.854706f, 90, 72.9561f, 0, 13.03971f)));
-                mapping.Add(Position.HeavenlyBodies.Attlerock, new Plantoid(90, 250, 2, 50000000, new Quaternion(0, -0.6f, 0, -0.8f), 0.0609f, Position.HeavenlyBodies.TimberHearth, 0f, new Vector3(886.3f, 0, 156.3f), new Vector3(9.5f, 0, -53.9f), new Orbit.KeplerCoordinates(0.0008f, 899.295593f, 90, 265.2355f, 0, 29.99792f)));
-                mapping.Add(Position.HeavenlyBodies.BrittleHollow, new Plantoid(250, 1000, 1, 3000000, new Quaternion(0, 0.6f, 0, -0.8f), 0.02f, Position.HeavenlyBodies.Sun, 0f, new Vector3(11513.3f, 0, -2030.1f), new Vector3(32.1f, 0, 182.2f), new Orbit.KeplerCoordinates(0.0002f, 11693.7646f, 90, 20.21f, 0, 363.92078f)));
-                mapping.Add(Position.HeavenlyBodies.HollowLantern, new Plantoid(150, 250, 1, 910000, new Quaternion(-0.5f, 0.5f, -0.5f, -0.5f), 0.2f, Position.HeavenlyBodies.BrittleHollow, 0f, new Vector3(984.8f, 0, -173.6f), new Vector3(9.5f, 0, 53.9f), new Orbit.KeplerCoordinates(0.0008f, 999.227661f, 90, 122.3145f, 0, 72.51768f)));
-                mapping.Add(Position.HeavenlyBodies.GiantsDeep, new Plantoid(1200, 2500, 1, 21780000, new Quaternion(0, 0.1f, 0, -1.0f), 0f, Position.HeavenlyBodies.Sun, 0f, new Vector3(3421.7f, 0, -16098.0f), new Vector3(152.5f, 0, 32.4f), new Orbit.KeplerCoordinates(0.0003f, 16456.3711f, 90, 151.9485f, 0, 239.52866f)));
-                mapping.Add(Position.HeavenlyBodies.ProbeCannon, new Plantoid(100, 100, 1, 1000, new Quaternion(-0.3f, 0.5f, 0.4f, 0.7f), 0f, Position.HeavenlyBodies.GiantsDeep, 0f, new Vector3(-1006.4f, 0, 653.6f), new Vector3(80.4f, 0, 123.8f), new Orbit.KeplerCoordinates(0.0002f, 1200.30615f, 90, 351.1031f, 180, 5.94489f)));
-                mapping.Add(Position.HeavenlyBodies.DarkBramble, new Plantoid(1000, 1500, 1, 3250000, new Quaternion(0, 1, 0, 0.1f), 0f, Position.HeavenlyBodies.Sun, 0f, new Vector3(-3473.0f, 0, 19696.2f), new Vector3(-139.3f, 0, -24.6f), new Orbit.KeplerCoordinates(0.0005f, 20007.2539f, 90, 135.9328f, 0, 800.35431f)));
-                mapping.Add(Position.HeavenlyBodies.WhiteHole, new Plantoid(100, 200, 1, -1000, new Quaternion(0, 0.7071068f, 0, 0.7071068f), 0f, Position.HeavenlyBodies.Sun, 0f, new Vector3(-25557.49f, 45.44126f, 8395.418f), Vector3.zero, null));
-                mapping.Add(Position.HeavenlyBodies.WhiteHoleStation, new Plantoid(50, 50, 1, 1000, new Quaternion(0, 0.04225808f, 0, -0.9991068f), 0f, Position.HeavenlyBodies.Sun, 0f, new Vector3(-25095.68f, 45.44126f, 8395.418f), Vector3.zero, null));
-                mapping.Add(Position.HeavenlyBodies.Interloper, new Plantoid(120, 250, 1, 550000, new Quaternion(0, 1, 0, 0.1f), 0.0034f, Position.HeavenlyBodies.Sun, 0f, new Vector3(-24100, 0, 0), new Vector3(0, 0, 54.8f), new Orbit.KeplerCoordinates(0.8191f, 13248.3867f, 90, 180, 180, 239.51747f)));
-                mapping.Add(Position.HeavenlyBodies.Stranger, new Plantoid(600, 600, 1, 300000000, new Quaternion(-0.4f, -0.9f, 0, -0.2f), 0.05f, Position.HeavenlyBodies.Sun, 0f, new Vector3(8168.2f, 8400f, 2049.5f), Vector3.zero, null));
-                mapping.Add(Position.HeavenlyBodies.BackerSatilite, new Plantoid(5, 100, 1, 100, new Quaternion(0, 0, 0, 1), 0f, Position.HeavenlyBodies.Sun, 0f, new Vector3(41999.8f, 5001.7f, -22499.9f), new Vector3(-46.9f, 28.1f, 24.7f), new Orbit.KeplerCoordinates(0.8884588f, 30535.38f, 28.1183f, 81.81603f, 91.35296f, 1253.788f)));
-                mapping.Add(Position.HeavenlyBodies.MapSatilite, new Plantoid(5, 100, 1, 500, new Quaternion(-0.1f, -0.8f, -0.1f, 0.6f), 0.0048f, Position.HeavenlyBodies.Sun, 0f, new Vector3(24732.5f, -6729.5f, 4361), new Vector3(31.6f, 119.8f, 5.6f), new Orbit.KeplerCoordinates(0.0003f, 25992.3047f, 10.0033f, 241.6748f, 270.071f, 706.70221f)));
+                mapping.Add(Position.HeavenlyBodies.Sun, new Plantoid(new Position.Size(2000, 20000), Orbit.Gravity.of(2, 400000000000), new Quaternion(0, 0, 0, 1), 0f, Position.HeavenlyBodies.None, Vector3.zero, Vector3.zero));
+                mapping.Add(Position.HeavenlyBodies.SunStation, new Plantoid(new Position.Size(200f, 550), Orbit.Gravity.of(2, 300000000), new Quaternion(0.502f, 0.502f, -0.498f, -0.498f), 0.1817f, Position.HeavenlyBodies.Sun, new Orbit.KeplerCoordinates(0.0061f, 2296.04395f, 90, 180.3505f, 0, 8.54975f)));
+                mapping.Add(Position.HeavenlyBodies.HourglassTwins, new Plantoid(new Position.Size(0f, 692.8f), Orbit.Gravity.of(1, 800000), new Quaternion(0, -0.887f, 0, 0.462f), 0f, Position.HeavenlyBodies.Sun, new Orbit.KeplerCoordinates(0.0019f, 5000.00879f, 90, 35.1033f, 0, 27.67817f)));
+                mapping.Add(Position.HeavenlyBodies.AshTwin, new Plantoid(new Position.Size(200f, 692.8f), Orbit.Gravity.of(1, 1600000), new Quaternion(0, 0.954f, 0, 0.298f), 0.07f, Position.HeavenlyBodies.HourglassTwins, new Orbit.KeplerCoordinates(0, 249.998428f, 90, 55.4224f, 180, 13.82798f)));
+                mapping.Add(Position.HeavenlyBodies.EmberTwin, new Plantoid(new Position.Size(200f, 692.8f), Orbit.Gravity.of(1, 1600000), new Quaternion(0, -0.886f, 0, 0.463f), 0.05f, Position.HeavenlyBodies.HourglassTwins, new Orbit.KeplerCoordinates(0, 249.998764f, 90, 235.4222f, 180, 13.82804f)));
+                mapping.Add(Position.HeavenlyBodies.TimberHearth, new Plantoid(new Position.Size(250, 1061), Orbit.Gravity.of(1, 3000000), new Quaternion(0, 0.996f, 0, 0.087f), 0.01f, Position.HeavenlyBodies.Sun, new Orbit.KeplerCoordinates(0.0009f, 8593.08984f, 90, 190.0414f, 0, 62.4697f)));
+                mapping.Add(Position.HeavenlyBodies.TimberHearthProbe, new Plantoid(new Position.Size(0.5f, 0.5f), Orbit.Gravity.of(2, 10), new Quaternion(0.704f, -0.704f, 0.064f, -0.064f), 0f, Position.HeavenlyBodies.TimberHearth, new Orbit.KeplerCoordinates(0, 350.097656f, 90, 100.5856f, 0, 9.98418f)));
+                mapping.Add(Position.HeavenlyBodies.Attlerock, new Plantoid(new Position.Size(100, 223.6f), Orbit.Gravity.of(2, 50000000), new Quaternion(0, -0.642f, 0, -0.767f), 0.0609f, Position.HeavenlyBodies.TimberHearth, new Orbit.KeplerCoordinates(0, 899.999085f, 90, 280.2294f, 0, 25.75421f)));
+                mapping.Add(Position.HeavenlyBodies.BrittleHollow, new Plantoid(new Position.Size(300, 1162), Orbit.Gravity.of(1, 3000000), new Quaternion(0, 0.642f, 0, -0.766f), 0.02f, Position.HeavenlyBodies.Sun, new Orbit.KeplerCoordinates(0.0006f, 11690.8877f, 90, 259.9969f, 0, 99.21703f)));
+                mapping.Add(Position.HeavenlyBodies.HollowLantern, new Plantoid(new Position.Size(130, 421.2f), Orbit.Gravity.of(1, 910000), new Quaternion(-0.542f, 0.449f, -0.455f, -0.546f), 0.2f, Position.HeavenlyBodies.BrittleHollow, new Orbit.KeplerCoordinates(0, 1000.00073f, 90, 260.2069f, 0, 28.62203f)));
+                mapping.Add(Position.HeavenlyBodies.GiantsDeep, new Plantoid(new Position.Size(900, 5422), Orbit.Gravity.of(1, 21780000), new Quaternion(0, 0.105f, 0, -0.995f), 0f, Position.HeavenlyBodies.Sun, new Orbit.KeplerCoordinates(0.0003f, 16457.5918f, 90, 192.0577f, 0, 165.65816f)));
+                mapping.Add(Position.HeavenlyBodies.ProbeCannon, new Plantoid(new Position.Size(200, 550), Orbit.Gravity.of(2, 300000000), new Quaternion(0.551f, 0.408f, -0.527f, 0.503f), 0f, Position.HeavenlyBodies.GiantsDeep, new Orbit.KeplerCoordinates(0, 1199.99414f, 90, 303.4643f, 180, 12.71561f)));
+                mapping.Add(Position.HeavenlyBodies.DarkBramble, new Plantoid(new Position.Size(650, 1780), Orbit.Gravity.of(1, 3250000), new Quaternion(0, 0.996f, 0, 0.087f), 0f, Position.HeavenlyBodies.Sun, new Orbit.KeplerCoordinates(0.0003f, 20000.0039f, 90, 10.0033f, 0, 222.06259f)));
+                mapping.Add(Position.HeavenlyBodies.WhiteHole, new Plantoid(new Position.Size(30, 200), Orbit.Gravity.of(2, 1000000), new Quaternion(0, 0.7071068f, 0, 0.7071068f), 0f, Position.HeavenlyBodies.Sun, new Vector3(-23000, 0, 0), Vector3.zero));
+                mapping.Add(Position.HeavenlyBodies.WhiteHoleStation, new Plantoid(new Position.Size(30, 100), Orbit.Gravity.of(2, 100000), new Quaternion(0, 0.04225808f, 0, -0.9991068f), 0f, Position.HeavenlyBodies.Sun, new Vector3(-22538.19f, 0, 0), Vector3.zero));
+                mapping.Add(Position.HeavenlyBodies.Interloper, new Plantoid(new Position.Size(110, 301.2f), Orbit.Gravity.of(1, 550000), new Quaternion(0, 1, 0, 0), 0.0034f, Position.HeavenlyBodies.Sun, new Orbit.KeplerCoordinates(0.8194f, 13246.3066f, 90, 180.0053f, 180, 239.44463f)));
+                mapping.Add(Position.HeavenlyBodies.Stranger, new Plantoid(new Position.Size(600, 1000), Orbit.Gravity.of(2, 300000000), new Quaternion(-0.381f, -0.892f, 0.034f, -0.241f), 0.05f, Position.HeavenlyBodies.Sun, new Vector3(8168.197f, 8399.999f, 2049.527f), Vector3.zero));
+                mapping.Add(Position.HeavenlyBodies.DreamWorld, new Plantoid(new Position.Size(1000, 1000), Orbit.Gravity.of(2, 300000000), new Quaternion(0, 0.087f, 0, -0.996f), 0.05f, Position.HeavenlyBodies.Sun, new Vector3(7791.638f, 7000, 1881.588f), Vector3.zero));
+                mapping.Add(Position.HeavenlyBodies.QuantumMoon, new Plantoid(new Position.Size(110, 301.2f), Orbit.Gravity.of(1, 550000), new Quaternion(0.296f, 0.062f, 0.641f, -0.706f), 0f, Position.HeavenlyBodies.None, Vector3.zero, Vector3.zero));
+                mapping.Add(Position.HeavenlyBodies.BackerSatilite, new Plantoid(new Position.Size(5, 100), Orbit.Gravity.of(2, 100), new Quaternion(0, 0, 0, 1), 0f, Position.HeavenlyBodies.Sun, new Orbit.KeplerCoordinates(0.8882f, 30535.3711f, 28.1204f, 81.8517f, 91.2994f, 1253.74866f)));
+                mapping.Add(Position.HeavenlyBodies.MapSatilite, new Plantoid(new Position.Size(5, 100), Orbit.Gravity.of(2, 500), new Quaternion(-0.084f, -0.76f, -0.1f, 0.637f), 0.0048f, Position.HeavenlyBodies.Sun, new Orbit.KeplerCoordinates(0.0002f, 26000, 10, 344.9661f, 270, 329.33386f)));
                 
                 return mapping;
             }
@@ -276,14 +267,14 @@ BrambleIsland_Body (OWRigidbody): (-5370.667,4489.811,12388.8) (129.4764,285.289
                         var id = classId + ".Planet." + map.Key;
                         debugIds.Add(id + ".1");
                         debugIds.Add(id + ".2");
-                        console.setElement(id + ".1", $" {map.Key.ToString()}: {Math.Round(map.Value.falloffExponent, 1).ToString("G1")}, {Math.Round(map.Value.mass, 4).ToString("G4")}, {DisplayConsole.logQuaternion(map.Value.orientation)}, {Math.Round(map.Value.rotationalSpeed, 4).ToString("G4")}, {map.Value.parent.ToString()}", index + 0.0001f);
-                        if (map.Value.orbit != null && map.Value.orbit.isOrbit())
+                        console.setElement(id + ".1", $" {map.Key.ToString()}: {map.Value.size}, {map.Value.gravity}, {map.Value.state.parent.ToString()}", index + 0.0001f);
+                        if (map.Value.state.orbit != null && map.Value.state.orbit.isOrbit())
                         {
-                            console.setElement(id + ".2", $"{map.Value.time.ToString()}, {map.Value.orbit.ToString()}", index + 0.0002f);
+                            console.setElement(id + ".2", $"{map.Value.state.orbit.ToString()}", index + 0.0002f);
                         }
-                        else
+                        else if (map.Value.state.position != null && map.Value.state.velocity != null)
                         {
-                            console.setElement(id + ".2", $"{map.Value.time.ToString()}, {DisplayConsole.logVector(map.Value.startPosition)}, {DisplayConsole.logVector(map.Value.startVelocity)}", index + 0.0002f);
+                            console.setElement(id + ".2", $"{DisplayConsole.logVector(map.Value.state.position)}, {DisplayConsole.logVector(map.Value.state.velocity)}", index + 0.0002f);
                         }                        
 
                         index += 0.0005f;
@@ -311,14 +302,14 @@ BrambleIsland_Body (OWRigidbody): (-5370.667,4489.811,12388.8) (129.4764,285.289
 
 
 
-        private static List<Tuple<OWRigidbody, Position.HeavenlyBodies, Vector3, Vector3, Quaternion, Vector3?, Orbit.KeplerCoordinates>> trackMovingItems()
+        private static List<Tuple<OWRigidbody, MovementState>> trackMovingItems()
         {
             var sunStation = Position.getBody(Position.HeavenlyBodies.SunStation);
             var giantDeep = Position.getBody(Position.HeavenlyBodies.GiantsDeep);
             var probeCannon = Position.getBody(Position.HeavenlyBodies.ProbeCannon);
             var whiteHole = Position.getBody(Position.HeavenlyBodies.WhiteHole);
 
-            List<Tuple<OWRigidbody, Position.HeavenlyBodies, Vector3, Vector3, Quaternion, Vector3?, Orbit.KeplerCoordinates>> bodies = new List<Tuple<OWRigidbody, Position.HeavenlyBodies, Vector3, Vector3, Quaternion, Vector3?, Orbit.KeplerCoordinates>>();
+            List<Tuple<OWRigidbody, MovementState>> bodies = new List<Tuple<OWRigidbody, MovementState>>();
             bodies.Add(captureState(Position.getBody(Position.HeavenlyBodies.Player)));
             bodies.Add(captureState(Position.getBody(Position.HeavenlyBodies.Ship)));
             bodies.Add(captureState(Position.getBody(Position.HeavenlyBodies.Probe)));
@@ -382,138 +373,42 @@ BrambleIsland_Body (OWRigidbody): (-5370.667,4489.811,12388.8) (129.4764,285.289
             return bodies;
         }
 
-        private static void relocateMovingItems(List<Tuple<OWRigidbody, Position.HeavenlyBodies, Vector3, Vector3, Quaternion, Vector3?, Orbit.KeplerCoordinates>> movingItems)
+        private static void relocateMovingItems(List<Tuple<OWRigidbody, MovementState>> movingItems)
         {
-            var sunStation = Position.getBody(Position.HeavenlyBodies.SunStation);
-            var giantDeep = Position.getBody(Position.HeavenlyBodies.GiantsDeep);
             var probeCannon = Position.getBody(Position.HeavenlyBodies.ProbeCannon);
-            Tuple<OWRigidbody, Position.HeavenlyBodies, Vector3, Vector3, Quaternion, Vector3?, Orbit.KeplerCoordinates> originalProbeCannon = null;
+            MovementState originalProbeCannon = null;
 
             foreach(var movingItem in movingItems)
             {
-                if (movingItem == null)
+                if (movingItem == null || movingItem.Item1 == null || movingItem.Item2 == null)
                 {
                     continue;
                 }
-
-                Position.HeavenlyBodies parent = Position.HeavenlyBodies.None;
-                Vector3 position;
-                Vector3 velocity;
-                bool isSurfaceVelocity = false;
 
                 var name = movingItem?.Item1?.gameObject?.name;
-                if (name != null && name.Equals(probeCannon?.gameObject?.name))
+                if (name != null && probeCannon != null && name.Equals(probeCannon?.gameObject?.name))
                 {
-                    originalProbeCannon = movingItem;
+                    originalProbeCannon = movingItem.Item2;
                     continue;
-                } else if (name != null && 
-                        (name.StartsWith("Debris_Body")
-                            || name.StartsWith("FakeCannonMuzzle_Body")))
-                {
-
-                    parent = movingItem.Item2;
-                    var mass = Position.getMass(parent);
-                    if (originalProbeCannon != null && movingItem.Item7 != null)
-                    {
-                        var kepler = movingItem.Item7;
-                        // TODO: Transform kepler coordinates to make them similar to a probe cannon (Need to account for circular orbits)
-                        var cartesian = Orbit.toCartesian(GravityVolume.GRAVITATIONAL_CONSTANT, mass.Item2, mass.Item1, 0, kepler);
-                        position = movingItem.Item3.normalized * cartesian.Item1.magnitude;
-                        velocity = cartesian.Item2;
-                    }
-                    else
-                    {
-                        position = movingItem.Item3;
-                        velocity = movingItem.Item4;
-                    }
                 }
-                else
+                else if (name != null && originalProbeCannon != null
+                     && (name.StartsWith("Debris_Body")
+                          || name.StartsWith("FakeCannonMuzzle_Body")))
                 {
-                    parent = movingItem.Item2;
-                    var mass = Position.getMass(parent);
-                    if (movingItem.Item6.HasValue)
-                    {
-                        isSurfaceVelocity = true;
-                        position = movingItem.Item3;
-                        velocity = movingItem.Item6.Value;
-                    }
-                    else if (movingItem.Item7 != null)
-                    {
-                        var cartesian = Orbit.toCartesian(GravityVolume.GRAVITATIONAL_CONSTANT, mass.Item2, mass.Item1, 0, movingItem.Item7);
-                        position = movingItem.Item3.normalized * cartesian.Item1.magnitude;
-                        velocity = cartesian.Item2;
-                    }
-                    else
-                    {
-                        position = movingItem.Item3;
-                        velocity = movingItem.Item4;
-                    }
+                    // TODO: handle Debris_Body && FakeCannonMuzzle_Body
                 }
-
-                var parentBody = Position.getBody(parent);
-                if (parentBody != null)
-                {
-
-                    Helper.helper.Console.WriteLine($"{movingItem.Item1}: {parent} -> {DisplayConsole.logVector(position)} {DisplayConsole.logVector(velocity)}");
-
-                    position += parentBody.transform.position;
-                    if (isSurfaceVelocity)
-                    {
-                        velocity += parentBody.GetPointTangentialVelocity(position);
-                    }
-                    velocity += parentBody.GetVelocity();
-
-                    var oreitnation = (movingItem.Item5 * parentBody.GetRotation()).normalized;
-                    Teleportation.teleportObjectTo(movingItem.Item1, position, velocity, movingItem.Item1.GetAngularVelocity(), movingItem.Item1.GetAcceleration(), oreitnation);
-                }
+                movingItem.Item2.applyState(movingItem.Item1);
             }
         }
 
-        private static Tuple<OWRigidbody, Position.HeavenlyBodies, Vector3, Vector3, Quaternion, Vector3?, Orbit.KeplerCoordinates> captureState(OWRigidbody item, Position.HeavenlyBodies nearest)
+        private static Tuple<OWRigidbody, MovementState> captureState(OWRigidbody item, Position.HeavenlyBodies parent)
         {
-            if (item == null
-                    || nearest == Position.HeavenlyBodies.Sun
-                    || nearest == Position.HeavenlyBodies.EyeOfTheUniverse
-                    || nearest == Position.HeavenlyBodies.EyeOfTheUniverse_Vessel)
-            {
-                return null;
-            }
-
-            var position = Position.getRelativePosition(nearest, item);
-            var velocity = Position.getRelativeVelocity(nearest, item);
-            var orientation = Position.getRelativeOrientation(nearest, item);
-            Vector3? surfaceVelocity = null;
-            Orbit.KeplerCoordinates kepler = null;
-            if (_mapping.ContainsKey(nearest))
-            {
-                var size = _mapping[nearest].size;
-                if (position.magnitude < (size * size))
-                {
-                    surfaceVelocity = Position.getSurfaceVelocity(nearest, item);
-                }
-            }
-
-            if (!surfaceVelocity.HasValue)
-            {
-                kepler = Position.getKepler(nearest, item);
-                if (kepler == null || !kepler.isOrbit())
-                {
-                    kepler = null;
-                }
-            }
-
-            return Tuple.Create(item, nearest, position, velocity, orientation, surfaceVelocity, kepler);
+            return Tuple.Create(item, MovementState.fromCurrentState(parent, item));
         }
 
-        private static Tuple<OWRigidbody, Position.HeavenlyBodies, Vector3, Vector3, Quaternion, Vector3?, Orbit.KeplerCoordinates> captureState(OWRigidbody item)
+        private static Tuple<OWRigidbody, MovementState> captureState(OWRigidbody item)
         {
-            if (item == null)
-            {
-                return null;
-            }
-
-            Position.HeavenlyBodies? nearest = null;
-            foreach(var type in Position.getClosest(item.GetPosition(), false, 
+            return Tuple.Create(item, MovementState.fromClosetInfluence(item, Position.HeavenlyBodies.Sun,
                 Position.HeavenlyBodies.Player,
                 Position.HeavenlyBodies.Probe,
                 Position.HeavenlyBodies.Ship,
@@ -521,104 +416,67 @@ BrambleIsland_Body (OWRigidbody): (-5370.667,4489.811,12388.8) (129.4764,285.289
                 Position.HeavenlyBodies.NomaiProbe,
                 Position.HeavenlyBodies.NomaiBrittleHollowShuttle,
                 Position.HeavenlyBodies.NomaiEmberTwinShuttle,
-                Position.HeavenlyBodies.TimberHearthProbe))
+                Position.HeavenlyBodies.TimberHearthProbe,
+                Position.HeavenlyBodies.EyeOfTheUniverse,
+                Position.HeavenlyBodies.EyeOfTheUniverse_Vessel));
+        }
+
+        private static Orbit.Gravity getGravity(Position.HeavenlyBodies parent)
+        {
+            if (parent == Position.HeavenlyBodies.HourglassTwins)
             {
-                if (type.Item1 == Position.HeavenlyBodies.Sun
-                    || type.Item1 == Position.HeavenlyBodies.EyeOfTheUniverse
-                    || type.Item1 == Position.HeavenlyBodies.EyeOfTheUniverse_Vessel)
-                {
-                    nearest = type.Item1;
-                    break;
-                }
-                else if (_mapping.ContainsKey(type.Item1))
-                {
-                    var influence = _mapping[type.Item1].influence;
-                    if (type.Item2 < (influence * influence))
-                    {
-                        nearest = type.Item1;
-                        break;
-                    }
-                }
-                else
-                {
-                    nearest = type.Item1;
-                    break;
-                }
+                var emberTwin = _mapping[Position.HeavenlyBodies.EmberTwin];
+                var ashTwin = _mapping[Position.HeavenlyBodies.AshTwin];
+                var exponent = (emberTwin.gravity.exponent + ashTwin.gravity.exponent) / 2f;
+                var mass = (emberTwin.gravity.mass + ashTwin.gravity.mass) / 4f;
+
+                return Orbit.Gravity.of(exponent, mass);
+            }
+            else if (_mapping.ContainsKey(parent))
+            {
+
+                var parentMap = _mapping[parent];
+                return Orbit.Gravity.of(parentMap.gravity.exponent, parentMap.gravity.mass);
             }
 
-            if (!nearest.HasValue)
-            {
-                return null;
-            }
-
-            return captureState(item, nearest.Value);
+            return null;
         }
 
         private static void updatePlanet(Position.HeavenlyBodies body)
         {
-            if (!_mapping.ContainsKey(body))
+            var owBody = Position.getBody(body);
+            if (owBody == null || !_mapping.ContainsKey(body))
             {
                 return;
             }
-
             var planet = _mapping[body];
-            var parent = planet.parent;
 
-            var position = planet.startPosition ?? Vector3.zero;
-            var velocity = planet.startVelocity ?? Vector3.zero;
-
-            if (_mapping.ContainsKey(parent))
+            updatePlanetGravity(planet, owBody);
+            if (body == Position.HeavenlyBodies.QuantumMoon)
             {
-                var parentMap = _mapping[parent];
-                if (planet.orbit != null && planet.orbit.isOrbit())
-                { 
-                    float exponent;
-                    float mass;
-                    if (parent == Position.HeavenlyBodies.HourglassTwins)
-                    {
-                        var emberTwin = _mapping[Position.HeavenlyBodies.EmberTwin];
-                        var ashTwin = _mapping[Position.HeavenlyBodies.AshTwin];
-                        exponent = (emberTwin.falloffExponent + ashTwin.falloffExponent) / 2f;
-                        mass = (emberTwin.mass + ashTwin.mass) / 4f;
-                    }
-                    else
-                    {
-                        exponent = parentMap.falloffExponent;
-                        mass = parentMap.mass;
-                    }
-
-                    var result = Orbit.toCartesian(GravityVolume.GRAVITATIONAL_CONSTANT, mass, exponent, Time.timeSinceLevelLoad, planet.orbit);
-                    position = result.Item1;
-                    velocity = result.Item2;
-                }                
+                return;
             }
-
-
-            Helper.helper.Console.WriteLine($"{body}: {planet.parent} -> {DisplayConsole.logVector(position)} {DisplayConsole.logVector(velocity)} {planet.orbit}");
-
-            updatePlanet(body, planet.parent, planet.mass, planet.falloffExponent, position, velocity, planet.orientation, planet.rotationalSpeed);
+            updatePlanetParent(planet.state.parent, owBody);
+            updatePlanetPosition(planet.state, owBody);
         }
 
-        private static void updatePlanet(Position.HeavenlyBodies body, Position.HeavenlyBodies parent, float mass, float falloffExponent, Vector3 position, Vector3 velocity, Quaternion orientation, float rotationalSpeed)
+        private static void updatePlanetGravity(Plantoid planet, OWRigidbody owBody)
         {
-            var owBody = Position.getBody(body);
-            if (owBody == null)
+            var gravityVolumne = owBody?.GetAttachedGravityVolume();
+            if (gravityVolumne != null)
             {
-                return;
-            }
+                var _upperSurfaceRadius = gravityVolumne.GetValue<float>("_upperSurfaceRadius");
+                var _surfaceAcceleration = (GravityVolume.GRAVITATIONAL_CONSTANT * planet.gravity.mass) / Mathf.Pow(_upperSurfaceRadius, planet.gravity.exponent);
 
-            // Adjust Mass
-            var gravity = owBody?.GetAttachedGravityVolume();
-            if (gravity != null)
-            {
-                var _upperSurfaceRadius = gravity.GetValue<float>("_upperSurfaceRadius");
-                var _surfaceAcceleration = (GravityVolume.GRAVITATIONAL_CONSTANT * mass) / Mathf.Pow(_upperSurfaceRadius, falloffExponent);
-
-                gravity.SetValue("_falloffExponent", falloffExponent);
-                gravity.SetValue("_gravitationalMass", mass);
-                gravity.SetValue("_surfaceAcceleration", _surfaceAcceleration);
+                gravityVolumne.SetValue("_falloffExponent", planet.gravity.exponent);
+                gravityVolumne.SetValue("_gravitationalMass", planet.gravity.mass);
+                gravityVolumne.SetValue("_surfaceAcceleration", _surfaceAcceleration);
             }
-            owBody.SetMass(mass);
+            owBody.SetMass(planet.gravity.mass);
+        }
+
+        private static void updatePlanetParent(Position.HeavenlyBodies parent, OWRigidbody owBody)
+        {
 
             var owParent = Position.getBody(parent);
             if (owParent != null)
@@ -631,13 +489,7 @@ BrambleIsland_Body (OWRigidbody): (-5370.667,4489.811,12388.8) (129.4764,285.289
                     }
                     owBody.SetValue("_origParent", owParent.transform);
                     owBody.SetValue("_origParentBody", owParent);
-                    position += owParent.transform.position;
                 }
-                else
-                {
-                    position += owParent.GetPosition();
-                }
-                velocity += owParent.GetVelocity();
             }
             else if (parent == Position.HeavenlyBodies.None)
             {
@@ -647,17 +499,12 @@ BrambleIsland_Body (OWRigidbody): (-5370.667,4489.811,12388.8) (129.4764,285.289
                 }
                 owBody.SetValue("_origParent", null);
                 owBody.SetValue("_origParentBody", null);
-                position += Locator.GetCenterOfTheUniverse()?.GetOffsetPosition() ?? Vector3.zero;
-                velocity += Locator.GetCenterOfTheUniverse()?.GetOffsetVelocity() ?? Vector3.zero;
             }
-            else
-            {
-                position += Locator.GetCenterOfTheUniverse()?.GetOffsetPosition() ?? Vector3.zero;
-                velocity += Locator.GetCenterOfTheUniverse()?.GetOffsetVelocity() ?? Vector3.zero;
-            }
+        }
 
-            var angularVelocity = orientation * (Vector3.up * rotationalSpeed);
-            Teleportation.teleportObjectTo(owBody, position, velocity, angularVelocity, owBody.GetAcceleration(), orientation);
+        private static void updatePlanetPosition(MovementState state, OWRigidbody owBody)
+        {
+            state.applyState(owBody);
         }
 
         private static bool onOrbitLineUpdate(ref OrbitLine __instance)
@@ -676,7 +523,7 @@ BrambleIsland_Body (OWRigidbody): (-5370.667,4489.811,12388.8) (129.4764,285.289
                 return true;
             }
 
-            var parent = planet.parent;
+            var parent = planet.state.parent;
             var owBody = Position.getBody(body);
             var kepler = Position.getKepler(parent, owBody);
             if (kepler == null && !kepler.isOrbit())
@@ -688,9 +535,9 @@ BrambleIsland_Body (OWRigidbody): (-5370.667,4489.811,12388.8) (129.4764,285.289
             var _lineRenderer = __instance.GetValue<LineRenderer>("_lineRenderer");
             var _verts = new Vector3[_numVerts];
 
-            var parentMass = Position.getMass(parent);
+            var parentGravity = Position.getGravity(parent);
             var semiAxis = new Vector2(kepler.semiMajorRadius, kepler.semiMinorRadius);
-            var angle = Orbit.getEsscentricAnomalyAngle(GravityVolume.GRAVITATIONAL_CONSTANT, parentMass.Item2, parentMass.Item1, Time.timeSinceLevelLoad, kepler);
+            var angle = Orbit.getEsscentricAnomalyAngle(parentGravity, Time.timeSinceLevelLoad, kepler);
             var increment = Circle.getPercentageAngle(1f / (float)(_numVerts - 1));
             for (int index = 0; index < _numVerts; ++index)
             {
@@ -699,8 +546,8 @@ BrambleIsland_Body (OWRigidbody): (-5370.667,4489.811,12388.8) (129.4764,285.289
             }
             _lineRenderer.SetPositions(_verts);
 
-            var periapsis = Orbit.getPeriapsis(GravityVolume.GRAVITATIONAL_CONSTANT, parentMass.Item2, parentMass.Item1, kepler);
-            var semiMinorDecending = Orbit.getSemiMinorDecending(GravityVolume.GRAVITATIONAL_CONSTANT, parentMass.Item2, parentMass.Item1, kepler);
+            var periapsis = Orbit.getPeriapsis(parentGravity, kepler);
+            var semiMinorDecending = Orbit.getSemiMinorDecending(parentGravity, kepler);
             var _semiMajorAxis = periapsis.Item1.normalized * kepler.semiMajorRadius;
             var _semiMinorAxis = semiMinorDecending.Item1.normalized * kepler.semiMinorRadius;
             var _upAxisDir = Vector3.Cross(periapsis.Item1, semiMinorDecending.Item1);

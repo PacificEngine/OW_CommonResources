@@ -2,6 +2,7 @@
 using OWML.ModHelper;
 using OWML.Utils;
 using PacificEngine.OW_CommonResources.Game.Display;
+using PacificEngine.OW_CommonResources.Game.State;
 using PacificEngine.OW_CommonResources.Geometry;
 using System;
 using System.Collections.Generic;
@@ -13,6 +14,40 @@ namespace PacificEngine.OW_CommonResources.Game.Resource
 {
     public static class Position
     {
+        public class Size
+        {
+            public float size { get; }
+            public float influence { get; }
+
+            public Size(float size, float influence)
+            {
+                this.size = size;
+                this.influence = influence;
+            }
+
+            public override string ToString()
+            {
+                return $"({Math.Round(size, 4).ToString("G4")}, {Math.Round(influence, 4).ToString("G4")})";
+            }
+
+            public override bool Equals(System.Object other)
+            {
+                if (other != null && other is Size)
+                {
+                    var obj = other as Size;
+                    return size == obj.size
+                        && influence == obj.influence;
+                }
+                return false;
+            }
+
+            public override int GetHashCode()
+            {
+                return (size.GetHashCode() * 4)
+                    + (influence.GetHashCode() * 16);
+            }
+        }
+
         private const string classId = "PacificEngine.OW_CommonResources.Game.Resource.Position";
 
         private static float lastUpdate = 0f;
@@ -398,16 +433,38 @@ namespace PacificEngine.OW_CommonResources.Game.Resource
         private static List<Tuple<HeavenlyBodies, float>> getClosest(Vector3 position, HeavenlyBodies[] include, HeavenlyBodies[] exclude)
         {
             var excl = new HashSet<HeavenlyBodies>(exclude);
+            return getClosest(position, include, (body) => excl.Contains(body));
+        }
+
+        public static List<Tuple<HeavenlyBodies, float>> getClosest(Vector3 position, Predicate<HeavenlyBodies> shouldExclude, params HeavenlyBodies[] include)
+        {
+            return getClosest(position, include, shouldExclude);
+        }
+
+        private static List<Tuple<HeavenlyBodies, float>> getClosest(Vector3 position, HeavenlyBodies[] include, Predicate<HeavenlyBodies> shouldExclude)
+        {
             var obj = new List<Tuple<HeavenlyBodies, float>>(include.Length);
             foreach (HeavenlyBodies body in include)
             {
-                if (!excl.Contains(body))
+                if (!shouldExclude.Invoke(body))
                 {
                     var distance = getBody(body)?.transform?.InverseTransformPoint(position).sqrMagnitude;
-                    obj.Add(new Tuple<HeavenlyBodies, float>(body, distance.HasValue ? distance.Value : float.PositiveInfinity));
+                    if (distance.HasValue)
+                    {
+                        obj.Add(new Tuple<HeavenlyBodies, float>(body, distance.Value));
+                    }
                 }
             }
-            obj.Sort((v1, v2) => v1.Item2.CompareTo(v2.Item2));
+
+            if (obj.Count == 0)
+            {
+                var distance = (position - (Locator.GetCenterOfTheUniverse()?.GetOffsetPosition() ?? Vector3.zero)).sqrMagnitude;
+                obj.Add(new Tuple<HeavenlyBodies, float>(HeavenlyBodies.None, distance));
+            }
+            else
+            {
+                obj.Sort((v1, v2) => v1.Item2.CompareTo(v2.Item2));
+            }
             return obj;
         }
 
@@ -420,9 +477,18 @@ namespace PacificEngine.OW_CommonResources.Game.Resource
             }
 
             var parentBody = getBody(parent);
-            var parentCenterOfMass = parentBody?.GetWorldCenterOfMass();
+            if (parentBody?.transform != null)
+            {
+                return parentBody.transform.InverseTransformPoint(targetPosition);
+            }
 
-            if ((parentCenterOfMass == null || !parentCenterOfMass.HasValue || parentCenterOfMass.Value == null))
+            var parentPosition = parentBody?.GetWorldCenterOfMass();
+            if (parentPosition == null || !parentPosition.HasValue || parentPosition.Value == null)
+            {
+                parentPosition = parentBody?.GetPosition();
+            }
+
+            if ((parentPosition == null || !parentPosition.HasValue || parentPosition.Value == null))
             {
                 if (Locator.GetCenterOfTheUniverse() != null)
                 {
@@ -430,7 +496,7 @@ namespace PacificEngine.OW_CommonResources.Game.Resource
                 }
                 return targetPosition;
             }
-            return targetPosition - parentCenterOfMass.Value;
+            return targetPosition - parentPosition.Value;
         }
 
         public static Vector3 getRelativeVelocity(HeavenlyBodies parent, OWRigidbody target)
@@ -464,7 +530,7 @@ namespace PacificEngine.OW_CommonResources.Game.Resource
             return target.GetVelocity() - (parentTangentialVelocity.Value + parentVelocity.Value);
         }
 
-        public static Tuple<float, float> getMass(HeavenlyBodies parent)
+        public static Gravity getGravity(Position.HeavenlyBodies parent)
         {
             var parentBody = getBody(parent);
             if (parentBody == null)
@@ -474,33 +540,179 @@ namespace PacificEngine.OW_CommonResources.Game.Resource
 
             float exponent;
             float mass;
-            if (parent == HeavenlyBodies.HourglassTwins)
+            if (parent == Position.HeavenlyBodies.HourglassTwins)
             {
-                var emberTwin = getBody(HeavenlyBodies.EmberTwin);
-                var ashTwin = getBody(HeavenlyBodies.AshTwin);
-                exponent = ((emberTwin?.GetAttachedGravityVolume()?.GetValue<float>("_falloffExponent") ?? 1) + (ashTwin?.GetAttachedGravityVolume()?.GetValue<float>("_falloffExponent") ?? 1)) / 2f;
+                var emberTwin = Position.getBody(Position.HeavenlyBodies.EmberTwin);
+                var ashTwin = Position.getBody(Position.HeavenlyBodies.AshTwin);
+                exponent = ((emberTwin?.GetAttachedGravityVolume()?.GetValue<float>("_falloffExponent") ?? 2f) + (ashTwin?.GetAttachedGravityVolume()?.GetValue<float>("_falloffExponent") ?? 2f)) / 2f;
                 mass = ((emberTwin?.GetAttachedGravityVolume()?.GetValue<float>("_gravitationalMass") ?? ((emberTwin?.GetMass() ?? 0f) * 1000f)) + (ashTwin?.GetAttachedGravityVolume()?.GetValue<float>("_gravitationalMass") ?? ((ashTwin?.GetMass() ?? 0f) * 1000f))) / 4f;
             }
             else
             {
-                exponent = parentBody?.GetAttachedGravityVolume()?.GetValue<float>("_falloffExponent") ?? 1;
+                exponent = parentBody?.GetAttachedGravityVolume()?.GetValue<float>("_falloffExponent") ?? 2f;
                 mass = parentBody?.GetAttachedGravityVolume()?.GetValue<float>("_gravitationalMass") ?? ((parentBody?.GetMass() ?? 0f) * 1000f);
             }
 
-            return Tuple.Create(exponent, mass);
+            return Orbit.Gravity.of(exponent, mass);
+        }
+
+        public static Size getSize(Position.HeavenlyBodies parent)
+        {
+            var parentBody = getBody(parent);
+            if (parentBody == null)
+            {
+                return null;
+            }
+            var gravity = getGravity(parent);
+
+            float size;
+            float influence;
+            switch (parent)
+            {
+                case Position.HeavenlyBodies.InnerDarkBramble_Hub:
+                case Position.HeavenlyBodies.InnerDarkBramble_EscapePod:
+                case Position.HeavenlyBodies.InnerDarkBramble_Nest:
+                case Position.HeavenlyBodies.InnerDarkBramble_Feldspar:
+                case Position.HeavenlyBodies.InnerDarkBramble_Gutter:
+                case Position.HeavenlyBodies.InnerDarkBramble_Vessel:
+                case Position.HeavenlyBodies.InnerDarkBramble_Maze:
+                case Position.HeavenlyBodies.InnerDarkBramble_SmallNest:
+                case Position.HeavenlyBodies.InnerDarkBramble_Secret:
+                    {
+                        var outerPortal = BramblePortals.getOuterPortal(parent, 0) ?? BramblePortals.getOuterPortal(parent, -1);
+                        if (outerPortal != null)
+                        {
+                            size = Mathf.Max(outerPortal.GetWarpRadius(), outerPortal.GetExitRadius());
+                            influence = size;
+                        }
+                        else
+                        {
+                            size = 0f;
+                            influence = (float)Math.Sqrt(gravity.mu);
+                        }
+                    }
+                    break;
+                case Position.HeavenlyBodies.HourglassTwins:
+                    {
+                        size = 0f;
+                        if (gravity.exponent < 1.5f)
+                        {
+                            influence = (float)Math.Sqrt(gravity.mu * 400f * 1.5f);
+                        }
+                        else
+                        {
+                            influence = (float)Math.Sqrt(gravity.mu);
+                        }
+                    }
+                    break;
+                case Position.HeavenlyBodies.Player:
+                    size = 1f;
+                    influence = 1f;
+                    break;
+                case Position.HeavenlyBodies.Ship:
+                    size = 15f;
+                    influence = 15f;
+                    break;
+                case Position.HeavenlyBodies.Probe:
+                case Position.HeavenlyBodies.ModelShip:
+                case Position.HeavenlyBodies.TimberHearthProbe:
+                    size = 0.5f;
+                    influence = 0.5f;
+                    break;
+                case Position.HeavenlyBodies.SunStation:
+                case Position.HeavenlyBodies.ProbeCannon:
+                    size = 200f;
+                    influence = 550f;
+                    break;
+                case Position.HeavenlyBodies.NomaiProbe:
+                    size = 35f;
+                    influence = 100f;
+                    break;
+                case Position.HeavenlyBodies.NomaiEmberTwinShuttle:
+                case Position.HeavenlyBodies.NomaiBrittleHollowShuttle:
+                    size = 15f;
+                    influence = 15f;
+                    break;
+                case Position.HeavenlyBodies.WhiteHole:
+                    size = 30f;
+                    influence = 200f;
+                    break;
+                case Position.HeavenlyBodies.WhiteHoleStation:
+                    size = 30f;
+                    influence = 100f;
+                    break;
+                case Position.HeavenlyBodies.Stranger:
+                    size = 600f;
+                    influence = 1000f;
+                    break;
+                case Position.HeavenlyBodies.DreamWorld:
+                    size = 1000f;
+                    influence = 1000f;
+                    break;
+                case Position.HeavenlyBodies.BackerSatilite:
+                case Position.HeavenlyBodies.MapSatilite:
+                    size = 5f;
+                    influence = 100f;
+                    break;
+                case Position.HeavenlyBodies.EyeOfTheUniverse_Vessel:
+                    size = 250f;
+                    influence = 250f;
+                    break;
+                case Position.HeavenlyBodies.Sun:
+                case Position.HeavenlyBodies.AshTwin:
+                case Position.HeavenlyBodies.EmberTwin:
+                case Position.HeavenlyBodies.TimberHearth:
+                case Position.HeavenlyBodies.Attlerock:
+                case Position.HeavenlyBodies.BrittleHollow:
+                case Position.HeavenlyBodies.HollowLantern:
+                case Position.HeavenlyBodies.GiantsDeep:
+                case Position.HeavenlyBodies.DarkBramble:
+                case Position.HeavenlyBodies.Interloper:
+                case Position.HeavenlyBodies.QuantumMoon:
+                case Position.HeavenlyBodies.EyeOfTheUniverse:
+                default:
+                    {
+                        size = Mathf.Max(parentBody?.GetAttachedGravityVolume()?.GetValue<float>("_upperSurfaceRadius") ?? 0f,
+                                parentBody?.GetAttachedGravityVolume()?.GetValue<float>("_lowerSurfaceRadius") ?? 0f,
+                                parentBody?.GetAttachedGravityVolume()?.GetValue<float>("_cutoffRadius") ?? 0f);
+
+                        if (size == 0)
+                        {
+                            size = parentBody?.GetAttachedGravityVolume()?.GetValue<float>("_alignmentRadius") ?? 0f;
+                        }
+
+                        if (gravity.exponent < 1.5f && size > 0.01f)
+                        {
+                            influence = (float)Math.Sqrt(gravity.mu * size * 1.5f);
+                        }
+                        else
+                        {
+                            influence = (float)Math.Sqrt(gravity.mu);
+                        }
+                    }
+                    break;
+
+            }
+
+            if (parent == Position.HeavenlyBodies.Sun)
+            {
+                influence *= 100;
+            }
+
+            return new Size(size, influence);
         }
 
         public static KeplerCoordinates getKepler(HeavenlyBodies parent, OWRigidbody body)
         {
-            var mass = getMass(parent);
-            if (mass == null)
+            var gravity = getGravity(parent);
+            if (gravity == null)
             {
                 return null;
             }
 
             var position = getRelativePosition(parent, body);
             var velocity = getRelativeVelocity(parent, body);
-            return Orbit.toKeplerCoordinates(GravityVolume.GRAVITATIONAL_CONSTANT, mass.Item2, mass.Item1, Time.timeSinceLevelLoad, position, velocity);
+            return Orbit.toKeplerCoordinates(gravity, Time.timeSinceLevelLoad, position, velocity);
         }
     }
 }

@@ -365,8 +365,6 @@ namespace PacificEngine.OW_CommonResources.Game.Player
 
         public static void teleportObjectTo(OWRigidbody teleportObject, Vector3 position, Vector3 velocity, Vector3 angularVelocity, Vector3 acceleration, Quaternion rotation)
         {
-            Helper.helper.Console.WriteLine($"{teleportObject}: {DisplayConsole.logVector(position)} {DisplayConsole.logVector(velocity)}");
-
             teleportObject.SetPosition(new Vector3(position.x, position.y, position.z));
             teleportObject.SetVelocity(new Vector3(velocity.x, velocity.y, velocity.z));
             teleportObject.SetRotation(new Quaternion(rotation.x, rotation.y, rotation.z, rotation.w));
