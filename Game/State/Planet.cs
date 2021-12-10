@@ -287,7 +287,7 @@ BrambleIsland_Body (OWRigidbody): (-5370.667,4489.811,12388.8) (129.4764,285.289
 
         private static void updateList()
         {
-            if (update && Time.timeSinceLevelLoad > 1f)
+            if (update)
             {
                 update = false;
 
@@ -398,6 +398,11 @@ BrambleIsland_Body (OWRigidbody): (-5370.667,4489.811,12388.8) (129.4764,285.289
                           || name.StartsWith("FakeCannonMuzzle_Body")))
                 {
                     // TODO: handle Debris_Body && FakeCannonMuzzle_Body
+                }
+                else if (name != null
+                    && (name.StartsWith("SS_Debris_Body")))
+                {
+                    // TODO: handle SS_Debris_Body
                 }
 
                 var gravity = getGravity(movingItem.Item2.parent);
