@@ -110,7 +110,7 @@ BrambleIsland_Body (OWRigidbody): (-5370.667,4489.811,12388.8) (129.4764,285.289
             {
                 this.size = size;
                 this.gravity = gravity;
-                this.state = RelativeState.fromCurrentState(parent, target);
+                this.state = RelativeState.fromGlobal(parent, target);
             }
 
             public Plantoid(Position.Size size, Orbit.Gravity gravity, RelativeState state)
@@ -320,11 +320,6 @@ BrambleIsland_Body (OWRigidbody): (-5370.667,4489.811,12388.8) (129.4764,285.289
             bodies.Add(captureState(Position.getBody(Position.HeavenlyBodies.NomaiEmberTwinShuttle)));
             bodies.Add(captureState(Position.getBody(Position.HeavenlyBodies.NomaiBrittleHollowShuttle)));
 
-            if (probeCannon != null)
-            {
-                bodies.Add(captureState(probeCannon, Position.HeavenlyBodies.GiantsDeep));
-            }
-
             foreach (var child in GameObject.FindObjectsOfType<OWRigidbody>())
             {
                 var name = child?.gameObject?.name;
@@ -337,7 +332,8 @@ BrambleIsland_Body (OWRigidbody): (-5370.667,4489.811,12388.8) (129.4764,285.289
                     if (child.GetOrigParentBody() == sunStation
                             && (name.StartsWith("SS_Debris_Body")))
                     {
-                        bodies.Add(captureState(child, Position.HeavenlyBodies.SunStation));
+                        var surface = RelativeState.getSurfaceMovement(Position.HeavenlyBodies.SunStation, child);
+                        bodies.Add(Tuple.Create(child, RelativeState.fromSurface(Position.HeavenlyBodies.SunStation, surface)));
                     }
                 }
                 if (probeCannon != null)
@@ -346,7 +342,8 @@ BrambleIsland_Body (OWRigidbody): (-5370.667,4489.811,12388.8) (129.4764,285.289
                         && (name.StartsWith("Debris_Body")
                             || name.StartsWith("FakeCannonMuzzle_Body")))
                     {
-                        bodies.Add(captureState(child, Position.HeavenlyBodies.GiantsDeep));
+                        var surface = RelativeState.getSurfaceMovement(Position.HeavenlyBodies.ProbeCannon, child);
+                        bodies.Add(Tuple.Create(child, RelativeState.fromSurface(Position.HeavenlyBodies.ProbeCannon, surface)));
                     }
                 }
                 if (giantDeep != null)
@@ -387,24 +384,6 @@ BrambleIsland_Body (OWRigidbody): (-5370.667,4489.811,12388.8) (129.4764,285.289
                     continue;
                 }
 
-                var name = movingItem?.Item1?.gameObject?.name;
-                if (name != null && probeCannon != null && name.Equals(probeCannon?.gameObject?.name))
-                {
-                    originalProbeCannon = movingItem.Item2;
-                    continue;
-                }
-                else if (name != null && originalProbeCannon != null
-                     && (name.StartsWith("Debris_Body")
-                          || name.StartsWith("FakeCannonMuzzle_Body")))
-                {
-                    // TODO: handle Debris_Body && FakeCannonMuzzle_Body
-                }
-                else if (name != null
-                    && (name.StartsWith("SS_Debris_Body")))
-                {
-                    // TODO: handle SS_Debris_Body
-                }
-
                 var gravity = getGravity(movingItem.Item2.parent);
                 AbsoluteState parentState = null;
                 if (newStates.ContainsKey(movingItem.Item2.parent))
@@ -422,7 +401,7 @@ BrambleIsland_Body (OWRigidbody): (-5370.667,4489.811,12388.8) (129.4764,285.289
                 return null;
             }
 
-            return Tuple.Create(item, RelativeState.fromCurrentState(parent, item));
+            return Tuple.Create(item, RelativeState.fromGlobal(parent, item));
         }
 
         private static Tuple<OWRigidbody, RelativeState> captureState(OWRigidbody item)

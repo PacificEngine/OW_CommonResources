@@ -592,6 +592,9 @@ namespace PacificEngine.OW_CommonResources.Game.Resource
                     influence = 250f;
                     break;
                 case Position.HeavenlyBodies.Sun:
+                    size = 3000f;
+                    influence = 40000f;
+                    break;
                 case Position.HeavenlyBodies.AshTwin:
                 case Position.HeavenlyBodies.EmberTwin:
                 case Position.HeavenlyBodies.TimberHearth:
@@ -625,11 +628,6 @@ namespace PacificEngine.OW_CommonResources.Game.Resource
                     }
                     break;
 
-            }
-
-            if (parent == Position.HeavenlyBodies.Sun)
-            {
-                influence *= 100;
             }
 
             return new Size(size, influence);

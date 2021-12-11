@@ -471,7 +471,7 @@ namespace PacificEngine.OW_CommonResources.Game.State
             else
             {
                 position += Locator.GetCenterOfTheUniverse()?.GetOffsetPosition() ?? Vector3.zero;
-                velocity += Locator.GetCenterOfTheUniverse()?.GetOffsetVelocity() ?? Vector3.zero;
+                //velocity += Locator.GetCenterOfTheUniverse()?.GetOffsetVelocity() ?? Vector3.zero; /* Possibly not required because of CenterOfTheUniverseOffsetApplier */
             }
 
             return new PositionState(position, velocity, acceleration, jerk);
@@ -507,7 +507,7 @@ namespace PacificEngine.OW_CommonResources.Game.State
             else
             {
                 position += Locator.GetCenterOfTheUniverse()?.GetOffsetPosition() ?? Vector3.zero;
-                velocity += Locator.GetCenterOfTheUniverse()?.GetOffsetVelocity() ?? Vector3.zero;
+                //velocity += Locator.GetCenterOfTheUniverse()?.GetOffsetVelocity() ?? Vector3.zero; /* Possibly not required because of CenterOfTheUniverseOffsetApplier */
             }
 
             return new PositionState(position, velocity, acceleration, jerk);
@@ -540,33 +540,33 @@ namespace PacificEngine.OW_CommonResources.Game.State
             return new OrientationState(Quaternion.identity, Vector3.zero, Vector3.zero);
         }
 
-        public static RelativeState fromGlobal(Position.HeavenlyBodies parent, Vector3 worldPosition, Vector3 worldVelocity, Vector3 worldAcceleration, Vector3 worldJerk, Quaternion worldOrientation, Vector3 worldAngularVelocity, Vector3 worldAngularAcceleration)
+        public static RelativeState fromGlobal(Position.HeavenlyBodies parent, OWRigidbody target)
         {
-            var state = AbsoluteState.fromCurrentState(parent);
-            var gravity = Position.getGravity(parent);
-            var size = Position.getSize(parent);
-
-            return fromGlobal(parent, state, gravity, size, worldPosition, worldVelocity, worldAcceleration, worldJerk, worldOrientation, worldAngularVelocity, worldAngularAcceleration);
+            return fromGlobal(parent, AbsoluteState.fromCurrentState(Position.getBody(parent)), Position.getGravity(parent), Position.getSize(parent), AbsoluteState.fromCurrentState(target));
         }
 
-        public static RelativeState fromGlobal(Position.HeavenlyBodies parent, AbsoluteState parentState, Orbit.Gravity parentGravity, Position.Size parentSize, Vector3 worldPosition, Vector3 worldVelocity, Vector3 worldAcceleration, Vector3 worldJerk, Quaternion worldOrientation, Vector3 worldAngularVelocity, Vector3 worldAngularAcceleration)
+        public static RelativeState fromGlobal(Position.HeavenlyBodies parent, AbsoluteState parentState, Orbit.Gravity parentGravity, Position.Size parentSize, AbsoluteState target)
         {
             MovementState surfaceMovement = null;
             KeplerState orbit = null;
 
             parent = parentState == null ? Position.HeavenlyBodies.None : parent;
-            var relativeMovement = getRelativeMovement(parentState, parentGravity, worldPosition, worldVelocity, worldAcceleration, worldJerk, worldOrientation, worldAngularVelocity, worldAngularAcceleration);
-            if (parentState != null)
+            var relativeMovement = getRelativeMovement(parentState, parentGravity, target);
+            if (relativeMovement == null)
+            {
+                return null;
+            }
+            else if (parentState != null && parentSize != null)
             {
                 var distance = relativeMovement.position.sqrMagnitude;
                 if (distance < (parentSize.influence * parentSize.influence))
                 {
-                    surfaceMovement = getSurfaceMovement(parentState, parentGravity, worldPosition, worldVelocity, worldAcceleration, worldJerk, worldOrientation, worldAngularVelocity, worldAngularAcceleration);
+                    surfaceMovement = getSurfaceMovement(parentState, parentGravity, target);
                 }
 
                 if ((parentSize.size * parentSize.size) < distance && distance < (parentSize.influence * parentSize.influence))
                 {
-                    var kepler = getKepler(parentState, parentGravity, worldPosition, worldVelocity, worldOrientation, worldAngularVelocity, worldAngularAcceleration);
+                    var kepler = getKepler(parentState, parentGravity, target);
                     if (kepler != null && kepler.coordinates != null && kepler.coordinates.isOrbit())
                     {
                         var apoapsis = kepler.coordinates.semiMajorRadius + kepler.coordinates.foci;
@@ -582,35 +582,65 @@ namespace PacificEngine.OW_CommonResources.Game.State
             return new RelativeState(parent, relativeMovement, surfaceMovement, orbit);
         }
 
-        public static MovementState getRelativeMovement(AbsoluteState parentState, Orbit.Gravity parentGravity, Vector3 worldPosition, Vector3 worldVelocity, Vector3 worldAcceleration, Vector3 worldJerk, Quaternion worldOrientation, Vector3 worldAngularVelocity, Vector3 worldAngularAcceleration)
+        public static MovementState getRelativeMovement(Position.HeavenlyBodies parent, OWRigidbody target)
         {
-            var relativePosition = worldPosition - (parentState == null ? (Locator.GetCenterOfTheUniverse()?.GetOffsetPosition() ?? Vector3.zero) : parentState.position);
-            var relativeVelocity = worldVelocity - (parentState == null ? (Locator.GetCenterOfTheUniverse()?.GetOffsetVelocity() ?? Vector3.zero) : parentState.velocity);
-            var relativeAcceleration = worldAcceleration - (parentState == null ? Vector3.zero : parentState.acceleration);
-            var relativeJerk = worldJerk - (parentState == null ? Vector3.zero : parentState.jerk);
-            var relativeOrientation = worldOrientation;
-            var relaitveAngularVelocity = worldAngularVelocity;
-            var relativeAngularAcceleration = worldAngularAcceleration;
+            return getRelativeMovement(AbsoluteState.fromCurrentState(Position.getBody(parent)), Position.getGravity(parent), AbsoluteState.fromCurrentState(target));
+        }
+
+        public static MovementState getRelativeMovement(AbsoluteState parentState, Orbit.Gravity parentGravity, AbsoluteState target)
+        {
+            if (target == null)
+            {
+                return null;
+            }
+
+            var relativePosition = target.position - (parentState == null ? (Locator.GetCenterOfTheUniverse()?.GetOffsetPosition() ?? Vector3.zero) : parentState.position);
+            var relativeVelocity = target.velocity - (parentState == null ? (Locator.GetCenterOfTheUniverse()?.GetOffsetVelocity() ?? Vector3.zero) : parentState.velocity);
+            var relativeAcceleration = target.acceleration - (parentState == null ? Vector3.zero : parentState.acceleration);
+            var relativeJerk = target.jerk - (parentState == null ? Vector3.zero : parentState.jerk);
+            var relativeOrientation = target.rotation;
+            var relaitveAngularVelocity = target.velocity;
+            var relativeAngularAcceleration = target.acceleration;
 
             return new MovementState(new PositionState(relativePosition, relativeVelocity, relativeAcceleration, relativeJerk), new OrientationState(relativeOrientation, relaitveAngularVelocity, relativeAngularAcceleration));
         }
 
-        public static MovementState getSurfaceMovement(AbsoluteState parentState, Orbit.Gravity parentGravity, Vector3 worldPosition, Vector3 worldVelocity, Vector3 worldJerk, Vector3 worldAcceleration, Quaternion worldOrientation, Vector3 worldAngularVelocity, Vector3 worldAngularAcceleration)
+        public static MovementState getSurfaceMovement(Position.HeavenlyBodies parent, OWRigidbody target)
         {
-            var surfacePosition = parentState.InverseTransformPoint(worldPosition);
-            var surfaceVelocity = worldVelocity - parentState.GetPointVelocity(worldPosition);
-            var surfaceAcceleration = worldAcceleration - parentState.GetPointAcceleration(worldPosition);
-            var surfaceJerk = worldJerk - (parentState == null ? Vector3.zero : parentState.jerk);
-            var surfraceOrientation = parentState.InverseTransformRotation(worldOrientation);
+            return getSurfaceMovement(AbsoluteState.fromCurrentState(Position.getBody(parent)), Position.getGravity(parent), AbsoluteState.fromCurrentState(target));
+        }
+
+        public static MovementState getSurfaceMovement(AbsoluteState parentState, Orbit.Gravity parentGravity, AbsoluteState target)
+        {
+            if (parentState == null || target == null)
+            {
+                return null;
+            }
+
+            var surfacePosition = parentState.InverseTransformPoint(target.position);
+            var surfaceVelocity = target.velocity - parentState.GetPointVelocity(target.position);
+            var surfaceAcceleration = target.acceleration - parentState.GetPointAcceleration(target.position);
+            var surfaceJerk = target.jerk - (parentState == null ? Vector3.zero : parentState.jerk);
+            var surfraceOrientation = parentState.InverseTransformRotation(target.rotation);
             var surfaceAngularVelocity = Vector3.zero; // TODO
             var surfaceAngularAcceleration = Vector3.zero; // TODO
 
             return new MovementState(new PositionState(surfacePosition, surfaceVelocity, surfaceAcceleration, surfaceJerk), new OrientationState(surfraceOrientation, surfaceAngularVelocity, surfaceAngularAcceleration));
         }
 
-        public static KeplerState getKepler(AbsoluteState parentState, Orbit.Gravity parentGravity, Vector3 worldPosition, Vector3 worldVelocity, Quaternion worldOrientation, Vector3 worldAngularVelocity, Vector3 worldAngularAcceleration)
+        public static KeplerState getKepler(Position.HeavenlyBodies parent, OWRigidbody target)
         {
-            return new KeplerState(Position.getKepler(parentState, parentGravity, worldPosition, worldVelocity), new OrientationState(worldOrientation, worldAngularVelocity, worldAngularAcceleration));
+            return getKepler(AbsoluteState.fromCurrentState(Position.getBody(parent)), Position.getGravity(parent), AbsoluteState.fromCurrentState(target));
+        }
+
+        public static KeplerState getKepler(AbsoluteState parentState, Orbit.Gravity parentGravity, AbsoluteState target)
+        {
+            if (parentState == null || parentGravity == null || target == null)
+            {
+                return null;
+            }
+
+            return new KeplerState(Position.getKepler(parentState, parentGravity, target.position, target.velocity), new OrientationState(target.rotation, target.angularVelocity, target.angularAcceleration));
         }
 
         public static RelativeState fromRelative(Position.HeavenlyBodies parent, MovementState relative)
@@ -638,24 +668,6 @@ namespace PacificEngine.OW_CommonResources.Game.State
                 return new RelativeState(parent, null, null, new KeplerState(kepler, orientation));
             }
             return null;
-        }
-
-        public static RelativeState fromCurrentState(Position.HeavenlyBodies parent, OWRigidbody target)
-        {
-            if (target == null || target.GetRigidbody() == null)
-            {
-                return null;
-            }
-
-            var position = target.GetPosition();
-            var velocity = target.GetVelocity();
-            var acceleration = target.GetAcceleration();
-            var jerk = target.GetJerk();
-            var orientation = target.GetRotation();
-            var angularVelocity = target.GetAngularVelocity();
-            var angularAcceleration = target.GetAngularAcceleration();
-
-            return fromGlobal(parent, position, velocity, acceleration, jerk, orientation, angularVelocity, angularAcceleration);
         }
 
         public static RelativeState fromClosetInfluence(OWRigidbody target, params Position.HeavenlyBodies[] exclude)
@@ -691,7 +703,7 @@ namespace PacificEngine.OW_CommonResources.Game.State
             {
                 return null;
             }
-            return fromCurrentState(parent[0].Item1, target);
+            return fromGlobal(parent[0].Item1, target);
         }
     }
 }
