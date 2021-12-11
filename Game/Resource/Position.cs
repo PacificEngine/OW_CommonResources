@@ -240,13 +240,13 @@ namespace PacificEngine.OW_CommonResources.Game.Resource
 
         private static void listValue(string id, string name, float index, RelativeState relativeState)
         {
-            if (relativeState?.surface?.position?.position == null || relativeState?.surface?.position?.velocity == null)
+            if (relativeState?.surface == null)
             {
                 listValue(id, name, index, null, Vector3.zero, Vector3.zero);
             }
             else
             {
-                listValue(id, name, index, relativeState.parent, relativeState.surface.position.position, relativeState.surface.position.velocity);
+                listValue(id, name, index, relativeState.parent, relativeState.surface.position, relativeState.surface.velocity);
             }
         }
 
@@ -393,11 +393,11 @@ namespace PacificEngine.OW_CommonResources.Game.Resource
         {
             OWRigidbody obj;
             if (!bodies.TryGetValue(body, out obj)
-                || obj == null || obj?.gameObject == null)
+                || obj == null || obj?.GetRigidbody() == null || obj?.gameObject == null)
             {
                 obj = lookupBody(body);
             }
-            return obj == null || obj?.gameObject == null ? null : obj;
+            return obj == null || obj?.GetRigidbody() == null || obj?.gameObject == null ? null : obj;
         }
 
         public static List<Tuple<HeavenlyBodies, float>> getClosest(Vector3 position)
@@ -633,6 +633,37 @@ namespace PacificEngine.OW_CommonResources.Game.Resource
             }
 
             return new Size(size, influence);
+        }
+
+        public static Orbit.KeplerCoordinates getKepler(HeavenlyBodies parent, OWRigidbody target)
+        {
+            if (target == null || target.GetRigidbody() == null)
+            {
+                return null;
+            }
+
+            return getKepler(parent, target.GetPosition(), target.GetVelocity());
+        }
+
+        public static Orbit.KeplerCoordinates getKepler(HeavenlyBodies parent, Vector3 worldPosition, Vector3 worldVelocity)
+        {
+            var state = AbsoluteState.fromCurrentState(parent);
+            var gravity = getGravity(parent);
+
+            return getKepler(state, gravity, worldPosition, worldVelocity);
+        }
+
+        public static Orbit.KeplerCoordinates getKepler(AbsoluteState parentState, Orbit.Gravity parentGravity, Vector3 worldPosition, Vector3 worldVelocity)
+        {
+            if (parentState == null || parentGravity == null)
+            {
+                return null;
+            }
+
+            var position = worldPosition - parentState.position;
+            var velocity = worldVelocity - parentState.velocity;
+
+            return Orbit.toKeplerCoordinates(parentGravity, Time.timeSinceLevelLoad, position, velocity);
         }
     }
 }
