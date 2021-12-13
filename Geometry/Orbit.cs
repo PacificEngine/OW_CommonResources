@@ -178,8 +178,7 @@ namespace PacificEngine.OW_CommonResources.Geometry
             if (parent.exponent < 1.5d)
             {
                 specificEnergy = (speed * speed) / 2d - mu;
-                eccentricity = 0.1179f;
-                //eccentricity = Math.Abs(Math.Sqrt(((2d * specificEnergy) / mu) + 2d) - 1d); // Incorrect for exponent 1
+                eccentricity = Math.Sqrt(Math.Abs(((2d * specificEnergy) / mu) + 2d) - 1d); // Incorrect for exponent 1
                 //semiMajorRadius = radius * Math.Abs(mu / (2d * specificEnergy));
                 semiMajorRadius = angularMomemntum / (Math.Sqrt(mu) * (1d - (eccentricity * eccentricity)));
             }
@@ -188,7 +187,7 @@ namespace PacificEngine.OW_CommonResources.Geometry
                 //https://web.archive.org/web/20160418175843/https://ccar.colorado.edu/asen5070/handouts/cart2kep2002.pdf
                 specificEnergy = (speed * speed) / 2d - (mu / radius);
                 semiMajorRadius = Math.Abs(mu / (2d * specificEnergy));
-                eccentricity = Math.Sqrt(Math.Abs(1 + (2 * specificEnergy * angularMomemntum * angularMomemntum) / (mu * mu)));
+                eccentricity = Math.Sqrt(Math.Abs(1d + (2d * specificEnergy * angularMomemntum * angularMomemntum) / (mu * mu)));
             }
             var inclinationAngle = normalizeRadian(Math.Acos(orbitalMomentum.z/angularMomemntum)) % Math.PI;
             var ascendingAngle = normalizeRadian(Math.Atan2(orbitalMomentum.x, -1f * orbitalMomentum.y));
