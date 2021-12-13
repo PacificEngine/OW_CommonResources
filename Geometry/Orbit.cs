@@ -12,10 +12,12 @@ namespace PacificEngine.OW_CommonResources.Geometry
         {
             private const float twoPi = (float)(2d * Math.PI);
 
+            private float _mu = float.NaN;
+
             public float gravityConstant { get; }
             public float exponent { get; }
             public float mass { get; }
-            public float mu { get { return Math.Abs(gravityConstant * mass); } }
+            public float mu { get { if (float.IsNaN(_mu)) _mu = Math.Abs(gravityConstant * mass); return _mu; } }
 
             public Gravity(float gravityConstant, float exponent, float mass)
             {
@@ -84,10 +86,15 @@ namespace PacificEngine.OW_CommonResources.Geometry
         {
             public static KeplerCoordinates zero { get; } = new KeplerCoordinates(0f, 0f, 0f, 0f, 0f, 0f);
 
+            private float _semiMinorRadius = float.NaN;
+            private float _foci = float.NaN;
+
             public float eccentricity { get; }
             public float semiMajorRadius { get; }
-            public float semiMinorRadius { get { return Ellipse.getMinorRadius(semiMajorRadius, foci); } }
-            public float foci { get { return Ellipse.getFocus(semiMajorRadius, eccentricity); } }
+            public float semiMinorRadius { get { if (float.IsNaN(_semiMinorRadius)) _semiMinorRadius = Ellipse.getMinorRadius(semiMajorRadius, eccentricity); return _semiMinorRadius; } }
+            public float foci { get { if (float.IsNaN(_foci)) _foci = Ellipse.getFocus(semiMajorRadius, eccentricity); return _foci; } }
+            public float apoapsis { get { return semiMajorRadius + foci; } }
+            public float periapsis { get { return semiMajorRadius - foci; } }
             public float inclinationAngle { get; }
             public float periapseAngle { get; }
             public float ascendingAngle { get; }
@@ -171,7 +178,8 @@ namespace PacificEngine.OW_CommonResources.Geometry
             if (parent.exponent < 1.5d)
             {
                 specificEnergy = (speed * speed) / 2d - mu;
-                eccentricity = Math.Abs(Math.Sqrt(((2d * specificEnergy) / mu) + 2d) - 1d);
+                eccentricity = Math.Abs(Math.Sqrt(((2d * specificEnergy) / mu) + 2d) - 1d); // Incorrect for exponent 1
+                //semiMajorRadius = radius * Math.Abs(mu / (2d * specificEnergy));
                 semiMajorRadius = angularMomemntum / (Math.Sqrt(mu) * (1d - (eccentricity * eccentricity)));
             }
             else
@@ -179,7 +187,7 @@ namespace PacificEngine.OW_CommonResources.Geometry
                 //https://web.archive.org/web/20160418175843/https://ccar.colorado.edu/asen5070/handouts/cart2kep2002.pdf
                 specificEnergy = (speed * speed) / 2d - (mu / radius);
                 semiMajorRadius = Math.Abs(mu / (2d * specificEnergy));
-                eccentricity = Math.Sqrt(Math.Abs(1 - ((angularMomemntum * angularMomemntum) / (semiMajorRadius * mu))));
+                eccentricity = Math.Sqrt(Math.Abs(1 + (2 * specificEnergy * angularMomemntum * angularMomemntum) / (mu * mu)));
             }
             var inclinationAngle = normalizeRadian(Math.Acos(orbitalMomentum.z/angularMomemntum)) % Math.PI;
             var ascendingAngle = normalizeRadian(Math.Atan2(orbitalMomentum.x, -1f * orbitalMomentum.y));
@@ -187,7 +195,7 @@ namespace PacificEngine.OW_CommonResources.Geometry
 
             var semiAxisRectum = Ellipse.getAxisRectum((float)semiMajorRadius, (float)eccentricity);
             var trueAnomaly = normalizeRadian(Math.Atan2(Math.Sqrt(semiAxisRectum / mu) * product, semiAxisRectum - radius));
-            var periapseAngle = normalizeRadian(latitudeAngle - trueAnomaly);
+            var periapseAngle = normalizeRadian(latitudeAngle - trueAnomaly); // Incorrect for exponent 1
             var essentricAnomaly = getEsscentricAnomalyFromTrueAnomaly(eccentricity, trueAnomaly);
             var meanAnomaly = getMeanAnomalyFromEsscentricAnomaly(eccentricity, essentricAnomaly);
             var period = parent.getPeriod((float)semiMajorRadius);

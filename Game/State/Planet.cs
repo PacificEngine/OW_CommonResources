@@ -272,7 +272,7 @@ BrambleIsland_Body (OWRigidbody): (-5370.667,4489.811,12388.8) (129.4764,285.289
                         console.setElement(id + ".1", $" {map.Key.ToString()}: {map.Value.size}, {map.Value.gravity}, {map.Value.state.parent.ToString()}", index + 0.0001f);
                         if (map.Value.state.orbit != null && map.Value.state.orbit.coordinates != null && map.Value.state.orbit.coordinates.isOrbit())
                         {
-                            console.setElement(id + ".2", $"{map.Value.state.orbit.ToString()}", index + 0.0002f);
+                            console.setElement(id + ".2", $"{map.Value.state.orbit.coordinates.ToString()}", index + 0.0002f);
                         }
                         else if (map.Value.state.relative != null && map.Value.state.relative.position != null)
                         {
