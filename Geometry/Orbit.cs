@@ -344,12 +344,12 @@ namespace PacificEngine.OW_CommonResources.Geometry
 
         private static double getTrueAnomalyFromEsscentricAnomaly(double eccentricity, double esscentricAnomaly)
         {
-            if (0.9999f < eccentricity && eccentricity < 1.0001f)
+            /*if (0.9999f < eccentricity && eccentricity < 1.0001f)
                 return normalizeRadian(2d * Math.Atan2(Math.Sin(esscentricAnomaly) * Math.Sqrt(1d - (eccentricity * eccentricity)), Math.Cos(esscentricAnomaly) - eccentricity));
-            return normalizeRadian(2d * Math.Atan(Math.Sqrt(Math.Abs((1d + eccentricity) / (1d - eccentricity))) * Math.Tan(esscentricAnomaly / 2d)));
+            return normalizeRadian(2d * Math.Atan(Math.Sqrt(Math.Abs((1d + eccentricity) / (1d - eccentricity))) * Math.Tan(esscentricAnomaly / 2d)));*/
 
             //https://downloads.rene-schwarz.com/download/M002-Cartesian_State_Vectors_to_Keplerian_Orbit_Elements.pdf
-            //return normalizeRadian(2d * Math.Atan2(Math.Sqrt(Math.Abs(1d + eccentricity)) * (Math.Sin(esscentricAnomaly) / 2d), Math.Sqrt(Math.Abs(1d - eccentricity)) * (Math.Cos(esscentricAnomaly) / 2d)));
+            return normalizeRadian(2d * Math.Atan2(Math.Sqrt(Math.Abs(1d + eccentricity)) * (Math.Sin(esscentricAnomaly) / 2d), Math.Sqrt(Math.Abs(1d - eccentricity)) * (Math.Cos(esscentricAnomaly) / 2d)));
         }
 
         private static double getEsscentricAnomalyFromTrueAnomaly(double eccentricity, double trueAnomaly)
@@ -367,7 +367,7 @@ namespace PacificEngine.OW_CommonResources.Geometry
             double estimate = meanAnomaly;
             for (int i = 0; i < 10; i++)
             {
-                estimate += (estimate - getMeanAnomalyFromEsscentricAnomaly(eccentricity, estimate)) / 1.2;
+                estimate += (meanAnomaly - getMeanAnomalyFromEsscentricAnomaly(eccentricity, estimate)) / 1.2;
 
                 //https://downloads.rene-schwarz.com/download/M002-Cartesian_State_Vectors_to_Keplerian_Orbit_Elements.pdf
                 //estimate = normalizeRadian(estimate - (((estimate - (eccentricity * Math.Sin(estimate))) - meanAnomaly) / (estimate - (eccentricity * Math.Cos(estimate)))));
