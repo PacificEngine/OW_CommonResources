@@ -94,7 +94,7 @@ BrambleIsland_Body (OWRigidbody): (-5370.667,4489.811,12388.8) (129.4764,285.289
                 this.gravity = gravity;
 
                 var angularVelocity = orientation * (Vector3.up * rotationalSpeed);
-                this.state = RelativeState.fromKepler(parent, orbit, new OrientationState(orientation, angularVelocity, Vector3.zero));
+                this.state = RelativeState.fromKepler(parent, ScaleState.identity, orbit, new OrientationState(orientation, angularVelocity, Vector3.zero));
             }
 
             public Plantoid(Position.Size size, Orbit.Gravity gravity, Quaternion orientation, float rotationalSpeed, Position.HeavenlyBodies parent, Vector3 position, Vector3 velocity)
@@ -103,7 +103,7 @@ BrambleIsland_Body (OWRigidbody): (-5370.667,4489.811,12388.8) (129.4764,285.289
                 this.gravity = gravity;
 
                 var angularVelocity = orientation * (Vector3.up * rotationalSpeed);
-                this.state = RelativeState.fromRelative(parent, new MovementState(new PositionState(position, velocity, Vector3.zero, Vector3.zero), new OrientationState(orientation, angularVelocity, Vector3.zero)));
+                this.state = RelativeState.fromRelative(parent, new MovementState(ScaleState.identity, new PositionState(position, velocity, Vector3.zero, Vector3.zero), new OrientationState(orientation, angularVelocity, Vector3.zero)));
             }
 
             public Plantoid(Position.Size size, Orbit.Gravity gravity, Position.HeavenlyBodies parent, OWRigidbody target)
@@ -151,6 +151,8 @@ BrambleIsland_Body (OWRigidbody): (-5370.667,4489.811,12388.8) (129.4764,285.289
 
         private static Dictionary<Position.HeavenlyBodies, Tuple<InitialMotion, Vector3, Vector3, Quaternion, Vector3, GravityVolume>> dict = new Dictionary<Position.HeavenlyBodies, Tuple<InitialMotion, Vector3, Vector3, Quaternion, Vector3, GravityVolume>>();
         private static Dictionary<Position.HeavenlyBodies, Plantoid> _mapping = defaultMapping;
+        private static List<Tuple<OWRigidbody, RelativeState>> _movingItems = new List<Tuple<OWRigidbody, RelativeState>>();
+        private static Dictionary<Position.HeavenlyBodies, AbsoluteState> _newState = new Dictionary<Position.HeavenlyBodies, AbsoluteState>();
         private static bool update = false;
 
 
@@ -285,22 +287,32 @@ BrambleIsland_Body (OWRigidbody): (-5370.667,4489.811,12388.8) (129.4764,285.289
             updateList();
         }
 
+        public static void FixedUpdate()
+        {
+            if (_movingItems.Count > 0)
+            {
+                relocateMovingItems(_newState, _movingItems);
+            }
+            _movingItems.Clear();
+            _newState.Clear();
+        }
+
         private static void updateList()
         {
             if (update)
             {
                 update = false;
+                _movingItems.Clear();
+                _newState.Clear();
 
-                var movingItems = trackMovingItems();
-                var newStates = new Dictionary<Position.HeavenlyBodies, AbsoluteState>();
+                _movingItems = trackMovingItems();
                 foreach (var body in _mapping.Keys)
                 {
-                    var state = updatePlanet(body, newStates);
+                    var state = updatePlanet(body, _newState);
                     if (state != null) {
-                        newStates.Add(body, state);
+                        _newState.Add(body, state);
                     }
                 }
-                relocateMovingItems(newStates, movingItems);
             }
         }
 
@@ -374,23 +386,20 @@ BrambleIsland_Body (OWRigidbody): (-5370.667,4489.811,12388.8) (129.4764,285.289
 
         private static void relocateMovingItems(Dictionary<Position.HeavenlyBodies, AbsoluteState> newStates, List<Tuple<OWRigidbody, RelativeState>> movingItems)
         {
-            var probeCannon = Position.getBody(Position.HeavenlyBodies.ProbeCannon);
-            RelativeState originalProbeCannon = null;
-
             foreach(var movingItem in movingItems)
             {
-                if (movingItem == null || movingItem.Item1 == null || movingItem.Item2 == null)
+                if (movingItem == null || movingItem.Item1 == null || movingItem.Item2 == null || !newStates.ContainsKey(movingItem.Item2.parent))
                 {
                     continue;
                 }
 
-                var gravity = getGravity(movingItem.Item2.parent);
-                AbsoluteState parentState = null;
-                if (newStates.ContainsKey(movingItem.Item2.parent))
+                var parentState = newStates[movingItem.Item2.parent];
+                var parentGravity = Position.getGravity(movingItem.Item2.parent);
+                if (parentState == null || parentGravity == null)
                 {
-                    parentState = newStates[movingItem.Item2.parent];
+                    continue;
                 }
-                movingItem.Item2.apply(movingItem.Item1, parentState, gravity);
+                movingItem.Item2.apply(movingItem.Item1, parentState, parentGravity);
             }
         }
 
@@ -520,17 +529,21 @@ BrambleIsland_Body (OWRigidbody): (-5370.667,4489.811,12388.8) (129.4764,285.289
         private static bool onOrbitLineUpdate(ref OrbitLine __instance)
         {
             var _astroObject = __instance.GetValue<AstroObject>("_astroObject");
+            var _lineRenderer = __instance.GetValue<LineRenderer>("_lineRenderer");
+            _lineRenderer.startColor = Color.clear;
+            _lineRenderer.endColor = Color.clear;
+
             AstroObject parentAstro = _astroObject != null ? _astroObject.GetPrimaryBody() : (AstroObject)null;
             if (parentAstro == null)
             {
-                return true;
+                return false;
             }
 
             var body = Position.find(_astroObject);
             Plantoid planet;
             if (!_mapping.TryGetValue(body, out planet))
             {
-                return true;
+                return false;
             }
 
             var parent = planet.state.parent;
@@ -538,11 +551,10 @@ BrambleIsland_Body (OWRigidbody): (-5370.667,4489.811,12388.8) (129.4764,285.289
             var kepler = Position.getKepler(parent, owBody);
             if (kepler == null && !kepler.isOrbit())
             {
-                return true;
+                return false;
             }
 
             var _numVerts = __instance.GetValue<int>("_numVerts");
-            var _lineRenderer = __instance.GetValue<LineRenderer>("_lineRenderer");
             var _verts = new Vector3[_numVerts];
 
             var parentGravity = Position.getGravity(parent);

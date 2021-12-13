@@ -112,6 +112,10 @@ namespace PacificEngine.OW_CommonResources.Game.State
             }
         }
 
+        public static void FixedUpdate()
+        {
+        }
+
         public static Shapes2D getCoordinatesImage()
         {
             var x = getCoordinate2D(EyeCoordinates.x);

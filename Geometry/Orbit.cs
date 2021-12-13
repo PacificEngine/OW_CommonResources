@@ -6,6 +6,7 @@ using UnityEngine;
 
 namespace PacificEngine.OW_CommonResources.Geometry
 {
+    // TODO: Figure out why Kepler to Cartisian is broken for non-circular orbits
     public static class Orbit
     {
         public class Gravity
@@ -154,11 +155,12 @@ namespace PacificEngine.OW_CommonResources.Geometry
 
         //https://space.stackexchange.com/questions/19322/converting-orbital-elements-to-cartesian-state-vectors
         //https://web.archive.org/web/20160418175843/https://ccar.colorado.edu/asen5070/handouts/cart2kep2002.pdf
+        //https://downloads.rene-schwarz.com/download/M002-Cartesian_State_Vectors_to_Keplerian_Orbit_Elements.pdf
         public static KeplerCoordinates toKeplerCoordinates(Gravity parent, float timeSinceStart, Vector3 startPosition, Vector3 startVelocity)
         {
             var product = Vector3.Dot(startPosition, startVelocity);
-            var angularMomemntumVector = Vector3.Cross(startPosition, startVelocity);
-            var angularMomemntum = (double)angularMomemntumVector.magnitude;
+            var orbitalMomentum = Vector3.Cross(startPosition, startVelocity);
+            var angularMomemntum = (double)orbitalMomentum.magnitude;
 
             var mu = parent.mu;
             var radius = (double)startPosition.magnitude;
@@ -166,6 +168,7 @@ namespace PacificEngine.OW_CommonResources.Geometry
             double specificEnergy;
             double semiMajorRadius;
             double eccentricity;
+
             if (parent.exponent < 1.5d)
             {
                 specificEnergy = (speed * speed) / 2d - mu;
@@ -174,12 +177,17 @@ namespace PacificEngine.OW_CommonResources.Geometry
             }
             else
             {
+                //https://web.archive.org/web/20160418175843/https://ccar.colorado.edu/asen5070/handouts/cart2kep2002.pdf
                 specificEnergy = (speed * speed) / 2d - (mu / radius);
                 semiMajorRadius = Math.Abs(mu / (2d * specificEnergy));
                 eccentricity = Math.Sqrt(Math.Abs(1 - ((angularMomemntum * angularMomemntum) / (semiMajorRadius * mu))));
+
+                //https://downloads.rene-schwarz.com/download/M002-Cartesian_State_Vectors_to_Keplerian_Orbit_Elements.pdf
+                //eccentricity = ((Vector3.Cross(startVelocity, orbitalMomentum) / mu) - (startPosition * (1f / (float)radius))).magnitude;
+                //semiMajorRadius = 1d / Math.Abs((2d / startPosition.magnitude) - (startVelocity.magnitude / mu));
             }
-            var inclinationAngle = normalizeRadian(Math.Acos(angularMomemntumVector.z/angularMomemntum)) % Math.PI;
-            var ascendingAngle = normalizeRadian(Math.Atan2(angularMomemntumVector.x, -1f * angularMomemntumVector.y));
+            var inclinationAngle = normalizeRadian(Math.Acos(orbitalMomentum.z/angularMomemntum)) % Math.PI;
+            var ascendingAngle = normalizeRadian(Math.Atan2(orbitalMomentum.x, -1f * orbitalMomentum.y));
             var latitudeAngle = normalizeRadian(Math.Atan2(startPosition.z / Math.Sin(inclinationAngle), (startPosition.x * Math.Cos(ascendingAngle)) + (startPosition.y * Math.Sin(ascendingAngle))));
 
             var semiAxisRectum = Ellipse.getAxisRectum((float)semiMajorRadius, (float)eccentricity);
@@ -195,6 +203,7 @@ namespace PacificEngine.OW_CommonResources.Geometry
 
         //https://space.stackexchange.com/questions/19322/converting-orbital-elements-to-cartesian-state-vectors
         //https://web.archive.org/web/20170810015111/http://ccar.colorado.edu/asen5070/handouts/kep2cart_2002.doc
+        //https://downloads.rene-schwarz.com/download/M001-Keplerian_Orbit_Elements_to_Cartesian_State_Vectors.pdf
         public static Tuple<Vector3, Vector3> toCartesian(Gravity parent, float timeSinceStart, KeplerCoordinates keplerCoordinates)
         {
             return toCartesian(parent, timeSinceStart, keplerCoordinates.eccentricity, keplerCoordinates.semiMajorRadius, keplerCoordinates.inclinationAngle, keplerCoordinates.periapseAngle, keplerCoordinates.ascendingAngle, keplerCoordinates.timeSincePeriapse); 
@@ -236,6 +245,7 @@ namespace PacificEngine.OW_CommonResources.Geometry
 
             double angularMomentum = parent.getAngularMomentum(semiAxisRectum);
 
+            //https://web.archive.org/web/20170810015111/http://ccar.colorado.edu/asen5070/handouts/kep2cart_2002.doc
             var sinTrue = Math.Sin(trueAnomaly);
             var sinsAscend = Math.Sin(ascendingAngle);
             var cosAscend = Math.Cos(ascendingAngle);
@@ -251,6 +261,31 @@ namespace PacificEngine.OW_CommonResources.Geometry
             var dX = (((X * angularMomentum * eccentricity) / (radius * semiAxisRectum)) * sinTrue) - ((angularMomentum / radius) * ((cosAscend * sinPeriapseTrue) + (sinsAscend * cosPeriapseTrue * cosInclination)));
             var dY = (((Y * angularMomentum * eccentricity) / (radius * semiAxisRectum)) * sinTrue) - ((angularMomentum / radius) * ((sinsAscend * sinPeriapseTrue) + (cosAscend * cosPeriapseTrue * cosInclination)));
             var dZ = (((Z * angularMomentum * eccentricity) / (radius * semiAxisRectum)) * sinTrue) + ((angularMomentum / radius) * (cosPeriapseTrue * sinInclination));
+
+            //https://downloads.rene-schwarz.com/download/M001-Keplerian_Orbit_Elements_to_Cartesian_State_Vectors.pdf
+            /*var escentricAngle = getEsscentricAnomalyFromTrueAnomaly(eccentricity, trueAnomaly);
+
+            var sinsAscend = Math.Sin(ascendingAngle); // sun O
+            var cosAscend = Math.Cos(ascendingAngle); // cos O
+            var sinPeriapse = Math.Sin(periapseAngle); // sin w
+            var cosPeriapse = Math.Cos(periapseAngle); // cos w
+            var sinInclination = Math.Sin(inclinationAngle); // sin i
+            var cosInclination = Math.Cos(inclinationAngle); // cos i
+
+            var oX = radius * Math.Cos(trueAnomaly);
+            var oY = radius * Math.Sin(trueAnomaly);
+
+            var od = Math.Sqrt(parent.mu * semiMajorRadius) / radius;
+            var odX = od * -1d * Math.Sin(escentricAngle);
+            var odY = od * Math.Sqrt(1 - (eccentricity * eccentricity)) * Math.Cos(escentricAngle);
+
+            var X = (oX * ((cosPeriapse * cosAscend) - (sinPeriapse * cosInclination * sinsAscend)) - oY * ((sinPeriapse * cosAscend) + (cosPeriapse * cosInclination * sinsAscend)));
+            var Y = (oX * ((cosPeriapse * sinsAscend) - (sinPeriapse * cosInclination * cosAscend)) - oY * ((cosPeriapse * cosInclination * cosAscend) + (sinPeriapse * sinsAscend)));
+            var Z = ((oX * sinPeriapse * sinInclination) + (oY * cosPeriapse * sinInclination));
+
+            var dX = (odX * ((cosPeriapse * cosAscend) - (sinPeriapse * cosInclination * sinsAscend)) - odY * ((sinPeriapse * cosAscend) + (cosPeriapse * cosInclination * sinsAscend)));
+            var dY = (odX * ((cosPeriapse * sinsAscend) - (sinPeriapse * cosInclination * cosAscend)) - odY * ((cosPeriapse * cosInclination * cosAscend) + (sinPeriapse * sinsAscend)));
+            var dZ = ((odX * sinPeriapse * sinInclination) + (odY * cosPeriapse * sinInclination));*/
 
             return Tuple.Create(new Vector3((float)X, (float)Y, (float)Z), new Vector3((float)dX, (float)dY, (float)dZ));
         }
@@ -312,6 +347,9 @@ namespace PacificEngine.OW_CommonResources.Geometry
             if (0.9999f < eccentricity && eccentricity < 1.0001f)
                 return normalizeRadian(2d * Math.Atan2(Math.Sin(esscentricAnomaly) * Math.Sqrt(1d - (eccentricity * eccentricity)), Math.Cos(esscentricAnomaly) - eccentricity));
             return normalizeRadian(2d * Math.Atan(Math.Sqrt(Math.Abs((1d + eccentricity) / (1d - eccentricity))) * Math.Tan(esscentricAnomaly / 2d)));
+
+            //https://downloads.rene-schwarz.com/download/M002-Cartesian_State_Vectors_to_Keplerian_Orbit_Elements.pdf
+            //return normalizeRadian(2d * Math.Atan2(Math.Sqrt(Math.Abs(1d + eccentricity)) * (Math.Sin(esscentricAnomaly) / 2d), Math.Sqrt(Math.Abs(1d - eccentricity)) * (Math.Cos(esscentricAnomaly) / 2d)));
         }
 
         private static double getEsscentricAnomalyFromTrueAnomaly(double eccentricity, double trueAnomaly)
@@ -329,7 +367,10 @@ namespace PacificEngine.OW_CommonResources.Geometry
             double estimate = meanAnomaly;
             for (int i = 0; i < 10; i++)
             {
-                estimate += (meanAnomaly - getMeanAnomalyFromEsscentricAnomaly(eccentricity, estimate)) / 1.2;
+                estimate += (estimate - getMeanAnomalyFromEsscentricAnomaly(eccentricity, estimate)) / 1.2;
+
+                //https://downloads.rene-schwarz.com/download/M002-Cartesian_State_Vectors_to_Keplerian_Orbit_Elements.pdf
+                //estimate = normalizeRadian(estimate - (((estimate - (eccentricity * Math.Sin(estimate))) - meanAnomaly) / (estimate - (eccentricity * Math.Cos(estimate)))));
             }
             return normalizeRadian(estimate);
         }

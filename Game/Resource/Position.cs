@@ -218,11 +218,15 @@ namespace PacificEngine.OW_CommonResources.Game.Resource
             }
         }
 
+        public static void FixedUpdate()
+        {
+        }
+
         private static void listValue(string id, string name, float index, OWRigidbody comparison)
         {
             if (comparison)
             {
-                var relaitveState = RelativeState.fromClosetInfluence(comparison, Position.HeavenlyBodies.Player,
+                var relativeState = RelativeState.fromClosetInfluence(comparison, Position.HeavenlyBodies.Player,
                     Position.HeavenlyBodies.Probe,
                     Position.HeavenlyBodies.Ship,
                     Position.HeavenlyBodies.ModelShip,
@@ -230,23 +234,11 @@ namespace PacificEngine.OW_CommonResources.Game.Resource
                     Position.HeavenlyBodies.NomaiBrittleHollowShuttle,
                     Position.HeavenlyBodies.NomaiEmberTwinShuttle,
                     Position.HeavenlyBodies.TimberHearthProbe);
-                listValue(id, name, index, relaitveState);
+                listValue(id, name, index, relativeState.parent, relativeState?.surface.position ?? Vector3.zero, relativeState?.surface.velocity ?? Vector3.zero);
             }
             else
             {
                 listValue(id, name, index, null, Vector3.zero, Vector3.zero);
-            }
-        }
-
-        private static void listValue(string id, string name, float index, RelativeState relativeState)
-        {
-            if (relativeState?.surface == null)
-            {
-                listValue(id, name, index, null, Vector3.zero, Vector3.zero);
-            }
-            else
-            {
-                listValue(id, name, index, relativeState.parent, relativeState.surface.position, relativeState.surface.velocity);
             }
         }
 
@@ -443,7 +435,8 @@ namespace PacificEngine.OW_CommonResources.Game.Resource
             {
                 if (!shouldExclude.Invoke(body))
                 {
-                    var distance = getBody(body)?.transform?.InverseTransformPoint(position).sqrMagnitude;
+                    var parentState = AbsoluteState.fromCurrentState(body);
+                    var distance = parentState?.InverseTransformPoint(position).sqrMagnitude;
                     if (distance.HasValue)
                     {
                         obj.Add(new Tuple<HeavenlyBodies, float>(body, distance.Value));
@@ -453,7 +446,7 @@ namespace PacificEngine.OW_CommonResources.Game.Resource
 
             if (obj.Count == 0)
             {
-                var distance = (position - (Locator.GetCenterOfTheUniverse()?.GetOffsetPosition() ?? Vector3.zero)).sqrMagnitude;
+                var distance = position.sqrMagnitude;
                 obj.Add(new Tuple<HeavenlyBodies, float>(HeavenlyBodies.None, distance));
             }
             else
@@ -635,12 +628,13 @@ namespace PacificEngine.OW_CommonResources.Game.Resource
 
         public static Orbit.KeplerCoordinates getKepler(HeavenlyBodies parent, OWRigidbody target)
         {
-            if (target == null || target.GetRigidbody() == null)
+            var state = PositionState.fromCurrentState(target);
+            if (state == null)
             {
                 return null;
             }
 
-            return getKepler(parent, target.GetPosition(), target.GetVelocity());
+            return getKepler(parent, state.position, state.velocity);
         }
 
         public static Orbit.KeplerCoordinates getKepler(HeavenlyBodies parent, Vector3 worldPosition, Vector3 worldVelocity)

@@ -85,5 +85,19 @@ namespace PacificEngine.OW_CommonResources
             WarpPad.Update();
             Planet.Update();
         }
+
+        void FixedUpdate()
+        {
+            Position.FixedUpdate();
+            Fog.FixedUpdate();
+            Player.FixedUpdate();
+            Ship.FixedUpdate();
+            Anglerfish.FixedUpdate();
+            SuperNova.FixedUpdate();
+            EyeCoordinates.FixedUpdate();
+            BramblePortals.FixedUpdate();
+            WarpPad.FixedUpdate();
+            Planet.FixedUpdate();
+        }
     }
 }

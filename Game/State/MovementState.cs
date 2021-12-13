@@ -10,8 +10,134 @@ using UnityEngine;
 
 namespace PacificEngine.OW_CommonResources.Game.State
 {
+    public class ScaleState
+    {
+        public static ScaleState identity { get { return new ScaleState(Vector3.one, Vector3.one); } }
+
+        public Vector3 lossyScale { get; }
+        public Vector3 localScale { get; }
+
+        public ScaleState(Vector3 lossyScale, Vector3 localScale)
+        {
+            this.lossyScale = lossyScale;
+            this.localScale = localScale;
+        }
+
+        public static ScaleState fromCurrentState(Position.HeavenlyBodies target)
+        {
+            return fromCurrentState(Position.getBody(target));
+        }
+
+        public static ScaleState fromCurrentState(OWRigidbody target)
+        {
+            if (target == null || target.GetRigidbody() == null)
+            {
+                return null;
+            }
+
+            var lossyScale = target?.transform?.lossyScale ?? identity.lossyScale;
+            var localScale = target.GetLocalScale();
+
+            return new ScaleState(lossyScale, localScale);
+        }
+
+        public override string ToString()
+        {
+            var lossyScale = this.lossyScale == null ? "" : DisplayConsole.logVector(this.lossyScale);
+            var localScale = this.localScale == null ? "" : DisplayConsole.logVector(this.localScale);
+            return $"({lossyScale}, {localScale})";
+        }
+
+        public override bool Equals(System.Object other)
+        {
+            if (other != null && other is ScaleState)
+            {
+                var obj = other as ScaleState;
+                return lossyScale == obj.lossyScale
+                   && localScale == obj.localScale;
+            }
+            return false;
+        }
+
+        public override int GetHashCode()
+        {
+            return (lossyScale.GetHashCode() * 4)
+                + (localScale.GetHashCode() * 16);
+        }
+    }
+
+    public class PositionState
+    {
+        public static PositionState identity { get { return new PositionState(Vector3.zero, Vector3.zero, Vector3.zero, Vector3.zero); } }
+
+        public Vector3 position { get; }
+        public Vector3 velocity { get; }
+        public Vector3 acceleration { get; }
+        public Vector3 jerk { get; }
+
+        public PositionState(Vector3 position, Vector3 velocity, Vector3 acceleration, Vector3 jerk)
+        {
+            this.position = position;
+            this.velocity = velocity;
+            this.acceleration = acceleration;
+            this.jerk = jerk;
+        }
+
+        public static PositionState fromCurrentState(Position.HeavenlyBodies target)
+        {
+            return fromCurrentState(Position.getBody(target));
+        }
+
+        public static PositionState fromCurrentState(OWRigidbody target)
+        {
+            if (target == null || target.GetRigidbody() == null)
+            {
+                return null;
+            }
+
+            var position = target.GetWorldCenterOfMass() - (Locator.GetCenterOfTheUniverse()?.GetOffsetPosition() ?? Vector3.zero);
+            var velocity = target.GetVelocity() - (Locator.GetCenterOfTheUniverse()?.GetOffsetVelocity() ?? Vector3.zero);
+            var acceleration = target.GetAcceleration();
+            var jerk = target.GetJerk();
+
+            return new PositionState(position, velocity, acceleration, jerk);
+        }
+
+        public override string ToString()
+        {
+            var position = this.position == null ? "" : DisplayConsole.logVector(this.position);
+            var velocity = this.velocity == null ? "" : DisplayConsole.logVector(this.velocity);
+            var acceleration = this.acceleration == null ? "" : DisplayConsole.logVector(this.acceleration);
+            var jerk = this.jerk == null ? "" : DisplayConsole.logVector(this.jerk);
+            return $"({position}, {velocity}, {acceleration}, {jerk})";
+        }
+
+        public override bool Equals(System.Object other)
+        {
+            if (other != null && other is PositionState)
+            {
+                var obj = other as PositionState;
+                return position == obj.position
+                   && velocity == obj.velocity
+                   && acceleration == obj.acceleration
+                   && jerk == obj.jerk;
+            }
+            return false;
+        }
+
+        public override int GetHashCode()
+        {
+            return (position.GetHashCode() * 4)
+                + (velocity.GetHashCode() * 16)
+                + (acceleration.GetHashCode() * 64)
+                + (acceleration.GetHashCode() * 256);
+        }
+    }
+
     public class OrientationState
     {
+        public static OrientationState identity { get { return new OrientationState(Quaternion.identity, Vector3.zero, Vector3.zero); } }
+
         public Quaternion rotation { get; }
         public Vector3 angularVelocity { get; }
         public Vector3 angularAcceleration { get; }
@@ -34,7 +160,12 @@ namespace PacificEngine.OW_CommonResources.Game.State
             {
                 return null;
             }
-            return new OrientationState(target.GetRotation(), target.GetAngularVelocity(), target.GetAngularAcceleration());
+
+            var rotation = target.GetRotation();
+            var angularVelocity = target.GetAngularVelocity();
+            var angularAcceleration = target.GetAngularAcceleration();
+
+            return new OrientationState(rotation, angularVelocity, angularAcceleration);
         }
 
         public override string ToString()
@@ -63,105 +194,31 @@ namespace PacificEngine.OW_CommonResources.Game.State
                 + (angularVelocity.GetHashCode() * 16)
                 + (angularAcceleration.GetHashCode() * 64);
         }
-
-        public void applyRotation(OWRigidbody target)
-        {
-            target.SetRotation(new Quaternion(rotation.x, rotation.y, rotation.z, rotation.w));
-            target.SetAngularVelocity(new Vector3(angularVelocity.x, angularVelocity.y, angularVelocity.z));
-
-            target.SetValue("_currentAngularVelocity", new Vector3(angularVelocity.x, angularVelocity.y, angularVelocity.z));
-            target.SetValue("_lastAngularVelocity", new Vector3(angularVelocity.x, angularVelocity.y, angularVelocity.z));
-        }
-    }
-
-    public class PositionState
-    {
-        public Vector3 position { get; }
-        public Vector3 velocity { get; }
-        public Vector3 acceleration { get; }
-        public Vector3 jerk { get; }
-
-        public PositionState(Vector3 position, Vector3 velocity, Vector3 acceleration, Vector3 jerk)
-        {
-            this.position = position;
-            this.velocity = velocity;
-            this.acceleration = acceleration;
-            this.jerk = jerk;
-        }
-
-        public static PositionState fromCurrentState(Position.HeavenlyBodies target)
-        {
-            return fromCurrentState(Position.getBody(target));
-        }
-
-        public static PositionState fromCurrentState(OWRigidbody target)
-        {
-            if (target == null || target.GetRigidbody() == null)
-            {
-                return null;
-            }
-            return new PositionState(target.GetPosition(), target.GetVelocity(), target.GetAcceleration(), target.GetJerk());
-        }
-
-        public override string ToString()
-        {
-            var position = this.position == null ? "" : DisplayConsole.logVector(this.position);
-            var velocity = this.velocity == null ? "" : DisplayConsole.logVector(this.velocity);
-            var acceleration = this.acceleration == null ? "" : DisplayConsole.logVector(this.acceleration);
-            return $"({position}, {velocity}, {acceleration})";
-        }
-
-        public override bool Equals(System.Object other)
-        {
-            if (other != null && other is PositionState)
-            {
-                var obj = other as PositionState;
-                return position == obj.position
-                   && velocity == obj.velocity
-                   && acceleration == obj.acceleration;
-            }
-            return false;
-        }
-
-        public override int GetHashCode()
-        {
-            return (position.GetHashCode() * 4)
-                + (velocity.GetHashCode() * 16)
-                + (acceleration.GetHashCode() * 64);
-        }
-
-        public void applyMovement(OWRigidbody target)
-        {
-            target.SetPosition(new Vector3(position.x, position.y, position.z));
-            target.SetVelocity(new Vector3(velocity.x, velocity.y, velocity.z));
-
-            target.SetValue("_lastPosition", new Vector3(position.x, position.y, position.z));
-            target.SetValue("_currentVelocity", new Vector3(velocity.x, velocity.y, velocity.z));
-            target.SetValue("_lastVelocity", new Vector3(velocity.x, velocity.y, velocity.z));
-            target.SetValue("_currentAccel", new Vector3(acceleration.x, acceleration.y, acceleration.z));
-            target.SetValue("_lastAccel", new Vector3(acceleration.x, acceleration.y, acceleration.z));
-        }
     }
 
     public class KeplerState
     {
+        public ScaleState scale { get; }
         public Orbit.KeplerCoordinates coordinates { get; }
         public OrientationState orientation { get; }
 
-        public Quaternion rotation { get { return orientation?.rotation ?? Quaternion.identity; } }
-        public Vector3 angularVelocity { get { return orientation?.angularVelocity ?? Vector3.zero; } }
-        public Vector3 angularAcceleration { get { return orientation?.angularAcceleration ?? Vector3.zero; } }
+        public Vector3 lossyScale { get { return scale?.lossyScale ?? ScaleState.identity.lossyScale; } }
+        public Vector3 localScale { get { return scale?.localScale ?? ScaleState.identity.localScale; } }
 
+        public Quaternion rotation { get { return orientation?.rotation ?? OrientationState.identity.rotation; } }
+        public Vector3 angularVelocity { get { return orientation?.angularVelocity ?? OrientationState.identity.angularVelocity; } }
+        public Vector3 angularAcceleration { get { return orientation?.angularAcceleration ?? OrientationState.identity.angularAcceleration; } }
 
-        public KeplerState(Orbit.KeplerCoordinates coordinates, OrientationState orientation)
+        public KeplerState(ScaleState scale, Orbit.KeplerCoordinates coordinates, OrientationState orientation)
         {
+            this.scale = scale ?? ScaleState.identity;
             this.coordinates = coordinates;
-            this.orientation = orientation;
+            this.orientation = orientation ?? OrientationState.identity;
         }
 
         public override string ToString()
         {
-            return $"({coordinates}, {orientation})";
+            return $"({scale}, {coordinates}, {orientation})";
         }
 
         public override bool Equals(System.Object other)
@@ -169,7 +226,8 @@ namespace PacificEngine.OW_CommonResources.Game.State
             if (other != null && other is KeplerState)
             {
                 var obj = other as KeplerState;
-                return coordinates == obj.coordinates
+                return scale == obj.scale
+                    && coordinates == obj.coordinates
                     && orientation == obj.orientation;
             }
             return false;
@@ -177,34 +235,40 @@ namespace PacificEngine.OW_CommonResources.Game.State
 
         public override int GetHashCode()
         {
-            return (coordinates.GetHashCode())
+            return (scale.GetHashCode())
+                + (coordinates.GetHashCode() * 4)
                 + (orientation.GetHashCode() * 16);
         }
     }
 
     public class MovementState
     {
+        public ScaleState scale { get; }
         public PositionState coordinates { get; }
         public OrientationState orientation { get; }
 
-        public Vector3 position { get { return coordinates?.position ?? Vector3.zero; } }
-        public Vector3 velocity { get { return coordinates?.velocity ?? Vector3.zero; } }
-        public Vector3 acceleration { get { return coordinates?.acceleration ?? Vector3.zero; } }
-        public Vector3 jerk { get { return coordinates?.jerk ?? Vector3.zero; } }
+        public Vector3 lossyScale { get { return scale?.lossyScale ?? ScaleState.identity.lossyScale; } }
+        public Vector3 localScale { get { return scale?.localScale ?? ScaleState.identity.localScale; } }
 
-        public Quaternion rotation { get { return orientation?.rotation ?? Quaternion.identity; } }
-        public Vector3 angularVelocity { get { return orientation?.angularVelocity ?? Vector3.zero; } }
-        public Vector3 angularAcceleration { get { return orientation?.angularAcceleration ?? Vector3.zero; } }
+        public Vector3 position { get { return coordinates?.position ?? PositionState.identity.position; } }
+        public Vector3 velocity { get { return coordinates?.velocity ?? PositionState.identity.velocity; } }
+        public Vector3 acceleration { get { return coordinates?.acceleration ?? PositionState.identity.acceleration; } }
+        public Vector3 jerk { get { return coordinates?.jerk ?? PositionState.identity.jerk; } }
 
-        public MovementState(PositionState coordinates, OrientationState orientation)
+        public Quaternion rotation { get { return orientation?.rotation ?? OrientationState.identity.rotation; } }
+        public Vector3 angularVelocity { get { return orientation?.angularVelocity ?? OrientationState.identity.angularVelocity; } }
+        public Vector3 angularAcceleration { get { return orientation?.angularAcceleration ?? OrientationState.identity.angularAcceleration; } }
+
+        public MovementState(ScaleState scale, PositionState coordinates, OrientationState orientation)
         {
-            this.coordinates = coordinates ?? new PositionState(Vector3.zero, Vector3.zero, Vector3.zero, Vector3.zero);
-            this.orientation = orientation ?? new OrientationState(Quaternion.identity, Vector3.zero, Vector3.zero);
+            this.scale = scale ?? ScaleState.identity;
+            this.coordinates = coordinates ?? PositionState.identity;
+            this.orientation = orientation ?? OrientationState.identity;
         }
 
         public override string ToString()
         {
-            return $"({coordinates}, {orientation})";
+            return $"({scale}, {coordinates}, {orientation})";
         }
 
         public override bool Equals(System.Object other)
@@ -212,7 +276,8 @@ namespace PacificEngine.OW_CommonResources.Game.State
             if (other != null && other is MovementState)
             {
                 var obj = other as MovementState;
-                return coordinates == obj.coordinates
+                return scale == obj.scale
+                    && coordinates == obj.coordinates
                     && orientation == obj.orientation;
             }
             return false;
@@ -220,14 +285,15 @@ namespace PacificEngine.OW_CommonResources.Game.State
 
         public override int GetHashCode()
         {
-            return (coordinates.GetHashCode())
+            return (scale.GetHashCode())
+                + (coordinates.GetHashCode() * 4)
                 + (orientation.GetHashCode() * 16);
         }
     }
 
     public class AbsoluteState : MovementState
     {
-        public AbsoluteState(PositionState coordinates, OrientationState orientation) : base(coordinates, orientation)
+        public AbsoluteState(ScaleState scale, PositionState coordinates, OrientationState orientation) : base(scale, coordinates, orientation)
         {
         }
 
@@ -242,12 +308,12 @@ namespace PacificEngine.OW_CommonResources.Game.State
             {
                 return null;
             }
-            return new AbsoluteState(PositionState.fromCurrentState(target), OrientationState.fromCurrentState(target));
+            return new AbsoluteState(ScaleState.fromCurrentState(target), PositionState.fromCurrentState(target), OrientationState.fromCurrentState(target));
         }
 
         public override string ToString()
         {
-            return $"({coordinates}, {orientation})";
+            return $"({scale}, {coordinates}, {orientation})";
         }
 
         public override bool Equals(System.Object other)
@@ -255,7 +321,8 @@ namespace PacificEngine.OW_CommonResources.Game.State
             if (other != null && other is AbsoluteState)
             {
                 var obj = other as AbsoluteState;
-                return position == obj.position
+                return scale == obj.scale
+                    && coordinates == obj.coordinates
                     && orientation == obj.orientation;
             }
             return false;
@@ -263,7 +330,8 @@ namespace PacificEngine.OW_CommonResources.Game.State
 
         public override int GetHashCode()
         {
-            return (coordinates.GetHashCode())
+            return (scale.GetHashCode())
+                + (coordinates.GetHashCode() * 4)
                 + (orientation.GetHashCode() * 16);
         }
 
@@ -300,35 +368,62 @@ namespace PacificEngine.OW_CommonResources.Game.State
 
         public Vector3 TransformPoint(Vector3 localPoint)
         {
-            return rotation * localPoint + position;
+            return position + rotation * Vector3.Scale(lossyScale, localPoint);
         }
 
         public Vector3 InverseTransformPoint(Vector3 worldPoint)
         {
-            return Quaternion.Inverse(rotation) * (worldPoint - position);
+            return Vector3.Scale(new Vector3(1 / lossyScale.x, 1 / lossyScale.y, 1 / lossyScale.z),
+               Quaternion.Inverse(rotation) * (worldPoint - position));
         }
 
-        public Quaternion TransformRotation(Quaternion localPoint)
+        public Quaternion TransformRotation(Quaternion localRotation)
         {
-            return localPoint * rotation;
+            return localRotation * rotation;
         }
 
-        public Quaternion InverseTransformRotation(Quaternion worldPoint)
+        public Quaternion InverseTransformRotation(Quaternion worldRotation)
         {
-            return Quaternion.Inverse(rotation) * worldPoint;
+            return Quaternion.Inverse(rotation) * worldRotation;
         }
 
         public void apply(OWRigidbody target)
         {
-            coordinates.applyMovement(target);
-            orientation.applyRotation(target);
+            applyMovement(target);
+            applyRotation(target);
         }
 
         public void apply(Position.HeavenlyBodies parent, AbsoluteState parentState, OWRigidbody target)
         {
-            coordinates.applyMovement(target);
-            orientation.applyRotation(target);
+            applyMovement(target);
+            applyRotation(target);
             applyCachedState(parent, parentState, target);
+        }
+
+        private void applyMovement(OWRigidbody target)
+        {
+            Helper.helper.Console.WriteLine($"{target}: {position}, {velocity}, {acceleration}");
+
+            var p = position + (Locator.GetCenterOfTheUniverse()?.GetOffsetPosition() ?? Vector3.zero);
+            var v = velocity + (Locator.GetCenterOfTheUniverse()?.GetOffsetVelocity() ?? Vector3.zero); /* Possibly not required because of CenterOfTheUniverseOffsetApplier */
+
+            target.SetPosition(new Vector3(p.x, p.y, p.z));
+            target.SetVelocity(new Vector3(v.x, v.y, v.z));
+
+            target.SetValue("_lastPosition", new Vector3(p.x, p.y, p.z));
+            target.SetValue("_currentVelocity", new Vector3(v.x, v.y, v.z));
+            target.SetValue("_lastVelocity", new Vector3(v.x, v.y, v.z));
+            target.SetValue("_currentAccel", new Vector3(acceleration.x, acceleration.y, acceleration.z));
+            target.SetValue("_lastAccel", new Vector3(acceleration.x, acceleration.y, acceleration.z));
+        }
+
+        private void applyRotation(OWRigidbody target)
+        {
+            target.SetRotation(new Quaternion(rotation.x, rotation.y, rotation.z, rotation.w));
+            target.SetAngularVelocity(new Vector3(angularVelocity.x, angularVelocity.y, angularVelocity.z));
+
+            target.SetValue("_currentAngularVelocity", new Vector3(angularVelocity.x, angularVelocity.y, angularVelocity.z));
+            target.SetValue("_lastAngularVelocity", new Vector3(angularVelocity.x, angularVelocity.y, angularVelocity.z));
         }
 
         private void applyCachedState(Position.HeavenlyBodies parent, AbsoluteState parentState, OWRigidbody target)
@@ -414,6 +509,12 @@ namespace PacificEngine.OW_CommonResources.Game.State
 
         public AbsoluteState getAbsoluteState(AbsoluteState parentState, Orbit.Gravity gravity)
         {
+            var scale = getAbsoluteScale(parentState, gravity);
+            if (scale == null)
+            {
+                return null;
+            }
+
             var movement = getAbsoluteMovement(parentState, gravity);
             if (movement == null)
             {
@@ -426,7 +527,27 @@ namespace PacificEngine.OW_CommonResources.Game.State
                 return null;
             }
 
-            return new AbsoluteState(movement, orientation);
+            return new AbsoluteState(scale, movement, orientation);
+        }
+
+
+        private ScaleState getAbsoluteScale(AbsoluteState parentState, Orbit.Gravity gravity)
+        {
+            if (orbit != null && orbit.coordinates != null && orbit.coordinates.isOrbit() && gravity != null)
+            {
+                return orbit.scale;
+            }
+            else if (parentState != null
+                && surface != null)
+            {
+                return surface.scale;
+            }
+            else if (relative != null)
+            {
+                return relative.scale;
+            }
+
+            return null;
         }
 
         private PositionState getAbsoluteMovement(AbsoluteState parentState, Orbit.Gravity gravity)
@@ -456,6 +577,8 @@ namespace PacificEngine.OW_CommonResources.Game.State
             var acceleration = Vector3.zero;
             var jerk = Vector3.zero;
 
+            Helper.helper.Console.WriteLine($"{orbit.coordinates} -> {position}, {velocity} -> {Orbit.toKeplerCoordinates(gravity, Time.timeSinceLevelLoad, position, velocity)}");
+
             if (parentState != null && surface != null)
             {
                 position = surface.position.normalized * position.magnitude;
@@ -468,11 +591,8 @@ namespace PacificEngine.OW_CommonResources.Game.State
                 position += parentState.position;
                 velocity += parentState.velocity;
             }
-            else
-            {
-                position += Locator.GetCenterOfTheUniverse()?.GetOffsetPosition() ?? Vector3.zero;
-                //velocity += Locator.GetCenterOfTheUniverse()?.GetOffsetVelocity() ?? Vector3.zero; /* Possibly not required because of CenterOfTheUniverseOffsetApplier */
-            }
+
+            Helper.helper.Console.WriteLine($"{orbit.coordinates} -> {position}, {velocity} -> {Position.getKepler(parentState, gravity, position, velocity)}");
 
             return new PositionState(position, velocity, acceleration, jerk);
         }
@@ -504,11 +624,6 @@ namespace PacificEngine.OW_CommonResources.Game.State
                 velocity += parentState.velocity;
                 acceleration += parentState.acceleration;
             }
-            else
-            {
-                position += Locator.GetCenterOfTheUniverse()?.GetOffsetPosition() ?? Vector3.zero;
-                //velocity += Locator.GetCenterOfTheUniverse()?.GetOffsetVelocity() ?? Vector3.zero; /* Possibly not required because of CenterOfTheUniverseOffsetApplier */
-            }
 
             return new PositionState(position, velocity, acceleration, jerk);
         }
@@ -524,7 +639,7 @@ namespace PacificEngine.OW_CommonResources.Game.State
             }
             if (parentState != null && surface != null)
             {
-                var rotation = surface.rotation * parentState.rotation;
+                var rotation = parentState.TransformRotation(surface.rotation);
                 var velocity = surface.angularVelocity; // TODO
 
                 return new OrientationState(rotation, velocity, Vector3.zero);
@@ -542,16 +657,16 @@ namespace PacificEngine.OW_CommonResources.Game.State
 
         public static RelativeState fromGlobal(Position.HeavenlyBodies parent, OWRigidbody target)
         {
-            return fromGlobal(parent, AbsoluteState.fromCurrentState(Position.getBody(parent)), Position.getGravity(parent), Position.getSize(parent), AbsoluteState.fromCurrentState(target));
+            return fromGlobal(parent, AbsoluteState.fromCurrentState(Position.getBody(parent)), Position.getGravity(parent), Position.getSize(parent), ScaleState.fromCurrentState(target), AbsoluteState.fromCurrentState(target));
         }
 
-        public static RelativeState fromGlobal(Position.HeavenlyBodies parent, AbsoluteState parentState, Orbit.Gravity parentGravity, Position.Size parentSize, AbsoluteState target)
+        public static RelativeState fromGlobal(Position.HeavenlyBodies parent, AbsoluteState parentState, Orbit.Gravity parentGravity, Position.Size parentSize, ScaleState targetScale, AbsoluteState target)
         {
             MovementState surfaceMovement = null;
             KeplerState orbit = null;
 
             parent = parentState == null ? Position.HeavenlyBodies.None : parent;
-            var relativeMovement = getRelativeMovement(parentState, parentGravity, target);
+            var relativeMovement = getRelativeMovement(parentState, parentGravity, targetScale, target);
             if (relativeMovement == null)
             {
                 return null;
@@ -561,12 +676,12 @@ namespace PacificEngine.OW_CommonResources.Game.State
                 var distance = relativeMovement.position.sqrMagnitude;
                 if (distance < (parentSize.influence * parentSize.influence))
                 {
-                    surfaceMovement = getSurfaceMovement(parentState, parentGravity, target);
+                    surfaceMovement = getSurfaceMovement(parentState, parentGravity, targetScale, target);
                 }
 
                 if ((parentSize.size * parentSize.size) < distance && distance < (parentSize.influence * parentSize.influence))
                 {
-                    var kepler = getKepler(parentState, parentGravity, target);
+                    var kepler = getKepler(parentState, parentGravity, targetScale, target);
                     if (kepler != null && kepler.coordinates != null && kepler.coordinates.isOrbit())
                     {
                         var apoapsis = kepler.coordinates.semiMajorRadius + kepler.coordinates.foci;
@@ -584,10 +699,10 @@ namespace PacificEngine.OW_CommonResources.Game.State
 
         public static MovementState getRelativeMovement(Position.HeavenlyBodies parent, OWRigidbody target)
         {
-            return getRelativeMovement(AbsoluteState.fromCurrentState(Position.getBody(parent)), Position.getGravity(parent), AbsoluteState.fromCurrentState(target));
+            return getRelativeMovement(AbsoluteState.fromCurrentState(Position.getBody(parent)), Position.getGravity(parent), ScaleState.fromCurrentState(target), AbsoluteState.fromCurrentState(target));
         }
 
-        public static MovementState getRelativeMovement(AbsoluteState parentState, Orbit.Gravity parentGravity, AbsoluteState target)
+        public static MovementState getRelativeMovement(AbsoluteState parentState, Orbit.Gravity parentGravity, ScaleState targetScale, AbsoluteState target)
         {
             if (target == null)
             {
@@ -602,15 +717,15 @@ namespace PacificEngine.OW_CommonResources.Game.State
             var relaitveAngularVelocity = target.velocity;
             var relativeAngularAcceleration = target.acceleration;
 
-            return new MovementState(new PositionState(relativePosition, relativeVelocity, relativeAcceleration, relativeJerk), new OrientationState(relativeOrientation, relaitveAngularVelocity, relativeAngularAcceleration));
+            return new MovementState(targetScale, new PositionState(relativePosition, relativeVelocity, relativeAcceleration, relativeJerk), new OrientationState(relativeOrientation, relaitveAngularVelocity, relativeAngularAcceleration));
         }
 
         public static MovementState getSurfaceMovement(Position.HeavenlyBodies parent, OWRigidbody target)
         {
-            return getSurfaceMovement(AbsoluteState.fromCurrentState(Position.getBody(parent)), Position.getGravity(parent), AbsoluteState.fromCurrentState(target));
+            return getSurfaceMovement(AbsoluteState.fromCurrentState(Position.getBody(parent)), Position.getGravity(parent), ScaleState.fromCurrentState(target), AbsoluteState.fromCurrentState(target));
         }
 
-        public static MovementState getSurfaceMovement(AbsoluteState parentState, Orbit.Gravity parentGravity, AbsoluteState target)
+        public static MovementState getSurfaceMovement(AbsoluteState parentState, Orbit.Gravity parentGravity, ScaleState targetScale, AbsoluteState target)
         {
             if (parentState == null || target == null)
             {
@@ -625,22 +740,22 @@ namespace PacificEngine.OW_CommonResources.Game.State
             var surfaceAngularVelocity = Vector3.zero; // TODO
             var surfaceAngularAcceleration = Vector3.zero; // TODO
 
-            return new MovementState(new PositionState(surfacePosition, surfaceVelocity, surfaceAcceleration, surfaceJerk), new OrientationState(surfraceOrientation, surfaceAngularVelocity, surfaceAngularAcceleration));
+            return new MovementState(targetScale, new PositionState(surfacePosition, surfaceVelocity, surfaceAcceleration, surfaceJerk), new OrientationState(surfraceOrientation, surfaceAngularVelocity, surfaceAngularAcceleration));
         }
 
         public static KeplerState getKepler(Position.HeavenlyBodies parent, OWRigidbody target)
         {
-            return getKepler(AbsoluteState.fromCurrentState(Position.getBody(parent)), Position.getGravity(parent), AbsoluteState.fromCurrentState(target));
+            return getKepler(AbsoluteState.fromCurrentState(Position.getBody(parent)), Position.getGravity(parent), ScaleState.fromCurrentState(target), AbsoluteState.fromCurrentState(target));
         }
 
-        public static KeplerState getKepler(AbsoluteState parentState, Orbit.Gravity parentGravity, AbsoluteState target)
+        public static KeplerState getKepler(AbsoluteState parentState, Orbit.Gravity parentGravity, ScaleState targetScale, AbsoluteState target)
         {
             if (parentState == null || parentGravity == null || target == null)
             {
                 return null;
             }
 
-            return new KeplerState(Position.getKepler(parentState, parentGravity, target.position, target.velocity), new OrientationState(target.rotation, target.angularVelocity, target.angularAcceleration));
+            return new KeplerState(targetScale, Position.getKepler(parentState, parentGravity, target.position, target.velocity), new OrientationState(target.rotation, target.angularVelocity, target.angularAcceleration));
         }
 
         public static RelativeState fromRelative(Position.HeavenlyBodies parent, MovementState relative)
@@ -661,38 +776,39 @@ namespace PacificEngine.OW_CommonResources.Game.State
             return new RelativeState(parent, null, surface, null);
         }
 
-        public static RelativeState fromKepler(Position.HeavenlyBodies parent, Orbit.KeplerCoordinates kepler, OrientationState orientation)
+        public static RelativeState fromKepler(Position.HeavenlyBodies parent, ScaleState targetScale, Orbit.KeplerCoordinates kepler, OrientationState orientation)
         {
             if (kepler != null && kepler.isOrbit())
             {
-                return new RelativeState(parent, null, null, new KeplerState(kepler, orientation));
+                return new RelativeState(parent, null, null, new KeplerState(targetScale, kepler, orientation));
             }
             return null;
         }
 
         public static RelativeState fromClosetInfluence(OWRigidbody target, params Position.HeavenlyBodies[] exclude)
         {
-            if (target == null || target.GetRigidbody() == null)
+            var targetState = PositionState.fromCurrentState(target);
+            if (targetState == null)
             {
                 return null;
             }
 
             var includes = (Position.HeavenlyBodies[])Enum.GetValues(typeof(Position.HeavenlyBodies));
             var excl = new HashSet<Position.HeavenlyBodies>(exclude);
-            var parent = Position.getClosest(target.GetPosition(), (body) =>
+            var parent = Position.getClosest(targetState.position, (body) =>
             {
                 if (excl.Contains(body))
                 {
                     return true;
                 }
 
-                var parentBody = Position.getBody(body);
+                var parentState = PositionState.fromCurrentState(body);
                 var size = Position.getSize(body);
-                if (parentBody == null || size == null || target == null)
+                if (parentState == null || size == null)
                 {
                     return false;
                 }
-                else if ((target.GetPosition() - parentBody.GetPosition()).sqrMagnitude < size.influence * size.influence)
+                else if ((targetState.position - parentState.position).sqrMagnitude < size.influence * size.influence)
                 {
                     return false;
                 }

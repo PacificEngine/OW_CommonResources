@@ -164,6 +164,10 @@ namespace PacificEngine.OW_CommonResources.Game.Player
                 oxygenSeconds = maxOxygenSeconds;
         }
 
+        public static void FixedUpdate()
+        {
+        }
+
         public static void repair()
         {
             if (Locator.GetShipTransform())

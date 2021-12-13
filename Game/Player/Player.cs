@@ -358,5 +358,9 @@ namespace PacificEngine.OW_CommonResources.Game.Player
                 }
             }
         }
+
+        public static void FixedUpdate()
+        {
+        }
     }
 }

@@ -77,6 +77,10 @@ namespace PacificEngine.OW_CommonResources.Game.State
         {
         }
 
+        public static void FixedUpdate()
+        {
+        }
+
         private static bool _enabled = true;
         public static bool enabled
         {

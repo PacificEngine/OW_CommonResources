@@ -58,5 +58,9 @@ namespace PacificEngine.OW_CommonResources.Game.State
                 remaining = maximum;
             }
         }
+
+        public static void FixedUpdate()
+        {
+        }
     }
 }

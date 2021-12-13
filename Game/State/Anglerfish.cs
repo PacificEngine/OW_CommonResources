@@ -145,6 +145,10 @@ namespace PacificEngine.OW_CommonResources.Game.State
             }
         }
 
+        public static void FixedUpdate()
+        {
+        }
+
         private static void updateAnglerfish()
         {
             foreach (AnglerfishController anglerfishController in anglerfish)

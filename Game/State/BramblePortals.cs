@@ -319,6 +319,10 @@ namespace PacificEngine.OW_CommonResources.Game.State
             updateLists();
         }
 
+        public static void FixedUpdate()
+        {
+        }
+
         private static string getId(string postfix)
         {
             var id = classId + "." + postfix;
@@ -577,7 +581,7 @@ namespace PacificEngine.OW_CommonResources.Game.State
         {
             var keys = new Position.HeavenlyBodies[_portals.Count];
             _portals.Keys.CopyTo(keys, 0);
-            return Position.getClosest(position, keys)[0];
+            return Position.getClosest(position - (Locator.GetCenterOfTheUniverse()?.GetOffsetPosition() ?? Vector3.zero), keys)[0];
         }
 
         private static void onFogWarpVolumeAwake(FogWarpVolume __instance)
