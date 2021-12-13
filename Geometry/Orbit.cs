@@ -246,7 +246,7 @@ namespace PacificEngine.OW_CommonResources.Geometry
             double angularMomentum = parent.getAngularMomentum(semiAxisRectum);
 
             //https://web.archive.org/web/20170810015111/http://ccar.colorado.edu/asen5070/handouts/kep2cart_2002.doc
-            var sinTrue = Math.Sin(trueAnomaly);
+            /*var sinTrue = Math.Sin(trueAnomaly);
             var sinsAscend = Math.Sin(ascendingAngle);
             var cosAscend = Math.Cos(ascendingAngle);
             var sinPeriapseTrue = Math.Sin(periapseAngle + trueAnomaly);
@@ -260,7 +260,7 @@ namespace PacificEngine.OW_CommonResources.Geometry
 
             var dX = (((X * angularMomentum * eccentricity) / (radius * semiAxisRectum)) * sinTrue) - ((angularMomentum / radius) * ((cosAscend * sinPeriapseTrue) + (sinsAscend * cosPeriapseTrue * cosInclination)));
             var dY = (((Y * angularMomentum * eccentricity) / (radius * semiAxisRectum)) * sinTrue) - ((angularMomentum / radius) * ((sinsAscend * sinPeriapseTrue) + (cosAscend * cosPeriapseTrue * cosInclination)));
-            var dZ = (((Z * angularMomentum * eccentricity) / (radius * semiAxisRectum)) * sinTrue) + ((angularMomentum / radius) * (cosPeriapseTrue * sinInclination));
+            var dZ = (((Z * angularMomentum * eccentricity) / (radius * semiAxisRectum)) * sinTrue) + ((angularMomentum / radius) * (cosPeriapseTrue * sinInclination));*/
 
             //https://downloads.rene-schwarz.com/download/M001-Keplerian_Orbit_Elements_to_Cartesian_State_Vectors.pdf
             /*var escentricAngle = getEsscentricAnomalyFromTrueAnomaly(eccentricity, trueAnomaly);
@@ -286,6 +286,29 @@ namespace PacificEngine.OW_CommonResources.Geometry
             var dX = (odX * ((cosPeriapse * cosAscend) - (sinPeriapse * cosInclination * sinsAscend)) - odY * ((sinPeriapse * cosAscend) + (cosPeriapse * cosInclination * sinsAscend)));
             var dY = (odX * ((cosPeriapse * sinsAscend) - (sinPeriapse * cosInclination * cosAscend)) - odY * ((cosPeriapse * cosInclination * cosAscend) + (sinPeriapse * sinsAscend)));
             var dZ = ((odX * sinPeriapse * sinInclination) + (odY * cosPeriapse * sinInclination));*/
+
+            // TODO: https://www.mathworks.com/matlabcentral/fileexchange/80632-kepler2carts
+            var sinsAscend = Math.Sin(ascendingAngle); // sun O
+            var cosAscend = Math.Cos(ascendingAngle); // cos O
+            var sinPeriapse = Math.Sin(periapseAngle); // sin w
+            var cosPeriapse = Math.Cos(periapseAngle); // cos w
+            var sinInclination = Math.Sin(inclinationAngle); // sin i
+            var cosInclination = Math.Cos(inclinationAngle); // cos i
+
+            var oX = radius * Math.Cos(trueAnomaly);
+            var oY = radius * Math.Sin(trueAnomaly);
+
+            var od = Math.Sqrt(parent.mu / semiAxisRectum);
+            var odX = od * -1d * Math.Sin(trueAnomaly);
+            var odY = od * (eccentricity + Math.Cos(trueAnomaly));
+
+            var X = (oX * ((cosPeriapse * cosAscend) - (sinPeriapse * cosInclination * sinsAscend)) - oY * ((sinPeriapse * cosAscend) + (cosPeriapse * cosInclination * sinsAscend)));
+            var Y = (oX * ((cosPeriapse * sinsAscend) + (sinPeriapse * cosInclination * cosAscend)) - oY * ((sinPeriapse * sinsAscend) - (cosPeriapse * cosInclination * cosAscend)));
+            var Z = ((oX * sinPeriapse * sinInclination) + (oY * cosPeriapse * sinInclination));
+
+            var dX = (odX * ((cosPeriapse * cosAscend) - (sinPeriapse * cosInclination * sinsAscend)) - odY * ((sinPeriapse * cosAscend) + (cosPeriapse * cosInclination * sinsAscend)));
+            var dY = (odX * ((cosPeriapse * sinsAscend) + (sinPeriapse * cosInclination * cosAscend)) - odY * ((sinPeriapse * sinsAscend) - (cosPeriapse * cosInclination * cosAscend)));
+            var dZ = ((odX * sinPeriapse * sinInclination) + (odY * cosPeriapse * sinInclination));
 
             return Tuple.Create(new Vector3((float)X, (float)Y, (float)Z), new Vector3((float)dX, (float)dY, (float)dZ));
         }
