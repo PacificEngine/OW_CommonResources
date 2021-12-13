@@ -84,35 +84,79 @@ namespace PacificEngine.OW_CommonResources.Geometry
 
         public class KeplerCoordinates
         {
+            private const float twoPi = (float)(2d * Math.PI);
+
             public static KeplerCoordinates zero { get; } = new KeplerCoordinates(0f, 0f, 0f, 0f, 0f, 0f);
 
             private float _semiMinorRadius = float.NaN;
             private float _foci = float.NaN;
+            private float _esccentricAnomaly = float.NaN;
+            private float _meanAnomaly = float.NaN;
+
 
             public float eccentricity { get; }
             public float semiMajorRadius { get; }
+            public float inclinationAngle { get; }
+            public float periapseAngle { get; }
+            public float ascendingAngle { get; }
+            public float trueAnomaly { get; }
+
             public float semiMinorRadius { get { if (float.IsNaN(_semiMinorRadius)) _semiMinorRadius = Ellipse.getMinorRadius(semiMajorRadius, eccentricity); return _semiMinorRadius; } }
             public float foci { get { if (float.IsNaN(_foci)) _foci = Ellipse.getFocus(semiMajorRadius, eccentricity); return _foci; } }
             public float apoapsis { get { return semiMajorRadius + foci; } }
             public float periapsis { get { return semiMajorRadius - foci; } }
-            public float inclinationAngle { get; }
-            public float periapseAngle { get; }
-            public float ascendingAngle { get; }
-            public float timeSincePeriapse { get; }
+            public float esccentricAnomaly { get { if (float.IsNaN(_esccentricAnomaly)) _esccentricAnomaly = Angle.toDegrees(getEsscentricAnomalyFromTrueAnomaly(eccentricity, Angle.toRadian(trueAnomaly))); return _esccentricAnomaly; } }
+            public float meanAnomaly { get { if (float.IsNaN(_meanAnomaly)) _meanAnomaly = Angle.toDegrees(getMeanAnomalyFromEsscentricAnomaly(eccentricity, Angle.toRadian(esccentricAnomaly))); return _meanAnomaly; } }
 
-            public KeplerCoordinates(float eccentricity, float semiMajorRadius, float inclinationAngle, float periapseAngle, float ascendingAngle, float timeSincePeriapse)
+            private KeplerCoordinates(float eccentricity, float semiMajorRadius, float inclinationAngle, float periapseAngle, float ascendingAngle, float trueAnomaly)
             {
                 this.eccentricity = eccentricity;
                 this.semiMajorRadius = semiMajorRadius;
+                inclinationAngle = Angle.normalizeDegrees(inclinationAngle);
+                if (inclinationAngle >= 180f)
+                {
+                    inclinationAngle = 180f - (inclinationAngle - 180f);
+                }
                 this.inclinationAngle = inclinationAngle;
-                this.periapseAngle = periapseAngle;
-                this.ascendingAngle = ascendingAngle;
-                this.timeSincePeriapse = timeSincePeriapse;
+                this.periapseAngle = Angle.normalizeDegrees(periapseAngle);
+                this.ascendingAngle = Angle.normalizeDegrees(ascendingAngle);
+                this.trueAnomaly = Angle.normalizeDegrees(trueAnomaly);
+            }
+
+            public static KeplerCoordinates fromTrueAnomaly(float eccentricity, float semiMajorRadius, float inclinationAngle, float periapseAngle, float ascendingAngle, float trueAnomaly)
+            {
+                return new KeplerCoordinates(eccentricity, semiMajorRadius, inclinationAngle, periapseAngle, periapseAngle, trueAnomaly);
+            }
+
+            public static KeplerCoordinates fromEccentricAnomaly(float eccentricity, float semiMajorRadius, float inclinationAngle, float periapseAngle, float ascendingAngle, float eccentricAnomaly)
+            {
+                var trueAnomaly = Angle.toDegrees(getTrueAnomalyFromEsscentricAnomaly(eccentricity, Angle.toRadian(eccentricAnomaly)));
+
+                return fromTrueAnomaly(eccentricity, semiMajorRadius, inclinationAngle, periapseAngle, ascendingAngle, trueAnomaly);
+            }
+
+            public static KeplerCoordinates fromMeanAnomaly(float eccentricity, float semiMajorRadius, float inclinationAngle, float periapseAngle, float ascendingAngle, float meanAnomaly)
+            {
+                var eccentricAnomaly = Angle.toDegrees(getEsscentricAnomalyFromMeanAnomaly(eccentricity, Angle.toRadian(meanAnomaly)));
+
+                return fromTrueAnomaly(eccentricity, semiMajorRadius, inclinationAngle, periapseAngle, ascendingAngle, eccentricAnomaly);
+            }
+
+            public static KeplerCoordinates fromTimeSincePeriapsis(Gravity gravity, float eccentricity, float semiMajorRadius, float inclinationAngle, float periapseAngle, float ascendingAngle, float timeSincePeriapsis)
+            {
+                var meanAnomaly = Angle.toDegrees((twoPi * timeSincePeriapsis) / gravity.getPeriod(semiMajorRadius));
+
+                return fromMeanAnomaly(eccentricity, semiMajorRadius, inclinationAngle, periapseAngle, ascendingAngle, meanAnomaly);
+            }
+
+            public float getTimeSincePeriapsis(Gravity gravity)
+            {
+                return (Angle.toRadian(meanAnomaly) * gravity.getPeriod(semiMajorRadius)) / twoPi;
             }
 
             public override string ToString()
             {
-                return $"({Math.Round(eccentricity, 4).ToString("G9")}, {Math.Round(semiMajorRadius, 7).ToString("G9")}, {Math.Round(inclinationAngle, 4).ToString("G9")}, {Math.Round(periapseAngle, 4).ToString("G9")}, {Math.Round(ascendingAngle, 4).ToString("G9")}, {Math.Round(timeSincePeriapse, 5).ToString("G9")})";
+                return $"({Math.Round(eccentricity, 4).ToString("G9")}, {Math.Round(semiMajorRadius, 7).ToString("G9")}, {Math.Round(inclinationAngle, 4).ToString("G9")}, {Math.Round(periapseAngle, 4).ToString("G9")}, {Math.Round(ascendingAngle, 4).ToString("G9")}, {Math.Round(trueAnomaly, 4).ToString("G9")})";
             }
 
             public override bool Equals(System.Object other)
@@ -125,7 +169,7 @@ namespace PacificEngine.OW_CommonResources.Geometry
                         && inclinationAngle == obj.inclinationAngle
                         && periapseAngle == obj.periapseAngle
                         && ascendingAngle == obj.ascendingAngle
-                        && timeSincePeriapse == obj.timeSincePeriapse;
+                        && meanAnomaly == obj.meanAnomaly;
                 }
                 return false;
             }
@@ -137,7 +181,7 @@ namespace PacificEngine.OW_CommonResources.Geometry
                     + (inclinationAngle.GetHashCode() * 64)
                     + (periapseAngle.GetHashCode() * 256)
                     + (ascendingAngle.GetHashCode() * 1024)
-                    + (timeSincePeriapse.GetHashCode() * 16384);
+                    + (meanAnomaly.GetHashCode() * 16384);
             }
 
             public bool isOrbit()
@@ -148,15 +192,42 @@ namespace PacificEngine.OW_CommonResources.Geometry
                         && !float.IsNaN(inclinationAngle) && !float.IsInfinity(inclinationAngle) && 0f <= inclinationAngle && inclinationAngle <= 180f
                         && !float.IsNaN(periapseAngle) && !float.IsInfinity(periapseAngle) && 0f <= periapseAngle && periapseAngle <= 360f
                         && !float.IsNaN(ascendingAngle) && !float.IsInfinity(ascendingAngle) && 0f <= ascendingAngle && ascendingAngle <= 360f
-                        && !float.IsNaN(timeSincePeriapse) && !float.IsInfinity(timeSincePeriapse);
+                        && !float.IsNaN(meanAnomaly) && !float.IsInfinity(meanAnomaly) && 0f <= meanAnomaly && meanAnomaly <= 360f;
             }
-        }
 
-        private const double twoPi = (2d * Math.PI);
 
-        public static double normalizeRadian(double radians)
-        {
-            return (((radians % twoPi) + twoPi) % twoPi);
+            private static float getTrueAnomalyFromEsscentricAnomaly(double eccentricity, double esscentricAnomaly)
+            {
+                if (0.9999f < eccentricity && eccentricity < 1.0001f)
+                    return (float)Angle.normalizeRadian(2d * Math.Atan2(Math.Sin(esscentricAnomaly) * Math.Sqrt(1d - (eccentricity * eccentricity)), Math.Cos(esscentricAnomaly) - eccentricity));
+                return (float)Angle.normalizeRadian(2d * Math.Atan(Math.Sqrt(Math.Abs((1d + eccentricity) / (1d - eccentricity))) * Math.Tan(esscentricAnomaly / 2d)));
+
+                //https://downloads.rene-schwarz.com/download/M002-Cartesian_State_Vectors_to_Keplerian_Orbit_Elements.pdf
+                //return normalizeRadian(2d * Math.Atan2(Math.Sqrt(Math.Abs(1d + eccentricity)) * (Math.Sin(esscentricAnomaly) / 2d), Math.Sqrt(Math.Abs(1d - eccentricity)) * (Math.Cos(esscentricAnomaly) / 2d)));
+            }
+
+            private static float getEsscentricAnomalyFromTrueAnomaly(double eccentricity, double trueAnomaly)
+            {
+                return Angle.normalizeRadian((float)(2d * Math.Atan(Math.Sqrt(Math.Abs((1d - eccentricity) / (1d + eccentricity))) * Math.Tan(trueAnomaly / 2d))));
+            }
+
+            private static float getMeanAnomalyFromEsscentricAnomaly(double eccentricity, double esscentricAnomaly)
+            {
+                return Angle.normalizeRadian((float)(esscentricAnomaly - eccentricity * Math.Sin(esscentricAnomaly)));
+            }
+
+            private static float getEsscentricAnomalyFromMeanAnomaly(double eccentricity, double meanAnomaly)
+            {
+                double estimate = Angle.normalizeRadian((float)meanAnomaly);
+                for (int i = 0; i < 10; i++)
+                {
+                    estimate += (meanAnomaly - getMeanAnomalyFromEsscentricAnomaly(eccentricity, estimate)) / 1.2;
+
+                    //https://downloads.rene-schwarz.com/download/M002-Cartesian_State_Vectors_to_Keplerian_Orbit_Elements.pdf
+                    //estimate = normalizeRadian(estimate - (((estimate - (eccentricity * Math.Sin(estimate))) - meanAnomaly) / (estimate - (eccentricity * Math.Cos(estimate)))));
+                }
+                return Angle.normalizeRadian((float)estimate);
+            }
         }
 
         //https://space.stackexchange.com/questions/19322/converting-orbital-elements-to-cartesian-state-vectors
@@ -178,7 +249,9 @@ namespace PacificEngine.OW_CommonResources.Geometry
             if (parent.exponent < 1.5d)
             {
                 specificEnergy = (speed * speed) / 2d - mu;
-                eccentricity = Math.Sqrt(Math.Abs(((2d * specificEnergy) / mu) + 2d) - 1d); // Incorrect for exponent 1
+                eccentricity = Math.Abs(Math.Sqrt(((2d * specificEnergy) / mu) + 2d) - 1d); // Incorrect for exponent 1
+                //eccentricity = Math.Abs(Math.Sqrt(1d + ((2d * specificEnergy) / mu)) - 1d);
+                //eccentricity = Math.Sqrt(1d + Math.Abs(((2d * specificEnergy) / mu)));
                 //semiMajorRadius = radius * Math.Abs(mu / (2d * specificEnergy));
                 semiMajorRadius = angularMomemntum / (Math.Sqrt(mu) * (1d - (eccentricity * eccentricity)));
             }
@@ -189,27 +262,23 @@ namespace PacificEngine.OW_CommonResources.Geometry
                 semiMajorRadius = Math.Abs(mu / (2d * specificEnergy));
                 eccentricity = Math.Sqrt(Math.Abs(1d + (2d * specificEnergy * angularMomemntum * angularMomemntum) / (mu * mu)));
             }
-            var inclinationAngle = normalizeRadian(Math.Acos(orbitalMomentum.z/angularMomemntum)) % Math.PI;
-            var ascendingAngle = normalizeRadian(Math.Atan2(orbitalMomentum.x, -1f * orbitalMomentum.y));
-            var latitudeAngle = normalizeRadian(Math.Atan2(startPosition.z / Math.Sin(inclinationAngle), (startPosition.x * Math.Cos(ascendingAngle)) + (startPosition.y * Math.Sin(ascendingAngle))));
+            var inclinationAngle = Angle.normalizeRadian(Math.Acos(orbitalMomentum.z/angularMomemntum)) % Math.PI;
+            var ascendingAngle = Angle.normalizeRadian(Math.Atan2(orbitalMomentum.x, -1f * orbitalMomentum.y));
+            var latitudeAngle = Angle.normalizeRadian(Math.Atan2(startPosition.z / Math.Sin(inclinationAngle), (startPosition.x * Math.Cos(ascendingAngle)) + (startPosition.y * Math.Sin(ascendingAngle))));
 
             var semiAxisRectum = Ellipse.getAxisRectum((float)semiMajorRadius, (float)eccentricity);
             double trueAnomaly;
             if (parent.exponent < 1.5d)
             {
-                trueAnomaly = normalizeRadian(Math.Atan2(Math.Sqrt(1d / mu) * product, semiAxisRectum - radius));
+                trueAnomaly = Angle.normalizeRadian(Math.Atan2(Math.Sqrt(1d / mu) * product, semiAxisRectum - radius));
             }
             else
             {
-                trueAnomaly = normalizeRadian(Math.Atan2(Math.Sqrt(semiAxisRectum / mu) * product, semiAxisRectum - radius));
+                trueAnomaly = Angle.normalizeRadian(Math.Atan2(Math.Sqrt(semiAxisRectum / mu) * product, semiAxisRectum - radius));
             }
-            var periapseAngle = normalizeRadian(latitudeAngle - trueAnomaly);
-            var essentricAnomaly = getEsscentricAnomalyFromTrueAnomaly(eccentricity, trueAnomaly);
-            var meanAnomaly = getMeanAnomalyFromEsscentricAnomaly(eccentricity, essentricAnomaly);
-            var period = parent.getPeriod((float)semiMajorRadius);
-            var timeSincePeriapse = getTimeSincePeriapse(period, meanAnomaly, -1d * timeSinceStart); // This is off for exponent 1
+            var periapseAngle = Angle.normalizeRadian(latitudeAngle - trueAnomaly);
 
-            return new KeplerCoordinates((float)eccentricity, (float)semiMajorRadius, Angle.toDegrees((float)inclinationAngle), Angle.toDegrees((float)periapseAngle), Angle.toDegrees((float)ascendingAngle), (float)timeSincePeriapse);
+            return KeplerCoordinates.fromTrueAnomaly((float)eccentricity, (float)semiMajorRadius, Angle.toDegrees((float)inclinationAngle), Angle.toDegrees((float)periapseAngle), Angle.toDegrees((float)ascendingAngle), Angle.toDegrees((float)trueAnomaly));
         }
 
         //https://space.stackexchange.com/questions/19322/converting-orbital-elements-to-cartesian-state-vectors
@@ -217,31 +286,14 @@ namespace PacificEngine.OW_CommonResources.Geometry
         //https://downloads.rene-schwarz.com/download/M001-Keplerian_Orbit_Elements_to_Cartesian_State_Vectors.pdf
         public static Tuple<Vector3, Vector3> toCartesian(Gravity parent, float timeSinceStart, KeplerCoordinates keplerCoordinates)
         {
-            return toCartesian(parent, timeSinceStart, keplerCoordinates.eccentricity, keplerCoordinates.semiMajorRadius, keplerCoordinates.inclinationAngle, keplerCoordinates.periapseAngle, keplerCoordinates.ascendingAngle, keplerCoordinates.timeSincePeriapse); 
-        }
-
-        public static Tuple<Vector3, Vector3> toCartesian(Gravity parent, float timeSinceStart, float eccentricity, float semiMajorRadius, float inclinationAngle, float periapseAngle, float ascendingAngle, float timeSincePeriapse)
-        {
-            var period = parent.getPeriod(semiMajorRadius);
-
-            var meanAnomaly = getMeanAnomalyFromTime(period, timeSincePeriapse + timeSinceStart);
-            return toCartesianMeanAnomaly(parent, eccentricity, semiMajorRadius, inclinationAngle, periapseAngle, ascendingAngle, Angle.toDegrees((float)meanAnomaly));
-        }
-
-        public static Tuple<Vector3, Vector3> toCartesianMeanAnomaly(Gravity parent, float eccentricity, float semiMajorRadius, float inclinationAngle, float periapseAngle, float ascendingAngle, float meanAnomaly)
-        {
-            meanAnomaly = Angle.toRadian(meanAnomaly);
-
-            var esscentricAnomalyAngle = getEsscentricAnomalyFromMeanAnomaly(eccentricity, meanAnomaly); 
-            return toCartesianEsscentricAnomaly(parent, eccentricity, semiMajorRadius, inclinationAngle, periapseAngle, ascendingAngle, Angle.toDegrees((float)esscentricAnomalyAngle));
+            keplerCoordinates = KeplerCoordinates.fromTimeSincePeriapsis(parent, keplerCoordinates.eccentricity, keplerCoordinates.semiMajorRadius, keplerCoordinates.inclinationAngle, keplerCoordinates.periapseAngle, keplerCoordinates.ascendingAngle, keplerCoordinates.getTimeSincePeriapsis(parent) + timeSinceStart);
+            return toCartesianTrueAnomaly(parent, keplerCoordinates.eccentricity, keplerCoordinates.semiMajorRadius, keplerCoordinates.inclinationAngle, keplerCoordinates.periapseAngle, keplerCoordinates.ascendingAngle, keplerCoordinates.trueAnomaly); 
         }
 
         public static Tuple<Vector3, Vector3> toCartesianEsscentricAnomaly(Gravity parent, float eccentricity, float semiMajorRadius, float inclinationAngle, float periapseAngle, float ascendingAngle, float esscentricAnomaly)
         {
-            esscentricAnomaly = Angle.toRadian(esscentricAnomaly);
-
-            var essentricAnomalyAngle = getTrueAnomalyFromEsscentricAnomaly(eccentricity, esscentricAnomaly);
-            return toCartesianTrueAnomaly(parent, eccentricity, semiMajorRadius, inclinationAngle, periapseAngle, ascendingAngle, Angle.toDegrees((float)essentricAnomalyAngle));
+            var keplerCoordinates = KeplerCoordinates.fromEccentricAnomaly(eccentricity, semiMajorRadius, inclinationAngle, periapseAngle, ascendingAngle, esscentricAnomaly);
+            return toCartesianTrueAnomaly(parent, keplerCoordinates.eccentricity, keplerCoordinates.semiMajorRadius, keplerCoordinates.inclinationAngle, keplerCoordinates.periapseAngle, keplerCoordinates.ascendingAngle, keplerCoordinates.trueAnomaly);
         }
 
         public static Tuple<Vector3, Vector3> toCartesianTrueAnomaly(Gravity parent, float eccentricity, float semiMajorRadius, float inclinationAngle, float periapseAngle, float ascendingAngle, float trueAnomaly)
@@ -315,74 +367,6 @@ namespace PacificEngine.OW_CommonResources.Geometry
         public static Tuple<Vector3, Vector3> getSemiMinorAscending(Gravity parent, KeplerCoordinates keplerCoordinates)
         {
             return toCartesianEsscentricAnomaly(parent, keplerCoordinates.eccentricity, keplerCoordinates.semiMajorRadius, keplerCoordinates.inclinationAngle, keplerCoordinates.periapseAngle, keplerCoordinates.ascendingAngle, 270);
-        }
-
-        public static float getMeanAnomalyAngle(Gravity parent, float timeSinceStart, KeplerCoordinates keplerCoordinates)
-        {
-            var semiMajorRadius = keplerCoordinates.semiMajorRadius;
-            var timeSincePeriapse = keplerCoordinates.timeSincePeriapse;
-            var eccentricity = keplerCoordinates.eccentricity;
-
-            var period = parent.getPeriod(semiMajorRadius);
-            return Angle.toDegrees((float)getMeanAnomalyFromTime(period, timeSinceStart + timeSincePeriapse));
-        }
-
-        public static float getEsscentricAnomalyAngle(Gravity parent, float timeSinceStart, KeplerCoordinates keplerCoordinates)
-        {
-            var meanAnomaly = Angle.toRadian(getMeanAnomalyAngle(parent, timeSinceStart, keplerCoordinates));
-            return Angle.toDegrees((float)getEsscentricAnomalyFromMeanAnomaly(keplerCoordinates.eccentricity, meanAnomaly));
-        }
-
-        public static float getTrueAnomalyAngle(Gravity parent, float timeSinceStart, KeplerCoordinates keplerCoordinates)
-        {
-            var esscentricAnomaly = Angle.toRadian(getEsscentricAnomalyAngle(parent, timeSinceStart, keplerCoordinates));
-            return Angle.toDegrees((float)getTrueAnomalyFromEsscentricAnomaly(keplerCoordinates.eccentricity, esscentricAnomaly));
-        }
-
-        private static double getTrueAnomalyFromEsscentricAnomaly(double eccentricity, double esscentricAnomaly)
-        {
-            if (0.9999f < eccentricity && eccentricity < 1.0001f)
-                return normalizeRadian(2d * Math.Atan2(Math.Sin(esscentricAnomaly) * Math.Sqrt(1d - (eccentricity * eccentricity)), Math.Cos(esscentricAnomaly) - eccentricity));
-            return normalizeRadian(2d * Math.Atan(Math.Sqrt(Math.Abs((1d + eccentricity) / (1d - eccentricity))) * Math.Tan(esscentricAnomaly / 2d)));
-
-            //https://downloads.rene-schwarz.com/download/M002-Cartesian_State_Vectors_to_Keplerian_Orbit_Elements.pdf
-            //return normalizeRadian(2d * Math.Atan2(Math.Sqrt(Math.Abs(1d + eccentricity)) * (Math.Sin(esscentricAnomaly) / 2d), Math.Sqrt(Math.Abs(1d - eccentricity)) * (Math.Cos(esscentricAnomaly) / 2d)));
-        }
-
-        private static double getEsscentricAnomalyFromTrueAnomaly(double eccentricity, double trueAnomaly)
-        {
-            return normalizeRadian(2d * Math.Atan(Math.Sqrt(Math.Abs((1d - eccentricity) / (1d + eccentricity))) * Math.Tan(trueAnomaly / 2d)));
-        }
-
-        private static double getMeanAnomalyFromEsscentricAnomaly(double eccentricity, double esscentricAnomaly)
-        {
-            return normalizeRadian(esscentricAnomaly - eccentricity * Math.Sin(esscentricAnomaly));
-        }
-
-        private static double getEsscentricAnomalyFromMeanAnomaly(double eccentricity, double meanAnomaly)
-        {
-            double estimate = meanAnomaly;
-            for (int i = 0; i < 10; i++)
-            {
-                estimate += (meanAnomaly - getMeanAnomalyFromEsscentricAnomaly(eccentricity, estimate)) / 1.2;
-
-                //https://downloads.rene-schwarz.com/download/M002-Cartesian_State_Vectors_to_Keplerian_Orbit_Elements.pdf
-                //estimate = normalizeRadian(estimate - (((estimate - (eccentricity * Math.Sin(estimate))) - meanAnomaly) / (estimate - (eccentricity * Math.Cos(estimate)))));
-            }
-            return normalizeRadian(estimate);
-        }
-
-        private static double getMeanAnomalyFromTime(double period, double timeSincePeriapse)
-        {
-            var n = twoPi / period;
-            return normalizeRadian(n * (timeSincePeriapse));
-        }
-
-        private static double getTimeSincePeriapse(double period, double meanAnomaly, double timeAdjustment)
-        {
-            var n = twoPi / period;
-            var timeSincePeriapse = meanAnomaly / n;
-            return getMeanAnomalyFromTime(period, timeAdjustment + timeSincePeriapse) / n;
         }
     }
 }
