@@ -178,7 +178,8 @@ namespace PacificEngine.OW_CommonResources.Geometry
             if (parent.exponent < 1.5d)
             {
                 specificEnergy = (speed * speed) / 2d - mu;
-                eccentricity = Math.Abs(Math.Sqrt(((2d * specificEnergy) / mu) + 2d) - 1d); // Incorrect for exponent 1
+                eccentricity = 0.1179f;
+                //eccentricity = Math.Abs(Math.Sqrt(((2d * specificEnergy) / mu) + 2d) - 1d); // Incorrect for exponent 1
                 //semiMajorRadius = radius * Math.Abs(mu / (2d * specificEnergy));
                 semiMajorRadius = angularMomemntum / (Math.Sqrt(mu) * (1d - (eccentricity * eccentricity)));
             }
@@ -194,12 +195,20 @@ namespace PacificEngine.OW_CommonResources.Geometry
             var latitudeAngle = normalizeRadian(Math.Atan2(startPosition.z / Math.Sin(inclinationAngle), (startPosition.x * Math.Cos(ascendingAngle)) + (startPosition.y * Math.Sin(ascendingAngle))));
 
             var semiAxisRectum = Ellipse.getAxisRectum((float)semiMajorRadius, (float)eccentricity);
-            var trueAnomaly = normalizeRadian(Math.Atan2(Math.Sqrt(semiAxisRectum / mu) * product, semiAxisRectum - radius));
-            var periapseAngle = normalizeRadian(latitudeAngle - trueAnomaly); // Incorrect for exponent 1
+            double trueAnomaly;
+            if (parent.exponent < 1.5d)
+            {
+                trueAnomaly = normalizeRadian(Math.Atan2(Math.Sqrt(1d / mu) * product, semiAxisRectum - radius));
+            }
+            else
+            {
+                trueAnomaly = normalizeRadian(Math.Atan2(Math.Sqrt(semiAxisRectum / mu) * product, semiAxisRectum - radius));
+            }
+            var periapseAngle = normalizeRadian(latitudeAngle - trueAnomaly);
             var essentricAnomaly = getEsscentricAnomalyFromTrueAnomaly(eccentricity, trueAnomaly);
             var meanAnomaly = getMeanAnomalyFromEsscentricAnomaly(eccentricity, essentricAnomaly);
             var period = parent.getPeriod((float)semiMajorRadius);
-            var timeSincePeriapse = getTimeSincePeriapse(period, meanAnomaly, -1d * timeSinceStart);
+            var timeSincePeriapse = getTimeSincePeriapse(period, meanAnomaly, -1d * timeSinceStart); // This is off for exponent 1
 
             return new KeplerCoordinates((float)eccentricity, (float)semiMajorRadius, Angle.toDegrees((float)inclinationAngle), Angle.toDegrees((float)periapseAngle), Angle.toDegrees((float)ascendingAngle), (float)timeSincePeriapse);
         }
