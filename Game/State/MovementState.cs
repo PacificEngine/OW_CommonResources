@@ -211,6 +211,13 @@ namespace PacificEngine.OW_CommonResources.Game.State
         public Vector3 angularVelocity { get; }
         public Vector3 angularAcceleration { get; }
 
+        public Vector3 forward { get { return rotation * Vector3.forward; } }
+        public Vector3 backward { get { return rotation * (-1f * Vector3.forward); } }
+        public Vector3 up { get { return rotation * Vector3.up; } }
+        public Vector3 down { get { return rotation * (-1f * Vector3.up); } }
+        public Vector3 left { get { return rotation * Vector3.left; } }
+        public Vector3 right { get { return rotation * (-1f * Vector3.left); } }
+
         public OrientationState(Quaternion rotation, Vector3 angularVelocity, Vector3 angularAcceleration)
         {
             this.rotation = rotation;
@@ -509,26 +516,16 @@ namespace PacificEngine.OW_CommonResources.Game.State
                Quaternion.Inverse(rotation) * (worldPoint - position));
         }
 
-        public Quaternion TransformRotation(Quaternion localRotation)
-        {
-            return localRotation * rotation;
-        }
-
-        public Quaternion InverseTransformRotation(Quaternion worldRotation)
-        {
-            return Quaternion.Inverse(rotation) * worldRotation;
-        }
-
         public void apply(OWRigidbody target)
         {
+            Helper.helper.Console.WriteLine($"Apply {target}");
             applyMovement(target);
             applyRotation(target);
         }
 
         public void apply(Position.HeavenlyBodies parent, AbsoluteState parentState, OWRigidbody target)
         {
-            applyMovement(target);
-            applyRotation(target);
+            apply(target);
             applyCachedState(parent, parentState, target);
         }
 
@@ -733,9 +730,14 @@ namespace PacificEngine.OW_CommonResources.Game.State
             var acceleration = this.surface.acceleration;
             var jerk = this.surface.jerk;
 
+            Helper.helper.Console.WriteLine($"Surface {parent}: {position} {velocity} {acceleration}");
+
             position = parentState.TransformPoint(position);
             velocity += parentState.GetPointVelocity(position);
             acceleration += parentState.GetPointAcceleration(position);
+
+
+            Helper.helper.Console.WriteLine($"Global: {position} {velocity} {acceleration}");
 
             return new PositionState(position, velocity, acceleration, jerk);
         }
@@ -768,7 +770,11 @@ namespace PacificEngine.OW_CommonResources.Game.State
             }
             if (parentState != null && surface != null)
             {
-                var rotation = parentState.TransformRotation(surface.rotation);
+                var groundNormal = worldPosition - parentState.position;
+                var forwardsVector = -Vector3.Cross(groundNormal, surface.orientation.right);
+                var pointRoation = Quaternion.LookRotation(forwardsVector, groundNormal);
+
+                var rotation = surface.rotation * pointRoation;
                 var velocity = surface.angularVelocity; // TODO
 
                 return new OrientationState(rotation, velocity, Vector3.zero);
@@ -860,15 +866,24 @@ namespace PacificEngine.OW_CommonResources.Game.State
                 return null;
             }
 
+            Helper.helper.Console.WriteLine($"Global: {target.position}, {target.velocity}, {target.acceleration}");
+
             var surfacePosition = parentState.InverseTransformPoint(target.position);
             var surfaceVelocity = target.velocity - parentState.GetPointVelocity(target.position);
             var surfaceAcceleration = target.acceleration - parentState.GetPointAcceleration(target.position);
             var surfaceJerk = target.jerk - (parentState == null ? Vector3.zero : parentState.jerk);
-            var surfraceOrientation = parentState.InverseTransformRotation(target.rotation);
+
+            var groundNormal = target.position - parentState.position;
+            var forwardsVector = -Vector3.Cross(groundNormal, target.orientation.right);
+            var pointRoation = Quaternion.LookRotation(forwardsVector, groundNormal);
+
+            var surfaceRotation = Quaternion.Inverse(pointRoation) * target.rotation;
             var surfaceAngularVelocity = Vector3.zero; // TODO
             var surfaceAngularAcceleration = Vector3.zero; // TODO
 
-            return new MovementState(targetScale, new PositionState(surfacePosition, surfaceVelocity, surfaceAcceleration, surfaceJerk), new OrientationState(surfraceOrientation, surfaceAngularVelocity, surfaceAngularAcceleration));
+            Helper.helper.Console.WriteLine($"Surface: {surfacePosition}, {surfaceVelocity}, {surfaceAcceleration}");
+
+            return new MovementState(targetScale, new PositionState(surfacePosition, surfaceVelocity, surfaceAcceleration, surfaceJerk), new OrientationState(surfaceRotation, surfaceAngularVelocity, surfaceAngularAcceleration));
         }
 
         public static KeplerState getKepler(Position.HeavenlyBodies parent, OWRigidbody target)

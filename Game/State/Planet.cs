@@ -265,7 +265,10 @@ namespace PacificEngine.OW_CommonResources.Game.State
             var whiteHole = Position.getBody(Position.HeavenlyBodies.WhiteHole);
 
             List<Tuple<OWRigidbody, RelativeState>> bodies = new List<Tuple<OWRigidbody, RelativeState>>();
-            bodies.Add(captureState(Position.getBody(Position.HeavenlyBodies.Player)));
+            if (!PlayerState.IsInsideShip() && !PlayerState.IsInsideShuttle() && !PlayerState.IsInsideTheEye())
+            {
+                bodies.Add(captureState(Position.getBody(Position.HeavenlyBodies.Player)));
+            }
             bodies.Add(captureState(Position.getBody(Position.HeavenlyBodies.Ship)));
             bodies.Add(captureState(Position.getBody(Position.HeavenlyBodies.Probe)));
             bodies.Add(captureState(Position.getBody(Position.HeavenlyBodies.ModelShip)));
