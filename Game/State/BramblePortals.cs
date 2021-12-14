@@ -420,9 +420,10 @@ namespace PacificEngine.OW_CommonResources.Game.State
                 || volume?.GetAttachedOWRigidbody()?.GetComponentInChildren<OuterFogWarpVolume>() == null
                 || volume?.GetAttachedOWRigidbody()?.GetComponentInChildren<OuterFogWarpVolume>()?.GetName() == null)
             {
-                if (volume == null || volume.transform == null || volume.transform.position == null)
+                var state = PositionState.fromCurrentState(volume.gameObject);
+                if (state == null)
                     return null;
-                return getClosest(volume.transform.position).Item1;
+                return getClosest(state.position).Item1;
             }
 
             switch (volume?.GetAttachedOWRigidbody()?.GetComponentInChildren<OuterFogWarpVolume>()?.GetName())
@@ -445,9 +446,10 @@ namespace PacificEngine.OW_CommonResources.Game.State
                     return Position.HeavenlyBodies.InnerDarkBramble_SmallNest;
                 case null:
                 default:
-                    if (volume == null || volume.transform == null || volume.transform.position == null)
+                    var state = PositionState.fromCurrentState(volume.gameObject);
+                    if (state == null)
                         return null;
-                    return getClosest(volume.transform.position).Item1;
+                    return getClosest(state.position).Item1;
             }
         }
 
@@ -543,8 +545,9 @@ namespace PacificEngine.OW_CommonResources.Game.State
                 {
                     if (volume != null && volume?.gameObject != null)
                     {
+                        var state = PositionState.fromCurrentState(volume.gameObject);
                         Tuple<Position.HeavenlyBodies, float> parent;
-                        parent = getClosest(volume.transform.position);
+                        parent = getClosest(state.position);
                         _portals[parent.Item1].Add(Tuple.Create(volume, parent.Item2));
                         volume.OnWarpDetector += (detector) => onWarp(volume, parent.Item1, detector);
                     }
@@ -581,7 +584,7 @@ namespace PacificEngine.OW_CommonResources.Game.State
         {
             var keys = new Position.HeavenlyBodies[_portals.Count];
             _portals.Keys.CopyTo(keys, 0);
-            return Position.getClosest(position - (Locator.GetCenterOfTheUniverse()?.GetOffsetPosition() ?? Vector3.zero), keys)[0];
+            return Position.getClosest(position, keys)[0];
         }
 
         private static void onFogWarpVolumeAwake(FogWarpVolume __instance)

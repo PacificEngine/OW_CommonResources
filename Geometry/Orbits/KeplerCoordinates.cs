@@ -73,9 +73,19 @@ namespace PacificEngine.OW_CommonResources.Geometry.Orbits
             return new KeplerCoordinates(eccentricity, semiMajorRadius, inclinationAngle, periapseAngle, ascendingAngle, trueAnomaly, float.NaN, float.NaN);
         }
 
+        public static KeplerCoordinates setTrueAnomaly(KeplerCoordinates coordinates, float trueAnomaly)
+        {
+            return fromMeanAnomaly(coordinates.eccentricity, coordinates.semiMajorRadius, coordinates.inclinationAngle, coordinates.periapseAngle, coordinates.ascendingAngle, trueAnomaly);
+        }
+
         public static KeplerCoordinates fromEccentricAnomaly(float eccentricity, float semiMajorRadius, float inclinationAngle, float periapseAngle, float ascendingAngle, float eccentricAnomaly)
         {
             return new KeplerCoordinates(eccentricity, semiMajorRadius, inclinationAngle, periapseAngle, ascendingAngle, float.NaN, eccentricAnomaly, float.NaN);
+        }
+
+        public static KeplerCoordinates setEccentricAnomaly(KeplerCoordinates coordinates, float eccentricAnomaly)
+        {
+            return fromMeanAnomaly(coordinates.eccentricity, coordinates.semiMajorRadius, coordinates.inclinationAngle, coordinates.periapseAngle, coordinates.ascendingAngle, eccentricAnomaly);
         }
 
         public static KeplerCoordinates fromMeanAnomaly(float eccentricity, float semiMajorRadius, float inclinationAngle, float periapseAngle, float ascendingAngle, float meanAnomaly)
@@ -83,11 +93,28 @@ namespace PacificEngine.OW_CommonResources.Geometry.Orbits
             return new KeplerCoordinates(eccentricity, semiMajorRadius, inclinationAngle, periapseAngle, ascendingAngle, float.NaN, float.NaN, meanAnomaly);
         }
 
+        public static KeplerCoordinates setMeanAnomaly(KeplerCoordinates coordinates, float meanAnomaly)
+        {
+            return fromMeanAnomaly(coordinates.eccentricity, coordinates.semiMajorRadius, coordinates.inclinationAngle, coordinates.periapseAngle, coordinates.ascendingAngle, meanAnomaly);
+        }
+
         public static KeplerCoordinates fromTimeSincePeriapsis(Gravity gravity, float eccentricity, float semiMajorRadius, float inclinationAngle, float periapseAngle, float ascendingAngle, float timeSincePeriapsis)
         {
             var meanAnomaly = Angle.toDegrees((twoPi * timeSincePeriapsis) / gravity.getPeriod(semiMajorRadius));
 
             return fromMeanAnomaly(eccentricity, semiMajorRadius, inclinationAngle, periapseAngle, ascendingAngle, meanAnomaly);
+        }
+
+        public static KeplerCoordinates setTimeSincePeriapsis(Gravity gravity, KeplerCoordinates coordinates, float time)
+        {
+            return fromTimeSincePeriapsis(gravity, coordinates.eccentricity, coordinates.semiMajorRadius, coordinates.inclinationAngle, coordinates.periapseAngle, coordinates.ascendingAngle, time);
+        }
+
+        public static KeplerCoordinates shiftTimeSincePeriapsis(Gravity gravity, KeplerCoordinates coordinates, float timeToShift)
+        {
+            var time = coordinates.getTimeSincePeriapsis(gravity) + timeToShift;
+
+            return setTimeSincePeriapsis(gravity, coordinates, time);
         }
 
         public float getTimeSincePeriapsis(Gravity gravity)
@@ -178,6 +205,36 @@ namespace PacificEngine.OW_CommonResources.Geometry.Orbits
                 //estimate = Angle.normalizeRadian(estimate - (((estimate - (eccentricity * Math.Sin(estimate))) - meanAnomaly) / (estimate - (eccentricity * Math.Cos(estimate)))));
             }
             return Angle.normalizeRadian((float)estimate);
+        }
+
+        public KeplerCoordinates getPeriapsis()
+        {
+            return KeplerCoordinates.setEccentricAnomaly(this, 0f);
+        }
+
+        public KeplerCoordinates getDecending()
+        {
+            return KeplerCoordinates.setTrueAnomaly(this, 90f);
+        }
+
+        public KeplerCoordinates getSemiMinorDecending()
+        {
+            return KeplerCoordinates.setEccentricAnomaly(this, 90f);
+        }
+
+        public KeplerCoordinates getApoapsis()
+        {
+            return KeplerCoordinates.setEccentricAnomaly(this, 180f);
+        }
+
+        public KeplerCoordinates getAscending()
+        {
+            return KeplerCoordinates.setTrueAnomaly(this, 270f);
+        }
+
+        public KeplerCoordinates getSemiMinorAscending()
+        {
+            return KeplerCoordinates.setEccentricAnomaly(this, 270f);
         }
     }
 }

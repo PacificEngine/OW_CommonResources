@@ -42,6 +42,36 @@ namespace PacificEngine.OW_CommonResources.Game.State
             return new ScaleState(lossyScale, localScale);
         }
 
+        public static ScaleState fromCurrentState(Transform target)
+        {
+            if (target == null)
+            {
+                return null;
+            }
+
+            return new ScaleState(target.lossyScale, target.localScale);
+        }
+
+        public static ScaleState fromCurrentState(GameObject target)
+        {
+            if (target == null)
+            {
+                return null;
+            }
+
+            var rigidBody = target.GetComponent<OWRigidbody>();
+            var transform = target.transform;
+
+            if (rigidBody != null)
+            {
+                return fromCurrentState(target);
+            }
+            else
+            {
+                return fromCurrentState(transform);
+            }
+        }
+
         public override string ToString()
         {
             var lossyScale = this.lossyScale == null ? "" : DisplayConsole.logVector(this.lossyScale);
@@ -69,6 +99,7 @@ namespace PacificEngine.OW_CommonResources.Game.State
 
     public class PositionState
     {
+        public static PositionState offset { get { return new PositionState((Locator.GetCenterOfTheUniverse()?.GetOffsetPosition() ?? Vector3.zero), (Locator.GetCenterOfTheUniverse()?.GetOffsetVelocity() ?? Vector3.zero), Vector3.zero, Vector3.zero); } }
         public static PositionState identity { get { return new PositionState(Vector3.zero, Vector3.zero, Vector3.zero, Vector3.zero); } }
 
         public Vector3 position { get; }
@@ -96,12 +127,49 @@ namespace PacificEngine.OW_CommonResources.Game.State
                 return null;
             }
 
-            var position = target.GetWorldCenterOfMass() - (Locator.GetCenterOfTheUniverse()?.GetOffsetPosition() ?? Vector3.zero);
-            var velocity = target.GetVelocity() - (Locator.GetCenterOfTheUniverse()?.GetOffsetVelocity() ?? Vector3.zero);
-            var acceleration = target.GetAcceleration();
-            var jerk = target.GetJerk();
+            var offset = PositionState.offset;
+            var position = target.GetWorldCenterOfMass() - offset.position;
+            var velocity = target.GetVelocity() - offset.velocity;
+            var acceleration = target.GetAcceleration() - offset.acceleration;
+            var jerk = target.GetJerk() - offset.jerk;
 
             return new PositionState(position, velocity, acceleration, jerk);
+        }
+
+        public static PositionState fromCurrentState(Transform target)
+        {
+            if (target == null)
+            {
+                return null;
+            }
+
+            var offset = PositionState.offset;
+            var position = target.position - offset.position;
+            var velocity = Vector3.zero;
+            var acceleration = Vector3.zero;
+            var jerk = Vector3.zero;
+
+            return new PositionState(position, velocity, acceleration, jerk);
+        }
+
+        public static PositionState fromCurrentState(GameObject target)
+        {
+            if (target == null)
+            {
+                return null;
+            }
+
+            var rigidBody = target.GetComponent<OWRigidbody>();
+            var transform = target.transform;
+
+            if (rigidBody != null)
+            {
+                return fromCurrentState(target);
+            }
+            else
+            {
+                return fromCurrentState(transform);
+            }
         }
 
         public override string ToString()
@@ -167,6 +235,40 @@ namespace PacificEngine.OW_CommonResources.Game.State
             var angularAcceleration = target.GetAngularAcceleration();
 
             return new OrientationState(rotation, angularVelocity, angularAcceleration);
+        }
+
+        public static OrientationState fromCurrentState(Transform target)
+        {
+            if (target == null)
+            {
+                return null;
+            }
+
+            var rotation = target.rotation;
+            var angularVelocity = Vector3.zero;
+            var angularAcceleration = Vector3.zero;
+
+            return new OrientationState(rotation, angularVelocity, angularAcceleration);
+        }
+
+        public static OrientationState fromCurrentState(GameObject target)
+        {
+            if (target == null)
+            {
+                return null;
+            }
+
+            var rigidBody = target.GetComponent<OWRigidbody>();
+            var transform = target.transform;
+
+            if (rigidBody != null)
+            {
+                return fromCurrentState(target);
+            }
+            else
+            {
+                return fromCurrentState(transform);
+            }
         }
 
         public override string ToString()
@@ -312,6 +414,35 @@ namespace PacificEngine.OW_CommonResources.Game.State
             return new AbsoluteState(ScaleState.fromCurrentState(target), PositionState.fromCurrentState(target), OrientationState.fromCurrentState(target));
         }
 
+        public static AbsoluteState fromCurrentState(Transform target)
+        {
+            if (target == null)
+            {
+                return null;
+            }
+            return new AbsoluteState(ScaleState.fromCurrentState(target), PositionState.fromCurrentState(target), OrientationState.fromCurrentState(target));
+        }
+
+        public static AbsoluteState fromCurrentState(GameObject target)
+        {
+            if (target == null)
+            {
+                return null;
+            }
+
+            var rigidBody = target.GetComponent<OWRigidbody>();
+            var transform = target.transform;
+
+            if (rigidBody != null)
+            {
+                return fromCurrentState(target);
+            }
+            else
+            {
+                return fromCurrentState(transform);
+            }
+        }
+
         public override string ToString()
         {
             return $"({scale}, {coordinates}, {orientation})";
@@ -403,10 +534,11 @@ namespace PacificEngine.OW_CommonResources.Game.State
 
         private void applyMovement(OWRigidbody target)
         {
-            Helper.helper.Console.WriteLine($"{target}: {position}, {velocity}, {acceleration}");
-
-            var p = position + (Locator.GetCenterOfTheUniverse()?.GetOffsetPosition() ?? Vector3.zero);
-            var v = velocity + (Locator.GetCenterOfTheUniverse()?.GetOffsetVelocity() ?? Vector3.zero); /* Possibly not required because of CenterOfTheUniverseOffsetApplier */
+            var offset = PositionState.offset;
+            var p = position + offset.position;
+            var v = velocity + offset.velocity; /* Possibly not required because of CenterOfTheUniverseOffsetApplier */
+            var a = acceleration + offset.acceleration;
+            var j = jerk + offset.jerk;
 
             target.SetPosition(new Vector3(p.x, p.y, p.z));
             target.SetVelocity(new Vector3(v.x, v.y, v.z));
@@ -414,8 +546,8 @@ namespace PacificEngine.OW_CommonResources.Game.State
             target.SetValue("_lastPosition", new Vector3(p.x, p.y, p.z));
             target.SetValue("_currentVelocity", new Vector3(v.x, v.y, v.z));
             target.SetValue("_lastVelocity", new Vector3(v.x, v.y, v.z));
-            target.SetValue("_currentAccel", new Vector3(acceleration.x, acceleration.y, acceleration.z));
-            target.SetValue("_lastAccel", new Vector3(acceleration.x, acceleration.y, acceleration.z));
+            target.SetValue("_currentAccel", new Vector3(a.x, a.y, a.z));
+            target.SetValue("_lastAccel", new Vector3(a.x, a.y, a.z));
         }
 
         private void applyRotation(OWRigidbody target)
@@ -578,8 +710,6 @@ namespace PacificEngine.OW_CommonResources.Game.State
             var acceleration = Vector3.zero;
             var jerk = Vector3.zero;
 
-            Helper.helper.Console.WriteLine($"{orbit.coordinates} -> {position}, {velocity} -> {OrbitHelper.toKeplerCoordinates(gravity, Time.timeSinceLevelLoad, position, velocity)}");
-
             if (parentState != null && surface != null)
             {
                 position = surface.position.normalized * position.magnitude;
@@ -592,8 +722,6 @@ namespace PacificEngine.OW_CommonResources.Game.State
                 position += parentState.position;
                 velocity += parentState.velocity;
             }
-
-            Helper.helper.Console.WriteLine($"{orbit.coordinates} -> {position}, {velocity} -> {Position.getKepler(parentState, gravity, position, velocity)}");
 
             return new PositionState(position, velocity, acceleration, jerk);
         }
@@ -708,10 +836,11 @@ namespace PacificEngine.OW_CommonResources.Game.State
                 return null;
             }
 
-            var relativePosition = target.position - (parentState == null ? (Locator.GetCenterOfTheUniverse()?.GetOffsetPosition() ?? Vector3.zero) : parentState.position);
-            var relativeVelocity = target.velocity - (parentState == null ? (Locator.GetCenterOfTheUniverse()?.GetOffsetVelocity() ?? Vector3.zero) : parentState.velocity);
-            var relativeAcceleration = target.acceleration - (parentState == null ? Vector3.zero : parentState.acceleration);
-            var relativeJerk = target.jerk - (parentState == null ? Vector3.zero : parentState.jerk);
+            var offset = PositionState.offset;
+            var relativePosition = target.position - (parentState == null ? offset.position : parentState.position);
+            var relativeVelocity = target.velocity - (parentState == null ? offset.velocity : parentState.velocity);
+            var relativeAcceleration = target.acceleration - (parentState == null ? offset.acceleration : parentState.acceleration);
+            var relativeJerk = target.jerk - (parentState == null ? offset.jerk : parentState.jerk);
             var relativeOrientation = target.rotation;
             var relaitveAngularVelocity = target.velocity;
             var relativeAngularAcceleration = target.acceleration;

@@ -361,7 +361,8 @@ namespace PacificEngine.OW_CommonResources.Game.State
                     if (volume != null && volume?.gameObject != null)
                     {
                         Tuple<Position.HeavenlyBodies, float> parent;
-                        parent = getClosest(volume.transform.position);
+                        var state = PositionState.fromCurrentState(volume.gameObject);
+                        parent = getClosest(state.position);
                         if (!_portals.ContainsKey(parent.Item1))
                         {
                             _portals.Add(parent.Item1, new List<Tuple<NomaiWarpPlatform, float>>());
@@ -388,7 +389,7 @@ namespace PacificEngine.OW_CommonResources.Game.State
         {
             var keys = new Position.HeavenlyBodies[_portals.Count];
             _portals.Keys.CopyTo(keys, 0);
-            return Position.getClosest(position - (Locator.GetCenterOfTheUniverse()?.GetOffsetPosition() ?? Vector3.zero), keys)[0];
+            return Position.getClosest(position, keys)[0];
         }
 
         private static void doMapping()
