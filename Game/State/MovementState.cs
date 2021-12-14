@@ -2,6 +2,7 @@
 using PacificEngine.OW_CommonResources.Game.Display;
 using PacificEngine.OW_CommonResources.Game.Resource;
 using PacificEngine.OW_CommonResources.Geometry;
+using PacificEngine.OW_CommonResources.Geometry.Orbits;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -199,7 +200,7 @@ namespace PacificEngine.OW_CommonResources.Game.State
     public class KeplerState
     {
         public ScaleState scale { get; }
-        public Orbit.KeplerCoordinates coordinates { get; }
+        public KeplerCoordinates coordinates { get; }
         public OrientationState orientation { get; }
 
         public Vector3 lossyScale { get { return scale?.lossyScale ?? ScaleState.identity.lossyScale; } }
@@ -209,7 +210,7 @@ namespace PacificEngine.OW_CommonResources.Game.State
         public Vector3 angularVelocity { get { return orientation?.angularVelocity ?? OrientationState.identity.angularVelocity; } }
         public Vector3 angularAcceleration { get { return orientation?.angularAcceleration ?? OrientationState.identity.angularAcceleration; } }
 
-        public KeplerState(ScaleState scale, Orbit.KeplerCoordinates coordinates, OrientationState orientation)
+        public KeplerState(ScaleState scale, KeplerCoordinates coordinates, OrientationState orientation)
         {
             this.scale = scale ?? ScaleState.identity;
             this.coordinates = coordinates;
@@ -489,7 +490,7 @@ namespace PacificEngine.OW_CommonResources.Game.State
             return apply(body, parentState, parentGravity);
         }
 
-        public AbsoluteState apply(OWRigidbody body, AbsoluteState parentState, Orbit.Gravity gravity)
+        public AbsoluteState apply(OWRigidbody body, AbsoluteState parentState, Gravity gravity)
         {
             var state = getAbsoluteState(parentState, gravity);
             if (state != null)
@@ -507,7 +508,7 @@ namespace PacificEngine.OW_CommonResources.Game.State
             return getAbsoluteState(parentState, parentGravity);
         }
 
-        public AbsoluteState getAbsoluteState(AbsoluteState parentState, Orbit.Gravity gravity)
+        public AbsoluteState getAbsoluteState(AbsoluteState parentState, Gravity gravity)
         {
             var scale = getAbsoluteScale(parentState, gravity);
             if (scale == null)
@@ -531,7 +532,7 @@ namespace PacificEngine.OW_CommonResources.Game.State
         }
 
 
-        private ScaleState getAbsoluteScale(AbsoluteState parentState, Orbit.Gravity gravity)
+        private ScaleState getAbsoluteScale(AbsoluteState parentState, Gravity gravity)
         {
             if (orbit != null && orbit.coordinates != null && orbit.coordinates.isOrbit() && gravity != null)
             {
@@ -550,7 +551,7 @@ namespace PacificEngine.OW_CommonResources.Game.State
             return null;
         }
 
-        private PositionState getAbsoluteMovement(AbsoluteState parentState, Orbit.Gravity gravity)
+        private PositionState getAbsoluteMovement(AbsoluteState parentState, Gravity gravity)
         {
             if (orbit != null && orbit.coordinates != null && orbit.coordinates.isOrbit() && gravity != null)
             {
@@ -569,15 +570,15 @@ namespace PacificEngine.OW_CommonResources.Game.State
             return null;
         }
 
-        private PositionState getAbsoluteFromKeplerState(AbsoluteState parentState, Orbit.Gravity gravity)
+        private PositionState getAbsoluteFromKeplerState(AbsoluteState parentState, Gravity gravity)
         {
-            var cartesian = Orbit.toCartesian(gravity, Time.timeSinceLevelLoad, orbit.coordinates);
+            var cartesian = OrbitHelper.toCartesian(gravity, Time.timeSinceLevelLoad, orbit.coordinates);
             var position = cartesian.Item1;
             var velocity = cartesian.Item2;
             var acceleration = Vector3.zero;
             var jerk = Vector3.zero;
 
-            Helper.helper.Console.WriteLine($"{orbit.coordinates} -> {position}, {velocity} -> {Orbit.toKeplerCoordinates(gravity, Time.timeSinceLevelLoad, position, velocity)}");
+            Helper.helper.Console.WriteLine($"{orbit.coordinates} -> {position}, {velocity} -> {OrbitHelper.toKeplerCoordinates(gravity, Time.timeSinceLevelLoad, position, velocity)}");
 
             if (parentState != null && surface != null)
             {
@@ -628,7 +629,7 @@ namespace PacificEngine.OW_CommonResources.Game.State
             return new PositionState(position, velocity, acceleration, jerk);
         }
 
-        private OrientationState getAbsoluteOrientation(AbsoluteState parentState, Orbit.Gravity gravity, Vector3 worldPosition)
+        private OrientationState getAbsoluteOrientation(AbsoluteState parentState, Gravity gravity, Vector3 worldPosition)
         {
             if (orbit != null && orbit.coordinates != null && orbit.coordinates.isOrbit() && gravity != null)
             {
@@ -660,7 +661,7 @@ namespace PacificEngine.OW_CommonResources.Game.State
             return fromGlobal(parent, AbsoluteState.fromCurrentState(Position.getBody(parent)), Position.getGravity(parent), Position.getSize(parent), ScaleState.fromCurrentState(target), AbsoluteState.fromCurrentState(target));
         }
 
-        public static RelativeState fromGlobal(Position.HeavenlyBodies parent, AbsoluteState parentState, Orbit.Gravity parentGravity, Position.Size parentSize, ScaleState targetScale, AbsoluteState target)
+        public static RelativeState fromGlobal(Position.HeavenlyBodies parent, AbsoluteState parentState, Gravity parentGravity, Position.Size parentSize, ScaleState targetScale, AbsoluteState target)
         {
             MovementState surfaceMovement = null;
             KeplerState orbit = null;
@@ -700,7 +701,7 @@ namespace PacificEngine.OW_CommonResources.Game.State
             return getRelativeMovement(AbsoluteState.fromCurrentState(Position.getBody(parent)), Position.getGravity(parent), ScaleState.fromCurrentState(target), AbsoluteState.fromCurrentState(target));
         }
 
-        public static MovementState getRelativeMovement(AbsoluteState parentState, Orbit.Gravity parentGravity, ScaleState targetScale, AbsoluteState target)
+        public static MovementState getRelativeMovement(AbsoluteState parentState, Gravity parentGravity, ScaleState targetScale, AbsoluteState target)
         {
             if (target == null)
             {
@@ -723,7 +724,7 @@ namespace PacificEngine.OW_CommonResources.Game.State
             return getSurfaceMovement(AbsoluteState.fromCurrentState(Position.getBody(parent)), Position.getGravity(parent), ScaleState.fromCurrentState(target), AbsoluteState.fromCurrentState(target));
         }
 
-        public static MovementState getSurfaceMovement(AbsoluteState parentState, Orbit.Gravity parentGravity, ScaleState targetScale, AbsoluteState target)
+        public static MovementState getSurfaceMovement(AbsoluteState parentState, Gravity parentGravity, ScaleState targetScale, AbsoluteState target)
         {
             if (parentState == null || target == null)
             {
@@ -746,7 +747,7 @@ namespace PacificEngine.OW_CommonResources.Game.State
             return getKepler(AbsoluteState.fromCurrentState(Position.getBody(parent)), Position.getGravity(parent), ScaleState.fromCurrentState(target), AbsoluteState.fromCurrentState(target));
         }
 
-        public static KeplerState getKepler(AbsoluteState parentState, Orbit.Gravity parentGravity, ScaleState targetScale, AbsoluteState target)
+        public static KeplerState getKepler(AbsoluteState parentState, Gravity parentGravity, ScaleState targetScale, AbsoluteState target)
         {
             if (parentState == null || parentGravity == null || target == null)
             {
@@ -774,7 +775,7 @@ namespace PacificEngine.OW_CommonResources.Game.State
             return new RelativeState(parent, null, surface, null);
         }
 
-        public static RelativeState fromKepler(Position.HeavenlyBodies parent, ScaleState targetScale, Orbit.KeplerCoordinates kepler, OrientationState orientation)
+        public static RelativeState fromKepler(Position.HeavenlyBodies parent, ScaleState targetScale, KeplerCoordinates kepler, OrientationState orientation)
         {
             if (kepler != null && kepler.isOrbit())
             {

@@ -8,6 +8,7 @@ using PacificEngine.OW_CommonResources.Game.Display;
 using PacificEngine.OW_CommonResources.Game.Player;
 using PacificEngine.OW_CommonResources.Game.Resource;
 using PacificEngine.OW_CommonResources.Geometry;
+using PacificEngine.OW_CommonResources.Geometry.Orbits;
 using UnityEngine;
 
 namespace PacificEngine.OW_CommonResources.Game.State
@@ -85,10 +86,10 @@ BrambleIsland_Body (OWRigidbody): (-5370.667,4489.811,12388.8) (129.4764,285.289
         public class Plantoid
         {
             public Position.Size size { get; }
-            public Orbit.Gravity gravity { get; }
+            public Gravity gravity { get; }
             public RelativeState state { get; }
 
-            public Plantoid(Position.Size size, Orbit.Gravity gravity, Quaternion orientation, float rotationalSpeed, Position.HeavenlyBodies parent, Orbit.KeplerCoordinates orbit)
+            public Plantoid(Position.Size size, Gravity gravity, Quaternion orientation, float rotationalSpeed, Position.HeavenlyBodies parent, KeplerCoordinates orbit)
             {
                 this.size = size;
                 this.gravity = gravity;
@@ -97,7 +98,7 @@ BrambleIsland_Body (OWRigidbody): (-5370.667,4489.811,12388.8) (129.4764,285.289
                 this.state = RelativeState.fromKepler(parent, ScaleState.identity, orbit, new OrientationState(orientation, angularVelocity, Vector3.zero));
             }
 
-            public Plantoid(Position.Size size, Orbit.Gravity gravity, Quaternion orientation, float rotationalSpeed, Position.HeavenlyBodies parent, Vector3 position, Vector3 velocity)
+            public Plantoid(Position.Size size, Gravity gravity, Quaternion orientation, float rotationalSpeed, Position.HeavenlyBodies parent, Vector3 position, Vector3 velocity)
             {
                 this.size = size;
                 this.gravity = gravity;
@@ -106,14 +107,14 @@ BrambleIsland_Body (OWRigidbody): (-5370.667,4489.811,12388.8) (129.4764,285.289
                 this.state = RelativeState.fromRelative(parent, new MovementState(ScaleState.identity, new PositionState(position, velocity, Vector3.zero, Vector3.zero), new OrientationState(orientation, angularVelocity, Vector3.zero)));
             }
 
-            public Plantoid(Position.Size size, Orbit.Gravity gravity, Position.HeavenlyBodies parent, OWRigidbody target)
+            public Plantoid(Position.Size size, Gravity gravity, Position.HeavenlyBodies parent, OWRigidbody target)
             {
                 this.size = size;
                 this.gravity = gravity;
                 this.state = RelativeState.fromGlobal(parent, target);
             }
 
-            public Plantoid(Position.Size size, Orbit.Gravity gravity, RelativeState state)
+            public Plantoid(Position.Size size, Gravity gravity, RelativeState state)
             {
                 this.size = size;
                 this.gravity = gravity;
@@ -199,34 +200,34 @@ BrambleIsland_Body (OWRigidbody): (-5370.667,4489.811,12388.8) (129.4764,285.289
         {
             get
             {
-                var sunGravity = Orbit.Gravity.of(2, 400000000000);
-                var hourGlassTwinGravity = Orbit.Gravity.of(1, 800000);
-                var timberHearthGravity = Orbit.Gravity.of(1, 3000000);
-                var brittleHollowGravity = Orbit.Gravity.of(1, 3000000);
-                var giantsDeepGravity = Orbit.Gravity.of(1, 21780000);
+                var sunGravity = Gravity.of(2, 400000000000);
+                var hourGlassTwinGravity = Gravity.of(1, 800000);
+                var timberHearthGravity = Gravity.of(1, 3000000);
+                var brittleHollowGravity = Gravity.of(1, 3000000);
+                var giantsDeepGravity = Gravity.of(1, 21780000);
 
                 var mapping = new Dictionary<Position.HeavenlyBodies, Plantoid>();
-                mapping.Add(Position.HeavenlyBodies.Sun, new Plantoid(new Position.Size(2000, 20000), Orbit.Gravity.of(2, 400000000000), new Quaternion(0, 0, 0, 1), 0f, Position.HeavenlyBodies.None, Vector3.zero, Vector3.zero));
-                mapping.Add(Position.HeavenlyBodies.SunStation, new Plantoid(new Position.Size(200f, 550), Orbit.Gravity.of(2, 300000000), new Quaternion(0.502f, 0.502f, -0.498f, -0.498f), 0.1817f, Position.HeavenlyBodies.Sun, Orbit.KeplerCoordinates.fromTimeSincePeriapsis(sunGravity, 0.0061f, 2296.04395f, 90, 180.3505f, 0, 8.54975f)));
-                mapping.Add(Position.HeavenlyBodies.HourglassTwins, new Plantoid(new Position.Size(0f, 692.8f), Orbit.Gravity.of(1, 800000), new Quaternion(0, -0.887f, 0, 0.462f), 0f, Position.HeavenlyBodies.Sun, Orbit.KeplerCoordinates.fromTimeSincePeriapsis(sunGravity, 0.0019f, 5000.00879f, 90, 35.1033f, 0, 27.67817f)));
-                mapping.Add(Position.HeavenlyBodies.AshTwin, new Plantoid(new Position.Size(200f, 692.8f), Orbit.Gravity.of(1, 1600000), new Quaternion(0, 0.954f, 0, 0.298f), 0.07f, Position.HeavenlyBodies.HourglassTwins, Orbit.KeplerCoordinates.fromTimeSincePeriapsis(hourGlassTwinGravity, 0, 249.998428f, 90, 55.4224f, 180, 13.82798f)));
-                mapping.Add(Position.HeavenlyBodies.EmberTwin, new Plantoid(new Position.Size(200f, 692.8f), Orbit.Gravity.of(1, 1600000), new Quaternion(0, -0.886f, 0, 0.463f), 0.05f, Position.HeavenlyBodies.HourglassTwins, Orbit.KeplerCoordinates.fromTimeSincePeriapsis(hourGlassTwinGravity, 0, 249.998764f, 90, 235.4222f, 180, 13.82804f)));
-                mapping.Add(Position.HeavenlyBodies.TimberHearth, new Plantoid(new Position.Size(250, 1061), Orbit.Gravity.of(1, 3000000), new Quaternion(0, 0.996f, 0, 0.087f), 0.01f, Position.HeavenlyBodies.Sun, Orbit.KeplerCoordinates.fromTimeSincePeriapsis(sunGravity, 0.0009f, 8593.08984f, 90, 190.0414f, 0, 62.4697f)));
-                mapping.Add(Position.HeavenlyBodies.TimberHearthProbe, new Plantoid(new Position.Size(0.5f, 0.5f), Orbit.Gravity.of(2, 10), new Quaternion(0.704f, -0.704f, 0.064f, -0.064f), 0f, Position.HeavenlyBodies.TimberHearth, Orbit.KeplerCoordinates.fromTimeSincePeriapsis(timberHearthGravity, 0, 350.097656f, 90, 100.5856f, 0, 9.98418f)));
-                mapping.Add(Position.HeavenlyBodies.Attlerock, new Plantoid(new Position.Size(100, 223.6f), Orbit.Gravity.of(2, 50000000), new Quaternion(0, -0.642f, 0, -0.767f), 0.0609f, Position.HeavenlyBodies.TimberHearth, Orbit.KeplerCoordinates.fromTimeSincePeriapsis(timberHearthGravity, 0, 899.999085f, 90, 280.2294f, 0, 25.75421f)));
-                mapping.Add(Position.HeavenlyBodies.BrittleHollow, new Plantoid(new Position.Size(300, 1162), Orbit.Gravity.of(1, 3000000), new Quaternion(0, 0.642f, 0, -0.766f), 0.02f, Position.HeavenlyBodies.Sun, Orbit.KeplerCoordinates.fromTimeSincePeriapsis(sunGravity, 0.0006f, 11690.8877f, 90, 259.9969f, 0, 99.21703f)));
-                mapping.Add(Position.HeavenlyBodies.HollowLantern, new Plantoid(new Position.Size(130, 421.2f), Orbit.Gravity.of(1, 910000), new Quaternion(-0.542f, 0.449f, -0.455f, -0.546f), 0.2f, Position.HeavenlyBodies.BrittleHollow, Orbit.KeplerCoordinates.fromTimeSincePeriapsis(brittleHollowGravity, 0, 1000.00073f, 90, 260.2069f, 0, 28.62203f)));
-                mapping.Add(Position.HeavenlyBodies.GiantsDeep, new Plantoid(new Position.Size(900, 5422), Orbit.Gravity.of(1, 21780000), new Quaternion(0, 0.105f, 0, -0.995f), 0f, Position.HeavenlyBodies.Sun, Orbit.KeplerCoordinates.fromTimeSincePeriapsis(sunGravity, 0.0003f, 16457.5918f, 90, 192.0577f, 0, 165.65816f)));
-                mapping.Add(Position.HeavenlyBodies.ProbeCannon, new Plantoid(new Position.Size(200, 550), Orbit.Gravity.of(2, 300000000), new Quaternion(0.551f, 0.408f, -0.527f, 0.503f), 0f, Position.HeavenlyBodies.GiantsDeep, Orbit.KeplerCoordinates.fromTimeSincePeriapsis(giantsDeepGravity, 0, 1199.99414f, 90, 303.4643f, 180, 12.71561f)));
-                mapping.Add(Position.HeavenlyBodies.DarkBramble, new Plantoid(new Position.Size(650, 1780), Orbit.Gravity.of(1, 3250000), new Quaternion(0, 0.996f, 0, 0.087f), 0f, Position.HeavenlyBodies.Sun, Orbit.KeplerCoordinates.fromTimeSincePeriapsis(sunGravity, 0.0003f, 20000.0039f, 90, 10.0033f, 0, 222.06259f)));
-                mapping.Add(Position.HeavenlyBodies.WhiteHole, new Plantoid(new Position.Size(30, 200), Orbit.Gravity.of(2, 1000000), new Quaternion(0, 0.7071068f, 0, 0.7071068f), 0f, Position.HeavenlyBodies.Sun, new Vector3(-23000, 0, 0), Vector3.zero));
-                mapping.Add(Position.HeavenlyBodies.WhiteHoleStation, new Plantoid(new Position.Size(30, 100), Orbit.Gravity.of(2, 100000), new Quaternion(0, 0.04225808f, 0, -0.9991068f), 0f, Position.HeavenlyBodies.Sun, new Vector3(-22538.19f, 0, 0), Vector3.zero));
-                mapping.Add(Position.HeavenlyBodies.Interloper, new Plantoid(new Position.Size(110, 301.2f), Orbit.Gravity.of(1, 550000), new Quaternion(0, 1, 0, 0), 0.0034f, Position.HeavenlyBodies.Sun, Orbit.KeplerCoordinates.fromTimeSincePeriapsis(sunGravity, 0.8194f, 13246.3066f, 90, 180.0053f, 180, 239.44463f)));
-                mapping.Add(Position.HeavenlyBodies.Stranger, new Plantoid(new Position.Size(600, 1000), Orbit.Gravity.of(2, 300000000), new Quaternion(-0.381f, -0.892f, 0.034f, -0.241f), 0.05f, Position.HeavenlyBodies.Sun, new Vector3(8168.197f, 8399.999f, 2049.527f), Vector3.zero));
-                mapping.Add(Position.HeavenlyBodies.DreamWorld, new Plantoid(new Position.Size(1000, 1000), Orbit.Gravity.of(2, 300000000), new Quaternion(0, 0.087f, 0, -0.996f), 0.05f, Position.HeavenlyBodies.Sun, new Vector3(7791.638f, 7000, 1881.588f), Vector3.zero));
-                mapping.Add(Position.HeavenlyBodies.QuantumMoon, new Plantoid(new Position.Size(110, 301.2f), Orbit.Gravity.of(1, 550000), new Quaternion(0.296f, 0.062f, 0.641f, -0.706f), 0f, Position.HeavenlyBodies.None, Vector3.zero, Vector3.zero));
-                mapping.Add(Position.HeavenlyBodies.BackerSatilite, new Plantoid(new Position.Size(5, 100), Orbit.Gravity.of(2, 100), new Quaternion(0, 0, 0, 1), 0f, Position.HeavenlyBodies.Sun, Orbit.KeplerCoordinates.fromTimeSincePeriapsis(sunGravity, 0.8882f, 30535.3711f, 28.1204f, 81.8517f, 91.2994f, 1253.74866f)));
-                mapping.Add(Position.HeavenlyBodies.MapSatilite, new Plantoid(new Position.Size(5, 100), Orbit.Gravity.of(2, 500), new Quaternion(-0.084f, -0.76f, -0.1f, 0.637f), 0.0048f, Position.HeavenlyBodies.Sun, Orbit.KeplerCoordinates.fromTimeSincePeriapsis(sunGravity, 0.0002f, 26000, 10, 344.9661f, 270, 329.33386f)));
+                mapping.Add(Position.HeavenlyBodies.Sun, new Plantoid(new Position.Size(2000, 20000), Gravity.of(2, 400000000000), new Quaternion(0, 0, 0, 1), 0f, Position.HeavenlyBodies.None, Vector3.zero, Vector3.zero));
+                mapping.Add(Position.HeavenlyBodies.SunStation, new Plantoid(new Position.Size(200f, 550), Gravity.of(2, 300000000), new Quaternion(0.502f, 0.502f, -0.498f, -0.498f), 0.1817f, Position.HeavenlyBodies.Sun, KeplerCoordinates.fromTimeSincePeriapsis(sunGravity, 0.0061f, 2296.04395f, 90, 180.3505f, 0, 8.54975f)));
+                mapping.Add(Position.HeavenlyBodies.HourglassTwins, new Plantoid(new Position.Size(0f, 692.8f), Gravity.of(1, 800000), new Quaternion(0, -0.887f, 0, 0.462f), 0f, Position.HeavenlyBodies.Sun, KeplerCoordinates.fromTimeSincePeriapsis(sunGravity, 0.0019f, 5000.00879f, 90, 35.1033f, 0, 27.67817f)));
+                mapping.Add(Position.HeavenlyBodies.AshTwin, new Plantoid(new Position.Size(200f, 692.8f), Gravity.of(1, 1600000), new Quaternion(0, 0.954f, 0, 0.298f), 0.07f, Position.HeavenlyBodies.HourglassTwins, KeplerCoordinates.fromTimeSincePeriapsis(hourGlassTwinGravity, 0, 249.998428f, 90, 55.4224f, 180, 13.82798f)));
+                mapping.Add(Position.HeavenlyBodies.EmberTwin, new Plantoid(new Position.Size(200f, 692.8f), Gravity.of(1, 1600000), new Quaternion(0, -0.886f, 0, 0.463f), 0.05f, Position.HeavenlyBodies.HourglassTwins, KeplerCoordinates.fromTimeSincePeriapsis(hourGlassTwinGravity, 0, 249.998764f, 90, 235.4222f, 180, 13.82804f)));
+                mapping.Add(Position.HeavenlyBodies.TimberHearth, new Plantoid(new Position.Size(250, 1061), Gravity.of(1, 3000000), new Quaternion(0, 0.996f, 0, 0.087f), 0.01f, Position.HeavenlyBodies.Sun, KeplerCoordinates.fromTimeSincePeriapsis(sunGravity, 0.0009f, 8593.08984f, 90, 190.0414f, 0, 62.4697f)));
+                mapping.Add(Position.HeavenlyBodies.TimberHearthProbe, new Plantoid(new Position.Size(0.5f, 0.5f), Gravity.of(2, 10), new Quaternion(0.704f, -0.704f, 0.064f, -0.064f), 0f, Position.HeavenlyBodies.TimberHearth, KeplerCoordinates.fromTimeSincePeriapsis(timberHearthGravity, 0, 350.097656f, 90, 100.5856f, 0, 9.98418f)));
+                mapping.Add(Position.HeavenlyBodies.Attlerock, new Plantoid(new Position.Size(100, 223.6f), Gravity.of(2, 50000000), new Quaternion(0, -0.642f, 0, -0.767f), 0.0609f, Position.HeavenlyBodies.TimberHearth, KeplerCoordinates.fromTimeSincePeriapsis(timberHearthGravity, 0, 899.999085f, 90, 280.2294f, 0, 25.75421f)));
+                mapping.Add(Position.HeavenlyBodies.BrittleHollow, new Plantoid(new Position.Size(300, 1162), Gravity.of(1, 3000000), new Quaternion(0, 0.642f, 0, -0.766f), 0.02f, Position.HeavenlyBodies.Sun, KeplerCoordinates.fromTimeSincePeriapsis(sunGravity, 0.0006f, 11690.8877f, 90, 259.9969f, 0, 99.21703f)));
+                mapping.Add(Position.HeavenlyBodies.HollowLantern, new Plantoid(new Position.Size(130, 421.2f), Gravity.of(1, 910000), new Quaternion(-0.542f, 0.449f, -0.455f, -0.546f), 0.2f, Position.HeavenlyBodies.BrittleHollow, KeplerCoordinates.fromTimeSincePeriapsis(brittleHollowGravity, 0, 1000.00073f, 90, 260.2069f, 0, 28.62203f)));
+                mapping.Add(Position.HeavenlyBodies.GiantsDeep, new Plantoid(new Position.Size(900, 5422), Gravity.of(1, 21780000), new Quaternion(0, 0.105f, 0, -0.995f), 0f, Position.HeavenlyBodies.Sun, KeplerCoordinates.fromTimeSincePeriapsis(sunGravity, 0.0003f, 16457.5918f, 90, 192.0577f, 0, 165.65816f)));
+                mapping.Add(Position.HeavenlyBodies.ProbeCannon, new Plantoid(new Position.Size(200, 550), Gravity.of(2, 300000000), new Quaternion(0.551f, 0.408f, -0.527f, 0.503f), 0f, Position.HeavenlyBodies.GiantsDeep, KeplerCoordinates.fromTimeSincePeriapsis(giantsDeepGravity, 0, 1199.99414f, 90, 303.4643f, 180, 12.71561f)));
+                mapping.Add(Position.HeavenlyBodies.DarkBramble, new Plantoid(new Position.Size(650, 1780), Gravity.of(1, 3250000), new Quaternion(0, 0.996f, 0, 0.087f), 0f, Position.HeavenlyBodies.Sun, KeplerCoordinates.fromTimeSincePeriapsis(sunGravity, 0.0003f, 20000.0039f, 90, 10.0033f, 0, 222.06259f)));
+                mapping.Add(Position.HeavenlyBodies.WhiteHole, new Plantoid(new Position.Size(30, 200), Gravity.of(2, 1000000), new Quaternion(0, 0.7071068f, 0, 0.7071068f), 0f, Position.HeavenlyBodies.Sun, new Vector3(-23000, 0, 0), Vector3.zero));
+                mapping.Add(Position.HeavenlyBodies.WhiteHoleStation, new Plantoid(new Position.Size(30, 100), Gravity.of(2, 100000), new Quaternion(0, 0.04225808f, 0, -0.9991068f), 0f, Position.HeavenlyBodies.Sun, new Vector3(-22538.19f, 0, 0), Vector3.zero));
+                mapping.Add(Position.HeavenlyBodies.Interloper, new Plantoid(new Position.Size(110, 301.2f), Gravity.of(1, 550000), new Quaternion(0, 1, 0, 0), 0.0034f, Position.HeavenlyBodies.Sun, KeplerCoordinates.fromTimeSincePeriapsis(sunGravity, 0.8194f, 13246.3066f, 90, 180.0053f, 180, 239.44463f)));
+                mapping.Add(Position.HeavenlyBodies.Stranger, new Plantoid(new Position.Size(600, 1000), Gravity.of(2, 300000000), new Quaternion(-0.381f, -0.892f, 0.034f, -0.241f), 0.05f, Position.HeavenlyBodies.Sun, new Vector3(8168.197f, 8399.999f, 2049.527f), Vector3.zero));
+                mapping.Add(Position.HeavenlyBodies.DreamWorld, new Plantoid(new Position.Size(1000, 1000), Gravity.of(2, 300000000), new Quaternion(0, 0.087f, 0, -0.996f), 0.05f, Position.HeavenlyBodies.Sun, new Vector3(7791.638f, 7000, 1881.588f), Vector3.zero));
+                mapping.Add(Position.HeavenlyBodies.QuantumMoon, new Plantoid(new Position.Size(110, 301.2f), Gravity.of(1, 550000), new Quaternion(0.296f, 0.062f, 0.641f, -0.706f), 0f, Position.HeavenlyBodies.None, Vector3.zero, Vector3.zero));
+                mapping.Add(Position.HeavenlyBodies.BackerSatilite, new Plantoid(new Position.Size(5, 100), Gravity.of(2, 100), new Quaternion(0, 0, 0, 1), 0f, Position.HeavenlyBodies.Sun, KeplerCoordinates.fromTimeSincePeriapsis(sunGravity, 0.8882f, 30535.3711f, 28.1204f, 81.8517f, 91.2994f, 1253.74866f)));
+                mapping.Add(Position.HeavenlyBodies.MapSatilite, new Plantoid(new Position.Size(5, 100), Gravity.of(2, 500), new Quaternion(-0.084f, -0.76f, -0.1f, 0.637f), 0.0048f, Position.HeavenlyBodies.Sun, KeplerCoordinates.fromTimeSincePeriapsis(sunGravity, 0.0002f, 26000, 10, 344.9661f, 270, 329.33386f)));
                 
                 return mapping;
             }
@@ -439,7 +440,7 @@ BrambleIsland_Body (OWRigidbody): (-5370.667,4489.811,12388.8) (129.4764,285.289
                 Position.HeavenlyBodies.EyeOfTheUniverse_Vessel));
         }
 
-        private static Orbit.Gravity getGravity(Position.HeavenlyBodies parent)
+        private static Gravity getGravity(Position.HeavenlyBodies parent)
         {
             if (parent == Position.HeavenlyBodies.HourglassTwins)
             {
@@ -448,13 +449,13 @@ BrambleIsland_Body (OWRigidbody): (-5370.667,4489.811,12388.8) (129.4764,285.289
                 var exponent = (emberTwin.gravity.exponent + ashTwin.gravity.exponent) / 2f;
                 var mass = (emberTwin.gravity.mass + ashTwin.gravity.mass) / 4f;
 
-                return Orbit.Gravity.of(exponent, mass);
+                return Gravity.of(exponent, mass);
             }
             else if (_mapping.ContainsKey(parent))
             {
 
                 var parentMap = _mapping[parent];
-                return Orbit.Gravity.of(parentMap.gravity.exponent, parentMap.gravity.mass);
+                return Gravity.of(parentMap.gravity.exponent, parentMap.gravity.mass);
             }
 
             return null;
@@ -527,7 +528,7 @@ BrambleIsland_Body (OWRigidbody): (-5370.667,4489.811,12388.8) (129.4764,285.289
             }
         }
 
-        private static AbsoluteState updatePlanetPosition(AbsoluteState parentState, Orbit.Gravity gravity, RelativeState relativeState, OWRigidbody owBody)
+        private static AbsoluteState updatePlanetPosition(AbsoluteState parentState, Gravity gravity, RelativeState relativeState, OWRigidbody owBody)
         {
             return relativeState.apply(owBody, parentState, gravity);
         }
@@ -574,8 +575,8 @@ BrambleIsland_Body (OWRigidbody): (-5370.667,4489.811,12388.8) (129.4764,285.289
             }
             _lineRenderer.SetPositions(_verts);
 
-            var periapsis = Orbit.getPeriapsis(parentGravity, kepler);
-            var semiMinorDecending = Orbit.getSemiMinorDecending(parentGravity, kepler);
+            var periapsis = OrbitHelper.getPeriapsis(parentGravity, kepler);
+            var semiMinorDecending = OrbitHelper.getSemiMinorDecending(parentGravity, kepler);
             var _semiMajorAxis = periapsis.Item1.normalized * kepler.semiMajorRadius;
             var _semiMinorAxis = semiMinorDecending.Item1.normalized * kepler.semiMinorRadius;
             var _upAxisDir = Vector3.Cross(periapsis.Item1, semiMinorDecending.Item1);

@@ -4,11 +4,11 @@ using OWML.Utils;
 using PacificEngine.OW_CommonResources.Game.Display;
 using PacificEngine.OW_CommonResources.Game.State;
 using PacificEngine.OW_CommonResources.Geometry;
+using PacificEngine.OW_CommonResources.Geometry.Orbits;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using static PacificEngine.OW_CommonResources.Geometry.Orbit;
 
 namespace PacificEngine.OW_CommonResources.Game.Resource
 {
@@ -479,7 +479,7 @@ namespace PacificEngine.OW_CommonResources.Game.Resource
                 mass = parentBody?.GetAttachedGravityVolume()?.GetValue<float>("_gravitationalMass") ?? ((parentBody?.GetMass() ?? 0f) * 1000f);
             }
 
-            return Orbit.Gravity.of(exponent, mass);
+            return Gravity.of(exponent, mass);
         }
 
         public static Size getSize(Position.HeavenlyBodies parent)
@@ -626,7 +626,7 @@ namespace PacificEngine.OW_CommonResources.Game.Resource
             return new Size(size, influence);
         }
 
-        public static Orbit.KeplerCoordinates getKepler(HeavenlyBodies parent, OWRigidbody target)
+        public static KeplerCoordinates getKepler(HeavenlyBodies parent, OWRigidbody target)
         {
             var state = PositionState.fromCurrentState(target);
             if (state == null)
@@ -637,7 +637,7 @@ namespace PacificEngine.OW_CommonResources.Game.Resource
             return getKepler(parent, state.position, state.velocity);
         }
 
-        public static Orbit.KeplerCoordinates getKepler(HeavenlyBodies parent, Vector3 worldPosition, Vector3 worldVelocity)
+        public static KeplerCoordinates getKepler(HeavenlyBodies parent, Vector3 worldPosition, Vector3 worldVelocity)
         {
             var state = AbsoluteState.fromCurrentState(parent);
             var gravity = getGravity(parent);
@@ -645,7 +645,7 @@ namespace PacificEngine.OW_CommonResources.Game.Resource
             return getKepler(state, gravity, worldPosition, worldVelocity);
         }
 
-        public static Orbit.KeplerCoordinates getKepler(AbsoluteState parentState, Orbit.Gravity parentGravity, Vector3 worldPosition, Vector3 worldVelocity)
+        public static KeplerCoordinates getKepler(AbsoluteState parentState, Gravity parentGravity, Vector3 worldPosition, Vector3 worldVelocity)
         {
             if (parentState == null || parentGravity == null)
             {
@@ -655,7 +655,7 @@ namespace PacificEngine.OW_CommonResources.Game.Resource
             var position = worldPosition - parentState.position;
             var velocity = worldVelocity - parentState.velocity;
 
-            return Orbit.toKeplerCoordinates(parentGravity, Time.timeSinceLevelLoad, position, velocity);
+            return OrbitHelper.toKeplerCoordinates(parentGravity, Time.timeSinceLevelLoad, position, velocity);
         }
     }
 }
