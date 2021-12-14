@@ -685,7 +685,7 @@ namespace PacificEngine.OW_CommonResources.Game.State
                     var kepler = getKepler(parentState, parentGravity, targetScale, target);
                     if (kepler != null && kepler.coordinates != null && kepler.coordinates.isOrbit())
                     {
-                        if (parentSize.size < kepler.coordinates.periapsis && kepler.coordinates.apoapsis < parentSize.influence)
+                        if (parentSize.size < kepler.coordinates.perigee && kepler.coordinates.apogee < parentSize.influence)
                         {
                             orbit = kepler;
                         }

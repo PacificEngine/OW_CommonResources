@@ -27,7 +27,7 @@ namespace PacificEngine.OW_CommonResources.Geometry.Orbits
             if (parent.exponent < 1.5d)
             {
                 specificEnergy = (speed * speed) / 2d - mu;
-                eccentricity = Math.Abs(Math.Sqrt(((2d * specificEnergy) / mu) + 2d) - 1d); // Incorrect for exponent 1
+                eccentricity = Math.Abs(Math.Sqrt(Math.Abs(((2d * specificEnergy) / mu) + 2d)) - 1d); // TODO: Incorrect for exponent 1
                 //semiMajorRadius = radius * Math.Abs(mu / (2d * specificEnergy));
                 semiMajorRadius = angularMomemntum / (Math.Sqrt(mu) * (1d - (eccentricity * eccentricity)));
             }
@@ -96,7 +96,7 @@ namespace PacificEngine.OW_CommonResources.Geometry.Orbits
             double od;
             if (parent.exponent < 1.5f)
             {
-                od = Math.Sqrt(parent.mu); // TODO: Figure out why exponent 1 doesn't work
+                od = Math.Sqrt(parent.mu);
             }
             else
             {
