@@ -36,6 +36,7 @@ namespace PacificEngine.OW_CommonResources.Geometry.Orbits
                 //https://web.archive.org/web/20160418175843/https://ccar.colorado.edu/asen5070/handouts/cart2kep2002.pdf
                 specificEnergy = (speed * speed) / 2d - (mu / radius);
                 semiMajorRadius = Math.Abs(mu / (2d * specificEnergy));
+                //eccentricity = Math.Sqrt(Math.Abs(1 - ((angularMomemntum * angularMomemntum) / (semiMajorRadius * mu))));
                 eccentricity = Math.Sqrt(Math.Abs(1d + (2d * specificEnergy * angularMomemntum * angularMomemntum) / (mu * mu)));
             }
             var inclinationAngle = Angle.normalizeRadian(Math.Acos(orbitalMomentum.z / angularMomemntum)) % Math.PI;

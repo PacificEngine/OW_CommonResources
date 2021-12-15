@@ -586,8 +586,10 @@ namespace PacificEngine.OW_CommonResources.Game.State
 
         public override string ToString()
         {
-            var orbit = (this.orbit?.ToString() ?? "");
-            return $"({parent}, {relative}, {surface}, {orbit})";
+            var relativeString = this.relative == null ? "" : $", Relative: {this.relative.ToString()}";
+            var surfaceString = this.surface == null ? "" : $", Surface: {this.surface.ToString()}";
+            var orbitString = this.orbit == null ? "" : $", Orbit: {this.orbit.ToString()}";
+            return $"({parent}{relativeString}{surfaceString}{orbitString})";
         }
 
         public override bool Equals(System.Object other)
@@ -874,7 +876,7 @@ namespace PacificEngine.OW_CommonResources.Game.State
             var surfaceJerk = target.jerk - (parentState == null ? Vector3.zero : parentState.jerk);
 
             var groundNormal = target.position - parentState.position;
-            var forwardsVector = -Vector3.Cross(groundNormal, target.orientation.right);
+            var forwardsVector = -Vector3.Cross(groundNormal, target.orientation.right); // TODO: Forward direction is not quite correct
             var pointRoation = Quaternion.LookRotation(forwardsVector, groundNormal);
 
             var surfaceRotation = Quaternion.Inverse(pointRoation) * target.rotation;

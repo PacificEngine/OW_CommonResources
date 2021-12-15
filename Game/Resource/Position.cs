@@ -585,8 +585,8 @@ namespace PacificEngine.OW_CommonResources.Game.Resource
                     influence = 250f;
                     break;
                 case Position.HeavenlyBodies.Sun:
-                    size = 3000f;
-                    influence = 40000f;
+                    size = 2000f;
+                    influence = 45000f;
                     break;
                 case Position.HeavenlyBodies.AshTwin:
                 case Position.HeavenlyBodies.EmberTwin:

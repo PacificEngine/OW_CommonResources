@@ -23,7 +23,7 @@ namespace PacificEngine.OW_CommonResources.Geometry.Orbits
         public float periapseAngle { get; }
         public float ascendingAngle { get; }
 
-        public float semiMinorRadius { get { if (float.IsNaN(_semiMinorRadius)) _semiMinorRadius = Ellipse.getMinorRadius(semiMajorRadius, eccentricity); return _semiMinorRadius; } }
+        public float semiMinorRadius { get { if (float.IsNaN(_semiMinorRadius)) _semiMinorRadius = Ellipse.getMinorRadius(semiMajorRadius, foci); return _semiMinorRadius; } }
         public float foci { get { if (float.IsNaN(_foci)) _foci = Ellipse.getFocus(semiMajorRadius, eccentricity); return _foci; } }
         public float apogee { get { return semiMajorRadius + foci; } }
         public float perigee { get { return semiMajorRadius - foci; } }
