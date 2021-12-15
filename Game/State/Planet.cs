@@ -262,6 +262,9 @@ namespace PacificEngine.OW_CommonResources.Game.State
             bodies.Add(captureState(Position.getBody(Position.HeavenlyBodies.NomaiEmberTwinShuttle)));
             bodies.Add(captureState(Position.getBody(Position.HeavenlyBodies.NomaiBrittleHollowShuttle)));
 
+            HashSet<OWRigidbody> exists = new HashSet<OWRigidbody>(bodies.ConvertAll((element) => element?.Item1));
+            exists.Add(Position.getBody(Position.HeavenlyBodies.Player));
+
             foreach (var child in GameObject.FindObjectsOfType<OWRigidbody>())
             {
                 var name = child?.gameObject?.name;
@@ -276,6 +279,7 @@ namespace PacificEngine.OW_CommonResources.Game.State
                     {
                         var surface = RelativeState.getSurfaceMovement(Position.HeavenlyBodies.SunStation, child);
                         bodies.Add(Tuple.Create(child, RelativeState.fromSurface(Position.HeavenlyBodies.SunStation, surface)));
+                        continue;
                     }
                 }
                 if (probeCannon != null)
@@ -286,6 +290,7 @@ namespace PacificEngine.OW_CommonResources.Game.State
                     {
                         var surface = RelativeState.getSurfaceMovement(Position.HeavenlyBodies.ProbeCannon, child);
                         bodies.Add(Tuple.Create(child, RelativeState.fromSurface(Position.HeavenlyBodies.ProbeCannon, surface)));
+                        continue;
                     }
                 }
                 if (giantDeep != null)
@@ -299,6 +304,7 @@ namespace PacificEngine.OW_CommonResources.Game.State
                             || name.StartsWith("BrambleIsland_Body")))
                     {
                         bodies.Add(captureState(child, Position.HeavenlyBodies.GiantsDeep));
+                        continue;
                     }
                 }
                 if (whiteHole != null)
@@ -307,7 +313,13 @@ namespace PacificEngine.OW_CommonResources.Game.State
                         && (name.StartsWith("WhiteholeStationSuperstructure_Body")))
                     {
                         bodies.Add(captureState(child, Position.HeavenlyBodies.WhiteHoleStation));
+                        continue;
                     }
+                }
+
+                if (!exists.Contains(child))
+                {
+                    bodies.Add(captureState(child));
                 }
             }
 

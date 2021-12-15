@@ -518,7 +518,6 @@ namespace PacificEngine.OW_CommonResources.Game.State
 
         public void apply(OWRigidbody target)
         {
-            Helper.helper.Console.WriteLine($"Apply {target}");
             applyMovement(target);
             applyRotation(target);
         }
@@ -732,14 +731,9 @@ namespace PacificEngine.OW_CommonResources.Game.State
             var acceleration = this.surface.acceleration;
             var jerk = this.surface.jerk;
 
-            Helper.helper.Console.WriteLine($"Surface {parent}: {position} {velocity} {acceleration}");
-
             position = parentState.TransformPoint(position);
             velocity += parentState.GetPointVelocity(position);
             acceleration += parentState.GetPointAcceleration(position);
-
-
-            Helper.helper.Console.WriteLine($"Global: {position} {velocity} {acceleration}");
 
             return new PositionState(position, velocity, acceleration, jerk);
         }
@@ -868,8 +862,6 @@ namespace PacificEngine.OW_CommonResources.Game.State
                 return null;
             }
 
-            Helper.helper.Console.WriteLine($"Global: {target.position}, {target.velocity}, {target.acceleration}");
-
             var surfacePosition = parentState.InverseTransformPoint(target.position);
             var surfaceVelocity = target.velocity - parentState.GetPointVelocity(target.position);
             var surfaceAcceleration = target.acceleration - parentState.GetPointAcceleration(target.position);
@@ -882,8 +874,6 @@ namespace PacificEngine.OW_CommonResources.Game.State
             var surfaceRotation = Quaternion.Inverse(pointRoation) * target.rotation;
             var surfaceAngularVelocity = Vector3.zero; // TODO
             var surfaceAngularAcceleration = Vector3.zero; // TODO
-
-            Helper.helper.Console.WriteLine($"Surface: {surfacePosition}, {surfaceVelocity}, {surfaceAcceleration}");
 
             return new MovementState(targetScale, new PositionState(surfacePosition, surfaceVelocity, surfaceAcceleration, surfaceJerk), new OrientationState(surfaceRotation, surfaceAngularVelocity, surfaceAngularAcceleration));
         }
