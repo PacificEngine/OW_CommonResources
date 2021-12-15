@@ -212,11 +212,11 @@ namespace PacificEngine.OW_CommonResources.Game.State
         public Vector3 angularAcceleration { get; }
 
         public Vector3 forward { get { return rotation * Vector3.forward; } }
-        public Vector3 backward { get { return rotation * (-1f * Vector3.forward); } }
+        public Vector3 back { get { return rotation * Vector3.back; } }
         public Vector3 up { get { return rotation * Vector3.up; } }
-        public Vector3 down { get { return rotation * (-1f * Vector3.up); } }
+        public Vector3 down { get { return rotation * Vector3.down; } }
         public Vector3 left { get { return rotation * Vector3.left; } }
-        public Vector3 right { get { return rotation * (-1f * Vector3.left); } }
+        public Vector3 right { get { return rotation * Vector3.right; } }
 
         public OrientationState(Quaternion rotation, Vector3 angularVelocity, Vector3 angularAcceleration)
         {
@@ -516,6 +516,13 @@ namespace PacificEngine.OW_CommonResources.Game.State
                Quaternion.Inverse(rotation) * (worldPoint - position));
         }
 
+        public Quaternion PointRotation(Vector3 worldPoint, Quaternion rotation)
+        {
+            var groundNormal = worldPoint - position;
+            var forwardDirection = -Vector3.Cross(groundNormal, orientation.right);
+            return Quaternion.LookRotation(forwardDirection, groundNormal);
+        }
+
         public void apply(OWRigidbody target)
         {
             applyMovement(target);
@@ -766,11 +773,8 @@ namespace PacificEngine.OW_CommonResources.Game.State
             }
             if (parentState != null && surface != null)
             {
-                var groundNormal = worldPosition - parentState.position;
-                var forwardsVector = -Vector3.Cross(groundNormal, surface.orientation.right);
-                var pointRoation = Quaternion.LookRotation(forwardsVector, groundNormal);
-
-                var rotation = surface.rotation * pointRoation;
+                var pointRotation = parentState.PointRotation(worldPosition, surface.rotation);
+                var rotation = pointRotation * surface.rotation;
                 var velocity = surface.angularVelocity; // TODO
 
                 return new OrientationState(rotation, velocity, Vector3.zero);
@@ -867,11 +871,8 @@ namespace PacificEngine.OW_CommonResources.Game.State
             var surfaceAcceleration = target.acceleration - parentState.GetPointAcceleration(target.position);
             var surfaceJerk = target.jerk - (parentState == null ? Vector3.zero : parentState.jerk);
 
-            var groundNormal = target.position - parentState.position;
-            var forwardsVector = -Vector3.Cross(groundNormal, target.orientation.right); // TODO: Forward direction is not quite correct
-            var pointRoation = Quaternion.LookRotation(forwardsVector, groundNormal);
-
-            var surfaceRotation = Quaternion.Inverse(pointRoation) * target.rotation;
+            var pointRotation = parentState.PointRotation(target.position, target.rotation);
+            var surfaceRotation = Quaternion.Inverse(pointRotation) * target.rotation;
             var surfaceAngularVelocity = Vector3.zero; // TODO
             var surfaceAngularAcceleration = Vector3.zero; // TODO
 

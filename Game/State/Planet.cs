@@ -331,8 +331,13 @@ Cage_Body (OWRigidbody): (Cage_Body (OWRigidbody), (DreamWorld, Relative: (((1.0
             {
                 update = false;
 
+                var ignorables = new HashSet<OWRigidbody>();
+                foreach (var body in _mapping.Keys)
+                {
+                    ignorables.Add(Position.getBody(body));
+                }
                 var newState = new Dictionary<Position.HeavenlyBodies, AbsoluteState>();
-                var movingItems = trackMovingItems();
+                var movingItems = trackMovingItems(ignorables);
                 foreach (var body in _mapping.Keys)
                 {
                     var state = updatePlanet(body, newState);
@@ -344,7 +349,7 @@ Cage_Body (OWRigidbody): (Cage_Body (OWRigidbody), (DreamWorld, Relative: (((1.0
             }
         }
 
-        private static List<Tuple<OWRigidbody, RelativeState>> trackMovingItems()
+        private static List<Tuple<OWRigidbody, RelativeState>> trackMovingItems(HashSet<OWRigidbody> ignorables)
         {
             var sunStation = Position.getBody(Position.HeavenlyBodies.SunStation);
             var giantDeep = Position.getBody(Position.HeavenlyBodies.GiantsDeep);
@@ -360,22 +365,22 @@ Cage_Body (OWRigidbody): (Cage_Body (OWRigidbody), (DreamWorld, Relative: (((1.0
             {
                 bodies.Add(captureState(Position.getBody(Position.HeavenlyBodies.Player)));
             }
+            else
+            {
+                var body = Position.getBody(Position.HeavenlyBodies.Player);
+                if (body != null)
+                    ignorables.Add(body);
+            }
             bodies.Add(captureState(Position.getBody(Position.HeavenlyBodies.Ship)));
             bodies.Add(captureState(Position.getBody(Position.HeavenlyBodies.Probe)));
             bodies.Add(captureState(Position.getBody(Position.HeavenlyBodies.ModelShip)));
             bodies.Add(captureState(Position.getBody(Position.HeavenlyBodies.NomaiProbe)));
             bodies.Add(captureState(Position.getBody(Position.HeavenlyBodies.NomaiEmberTwinShuttle)));
             bodies.Add(captureState(Position.getBody(Position.HeavenlyBodies.NomaiBrittleHollowShuttle)));
-
-            HashSet<OWRigidbody> exists = new HashSet<OWRigidbody>(bodies.FindAll((element) => element != null).ConvertAll((element) => element?.Item1));
-            var playerBody = Position.getBody(Position.HeavenlyBodies.Player);
-            if (playerBody != null)
+            foreach (var body in bodies)
             {
-                exists.Add(playerBody);
-            }
-            foreach(var body in _mapping.Keys)
-            {
-                exists.Add(Position.getBody(body));
+                if (body?.Item1 != null)
+                    ignorables.Add(body.Item1);
             }
 
             foreach (var child in GameObject.FindObjectsOfType<OWRigidbody>())
@@ -430,7 +435,7 @@ Cage_Body (OWRigidbody): (Cage_Body (OWRigidbody), (DreamWorld, Relative: (((1.0
                     }
                 }
 
-                if (!exists.Contains(child))
+                if (!ignorables.Contains(child))
                 {
                     bodies.Add(captureState(child));
                 }
