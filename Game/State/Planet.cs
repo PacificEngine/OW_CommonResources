@@ -11,109 +11,148 @@ using PacificEngine.OW_CommonResources.Geometry;
 using PacificEngine.OW_CommonResources.Geometry.Orbits;
 using UnityEngine;
 
+/**
+ *
+ *
+Ball_Body (OWRigidbody)	PacificEngine's Common Resources	
+DB_ClusterDimension_Body (OWRigidbody)	PacificEngine's Common Resources	
+NomaiRecorder_Body (OWRigidbody)	PacificEngine's Common Resources	
+DeadNomai_Body (7) (OWRigidbody)	PacificEngine's Common Resources	
+Tree_Body (1) (OWRigidbody)	PacificEngine's Common Resources	
+NomaiRecorder_Body (OWRigidbody)	PacificEngine's Common Resources	
+Rock_Body (7) (OWRigidbody)	PacificEngine's Common Resources	
+EscapePodFlare_Body (9) (OWRigidbody)	PacificEngine's Common Resources	
+EscapePodFlare_Body (12) (OWRigidbody)	PacificEngine's Common Resources	
+Prefab_NOM_InterfaceOrb (OWRigidbody)	PacificEngine's Common Resources	
+Rock_DB_Iceshard1 (2) (OWRigidbody)	PacificEngine's Common Resources	
+Rock_DB_IceShardFlythrough (OWRigidbody)	PacificEngine's Common Resources	
+Prefab_NOM_InterfaceOrb (OWRigidbody)	PacificEngine's Common Resources	
+Skeleton_Body (1) (OWRigidbody)	PacificEngine's Common Resources	
+Tree_Body (OWRigidbody)	PacificEngine's Common Resources	
+Rock_DB_Iceshard1 (3) (OWRigidbody)	PacificEngine's Common Resources	
+EscapePodFlare_Body (OWRigidbody)	PacificEngine's Common Resources	
+Prefab_NOM_InterfaceOrb (1) (OWRigidbody)	PacificEngine's Common Resources	
+Skeleton_Body (7) (OWRigidbody)	PacificEngine's Common Resources	
+DeadNomai_Body (6) (OWRigidbody)	PacificEngine's Common Resources	
+NomaiRecorder_Body (2) (OWRigidbody)	PacificEngine's Common Resources	
+Rock_DB_Iceshard1 (1) (OWRigidbody)	PacificEngine's Common Resources	
+DeadNomai_Body (4) (OWRigidbody)	PacificEngine's Common Resources	
+Skeleton_Body (3) (OWRigidbody)	PacificEngine's Common Resources	
+Lamp_Body (1) (OWRigidbody)	PacificEngine's Common Resources	
+NomaiRecorder_Body (1) (OWRigidbody)	PacificEngine's Common Resources	
+CannonMuzzle_Body (OWRigidbody)	PacificEngine's Common Resources	
+Tree_Body (OWRigidbody)	PacificEngine's Common Resources	
+SandFunnel_Body (OWRigidbody)	PacificEngine's Common Resources	
+NomaiInterfaceOrb_Body (OWRigidbody)	PacificEngine's Common Resources	
+EscapePodFlare_Body (2) (OWRigidbody)	PacificEngine's Common Resources	
+Rock_DB_Iceshard1 (13) (OWRigidbody)	PacificEngine's Common Resources	
+Skeleton_Body (6) (OWRigidbody)	PacificEngine's Common Resources	
+EscapePodFlare_Body (11) (OWRigidbody)	PacificEngine's Common Resources	
+EscapePodFlare_Body (6) (OWRigidbody)	PacificEngine's Common Resources	
+Rock_DB_Iceshard1 (6) (OWRigidbody)	PacificEngine's Common Resources
+Rock_Body (8) (OWRigidbody)	PacificEngine's Common Resources	
+Rock_Body (3) (OWRigidbody)	PacificEngine's Common Resources	
+DeadNomai_Body (5) (OWRigidbody)	PacificEngine's Common Resources	
+Prefab_NOM_InterfaceOrb (OWRigidbody)	PacificEngine's Common Resources	
+Lamp_Body (2) (OWRigidbody)	PacificEngine's Common Resources	
+DB_VesselDimension_Body (OWRigidbody)	PacificEngine's Common Resources	
+EscapePodFlare_Body (1) (OWRigidbody)	PacificEngine's Common Resources	
+TimeLoopRing_Body (OWRigidbody)	PacificEngine's Common Resources	
+StaticRing_Body (OWRigidbody)	PacificEngine's Common Resources	
+NomaiInterfaceOrb_Body (OWRigidbody)	PacificEngine's Common Resources	
+Rock_DB_Iceshard1 (16) (OWRigidbody)	PacificEngine's Common Resources	
+Props_NOM_InterfaceOrb (OWRigidbody)	PacificEngine's Common Resources	
+Prefab_NOM_InterfaceOrb (OWRigidbody)	PacificEngine's Common Resources	
+NomaiInterfaceOrb_Body (OWRigidbody)	PacificEngine's Common Resources	2
+HearthianRecorder_Body (OWRigidbody)	PacificEngine's Common Resources	
+Props_NOM_InterfaceOrb (OWRigidbody)	PacificEngine's Common Resources	
+EscapePodFlare_Body (4) (OWRigidbody)	PacificEngine's Common Resources	
+DB_SmallNest_Body (OWRigidbody)	PacificEngine's Common Resources	
+DB_Elsinore_Body (OWRigidbody)	PacificEngine's Common Resources	
+Rock_Body (6) (OWRigidbody)	PacificEngine's Common Resources	
+DeadNomai_Body (1) (OWRigidbody)	PacificEngine's Common Resources	
+EscapePodFlare_Body (10) (OWRigidbody)	PacificEngine's Common Resources	
+Tree_Body (OWRigidbody)	PacificEngine's Common Resources	
+Rock_Body (4) (OWRigidbody)	PacificEngine's Common Resources	
+Rock_DB_Iceshard1 (15) (OWRigidbody)	PacificEngine's Common Resources	
+Rock_DB_Iceshard1 (OWRigidbody)	PacificEngine's Common Resources	
+DB_PioneerDimension_Body (OWRigidbody)	PacificEngine's Common Resources	
+FeldsparShip_Body (OWRigidbody)	PacificEngine's Common Resources	
+EscapePodFlare_Body (7) (OWRigidbody)	PacificEngine's Common Resources	
+Prefab_NOM_InterfaceOrb (OWRigidbody)	PacificEngine's Common Resources	
+EscapePodFlare_Body (8) (OWRigidbody)	PacificEngine's Common Resources	
+Rock_DB_Iceshard1 (4) (OWRigidbody)	PacificEngine's Common Resources	
+DB_HubDimension_Body (OWRigidbody)	PacificEngine's Common Resources	
+Skeleton_Body (8) (OWRigidbody)	PacificEngine's Common Resources	
+Skeleton_Body (2) (OWRigidbody)	PacificEngine's Common Resources	
+DeadNomai_Body (2) (OWRigidbody)	PacificEngine's Common Resources	
+DB_ExitOnlyDimension_Body (OWRigidbody)	PacificEngine's Common Resources	
+Props_NOM_InterfaceOrb (OWRigidbody)	PacificEngine's Common Resources	
+DeadNomai_Body (OWRigidbody)	PacificEngine's Common Resources	
+Prefab_NOM_InterfaceOrb (OWRigidbody)	PacificEngine's Common Resources	
+Skeleton_Body (5) (OWRigidbody)	PacificEngine's Common Resources	
+DeadNomai_Body (3) (OWRigidbody)	PacificEngine's Common Resources	
+Rock_DB_Iceshard1 (12) (OWRigidbody)	PacificEngine's Common Resources	
+Ball_Body (OWRigidbody)	PacificEngine's Common Resources	
+BrokenWarpCore_Body (OWRigidbody)	PacificEngine's Common Resources	
+Rock_DB_Iceshard1 (9) (OWRigidbody)	PacificEngine's Common Resources	
+Prefab_NOM_InterfaceOrb (OWRigidbody)	PacificEngine's Common Resources	
+FakeCannonBarrel_Body (1) (OWRigidbody)	PacificEngine's Common Resources	
+Lamp_Body (OWRigidbody)	PacificEngine's Common Resources	
+Props_NOM_InterfaceOrb (OWRigidbody)	PacificEngine's Common Resources
+Rock_DB_Iceshard1 (14) (OWRigidbody)	PacificEngine's Common Resources	
+Sector_EscapePodBody (OWRigidbody)	PacificEngine's Common Resources	
+Rock_Body (9) (OWRigidbody)	PacificEngine's Common Resources	
+Rock_Body (10) (OWRigidbody)	PacificEngine's Common Resources	
+Rock_DB_Iceshard1 (8) (OWRigidbody)	PacificEngine's Common Resources	
+DeadNomai_Body (OWRigidbody)	PacificEngine's Common Resources	
+Rock_DB_Iceshard1 (11) (OWRigidbody)	PacificEngine's Common Resources	
+Rock_Body (5) (OWRigidbody)	PacificEngine's Common Resources	
+CannonBarrel_Body (OWRigidbody)	PacificEngine's Common Resources	
+SharedStone_Body (OWRigidbody)	PacificEngine's Common Resources	
+MiningRig_Body (OWRigidbody)	PacificEngine's Common Resources	
+Elevator_Body (OWRigidbody)	PacificEngine's Common Resources	
+Skeleton_Body (4) (OWRigidbody)	PacificEngine's Common Resources	
+Rock_DB_Iceshard1 (10) (OWRigidbody)	PacificEngine's Common Resources	
+NomaiRecorder_Body (OWRigidbody)	PacificEngine's Common Resources	
+Skeleton_Body (OWRigidbody)	PacificEngine's Common Resources	
+Rock_DB_Iceshard1 (5) (OWRigidbody)	PacificEngine's Common Resources	
+NomaiInterfaceOrb_Body (OWRigidbody)	PacificEngine's Common Resources	
+Lamp_Body (1) (OWRigidbody)	PacificEngine's Common Resources	
+Ball_Body (OWRigidbody)	PacificEngine's Common Resources	
+Rock_Body (2) (OWRigidbody)	PacificEngine's Common Resources	
+DB_EscapePodDimension_Body (OWRigidbody)	PacificEngine's Common Resources	
+Prefab_NOM_InterfaceOrb (OWRigidbody)	PacificEngine's Common Resources	
+Rock_DB_Iceshard1 (7) (OWRigidbody)	PacificEngine's Common Resources	
+Prefab_NOM_InterfaceOrb (OWRigidbody)	PacificEngine's Common Resources	
+DB_AnglerNestDimension_Body (OWRigidbody)	PacificEngine's Common Resources	
+NomaiInterfaceOrb_Body (OWRigidbody)	PacificEngine's Common Resources	2
+Prefab_NOM_InterfaceOrbSmall (OWRigidbody)	PacificEngine's Common Resources	13
+Cage_Body (OWRigidbody)	PacificEngine's Common Resources	4
+Prefab_NOM_InterfaceOrbSmall_Back (OWRigidbody)	PacificEngine's Common Resources	5
+DreamRaft_Body (OWRigidbody)	PacificEngine's Common Resources	
+BackRaft_Body (OWRigidbody)	PacificEngine's Common Resources	
+SealRaft_Body (OWRigidbody)	PacificEngine's Common Resources	
+Prefab_NOM_InterfaceOrbSmall_Front (OWRigidbody)	PacificEngine's Common Resources	5
+Prefab_NOM_InterfaceOrbSmall_Back (OWRigidbody)	PacificEngine's Common Resources	6
+Prefab_NOM_InterfaceOrb (OWRigidbody)	PacificEngine's Common Resources	6
+Prefab_NOM_InterfaceOrbSmall (OWRigidbody)	PacificEngine's Common Resources	2
+Prefab_NOM_InterfaceOrb (OWRigidbody)	PacificEngine's Common Resources	7
+Raft_Body (2) (OWRigidbody)	PacificEngine's Common Resources	
+Raft_Body (3) (OWRigidbody)	PacificEngine's Common Resources	
+Raft_Body_AirlockRaftHouse (OWRigidbody)	PacificEngine's Common Resources	
+Raft_Body (1) (OWRigidbody)	PacificEngine's Common Resources	
+Raft_Body (8) (OWRigidbody)	PacificEngine's Common Resources	
+Raft_Body (OWRigidbody)	PacificEngine's Common Resources	
+Raft_Body (4) (OWRigidbody)	PacificEngine's Common Resources	
+Raft_Body (7) (OWRigidbody)	PacificEngine's Common Resources	
+Prefab_NOM_InterfaceOrbSmall (OWRigidbody)	PacificEngine's Common Resources	
+Prefab_NOM_InterfaceOrbSmall (1) (OWRigidbody)	PacificEngine's Common Resources	
+Prefab_NOM_InterfaceOrbSmall (OWRigidbody)	PacificEngine's Common Resources	3
+Cage_Body (OWRigidbody)	PacificEngine's Common Resources	11
+*/
 namespace PacificEngine.OW_CommonResources.Game.State
 {
-
-    /**
-     * SharedStone_Body (OWRigidbody): (SharedStone_Body (OWRigidbody), (ProbeCannon, Relative: (((1.000001,1.000001,1), (1.000001,1.000001,1)), ((9.358398,-24.49252,54.36719), (0,0,0), (0,0,0), (0,0,0)), ((-0.194,-0.443,-0.862,0.15), (0,0,0), (0,0,0))), Surface: (((1.000001,1.000001,1), (1.000001,1.000001,1)), ((-54.70387,-25.50959,-0.0001431), (0,0,0), (0,0,0), (0,0,0)), ((0.093,0.015,-0.161,-0.982), (0,0,0), (0,0,0)))))	PacificEngine's Common Resources	
-TimberHearth_Body (OWRigidbody): (TimberHearth_Body (OWRigidbody), (TimberHearth, Relative: (((1.000001,1,1.000001), (1,1,1)), ((0,0,0), (0,0,0), (0,0,0), (0,0,0)), ((0,0.996,0,0.087), (0,0,0), (0,0,0))), Surface: (((1.000001,1,1.000001), (1,1,1)), ((0,0,0), (0,0,0), (0,0,0), (0,0,0)), ((0,0.996,0,0.087), (0,0,0), (0,0,0)))))	PacificEngine's Common Resources	
-GiantsDeep_Body (OWRigidbody): (GiantsDeep_Body (OWRigidbody), (GiantsDeep, Relative: (((1,1,1), (1,1,1)), ((0,0,0), (0,0,0), (0,0,0), (0,0,0)), ((0,0.105,0,-0.995), (0,0,0), (0,0,0))), Surface: (((1,1,1), (1,1,1)), ((0,0,0), (0,0,0), (0,0,0), (0,0,0)), ((0,0.105,0,-0.995), (0,0,0), (0,0,0)))))	PacificEngine's Common Resources	
-MiningRig_Body (OWRigidbody): (MiningRig_Body (OWRigidbody), (TimberHearth, Relative: (((1,1.000001,1.000001), (1,1.000001,1.000001)), ((0,0,0), (0,0,0), (0,0,0), (0,0,0)), ((0.704,0.704,0.062,0.062), (0,0,0), (0,0,0))), Surface: (((1,1.000001,1.000001), (1,1.000001,1.000001)), ((0,0,0), (0,0,0), (0,0,0), (0,0,0)), ((0.704,0.704,0.062,0.062), (0,0,0), (0,0,0)))))	PacificEngine's Common Resources	
-Elevator_Body (OWRigidbody): (Elevator_Body (OWRigidbody), (DreamWorld, Relative: (((1,1,1), (1,1,1)), ((-138.8682,-358.9731,776.0415), (0,0,0), (0,0,0), (0,0,0)), ((0,0.087,0,-0.996), (0,0,0), (0,0,0))), Surface: (((1,1,1), (1,1,1)), ((-2.000024,-358.9731,788.3659), (0,0,0), (0,0,0), (0,0,0)), ((0.841,-0.001,0.001,-0.541), (0,0,0), (0,0,0)))))	PacificEngine's Common Resources	
-Skeleton_Body (4) (OWRigidbody): (Skeleton_Body (4) (OWRigidbody), (InnerDarkBramble_Vessel, Relative: (((1.000001,1.000001,1), (1.000001,1.000001,1)), ((-41.8161,-23.34961,-53.1488), (0,0,0), (0,0,0), (0,0,0)), ((-0.651,-0.345,-0.41,0.538), (0,0,0), (0,0,0))), Surface: (((1.000001,1.000001,1), (1.000001,1.000001,1)), ((50.41,-23.34961,45.08004), (0,0,0), (0,0,0), (0,0,0)), ((-0.694,0.464,0.306,-0.458), (0,0,0), (0,0,0)))))	PacificEngine's Common Resources	
-Rock_DB_Iceshard1 (10) (OWRigidbody): (Rock_DB_Iceshard1 (10) (OWRigidbody), (InnerDarkBramble_EscapePod, Relative: (((1.000001,1.000001,1.000001), (1.000001,1.000001,1.000001)), ((-101.8423,-545,-27.09631), (0,0,0), (0,0,0), (0,0,0)), ((-0.593,0.313,-0.228,-0.706), (0,0,0), (0,0,0))), Surface: (((1.000001,1.000001,1.000001), (1.000001,1.000001,1.000001)), ((105.0003,-545,8.999919), (0,0,0), (0,0,0), (0,0,0)), ((0.739,-0.043,0.039,-0.672), (0,0,0), (0,0,0)))))	PacificEngine's Common Resources	
-NomaiRecorder_Body (OWRigidbody): (NomaiRecorder_Body (OWRigidbody), (InnerDarkBramble_EscapePod, Relative: (((1.000001,1,1.000001), (1.000001,1,1.000001)), ((202.7781,427.5859,36.04565), (0,0,0), (0,0,0), (0,0,0)), ((0.088,-0.015,-0.482,0.872), (0,0,0), (0,0,0))), Surface: (((1.000001,1,1.000001), (1.000001,1,1.000001)), ((-205.9566,427.5859,-0.2859754), (0,0,0), (0,0,0), (0,0,0)), ((0.056,-0.016,-0.278,0.959), (0,0,0), (0,0,0)))))	PacificEngine's Common Resources	
-Skeleton_Body (OWRigidbody): (Skeleton_Body (OWRigidbody), (InnerDarkBramble_Vessel, Relative: (((1.000001,1,1), (1.000001,1,1)), ((-158.1333,16.73438,-13.67773), (0,0,0), (0,0,0), (0,0,0)), ((0.08,0.276,0.045,-0.957), (0,0,0), (0,0,0))), Surface: (((1.000001,1,1), (1.000001,1,1)), ((158.106,16.73438,-13.98963), (0,0,0), (0,0,0), (0,0,0)), ((0.615,-0.372,0.36,-0.595), (0,0,0), (0,0,0)))))	PacificEngine's Common Resources	
-Rock_DB_Iceshard1 (5) (OWRigidbody): (Rock_DB_Iceshard1 (5) (OWRigidbody), (InnerDarkBramble_EscapePod, Relative: (((1.000001,1.000001,1.000001), (1.000001,1.000001,1.000001)), ((-149.1482,32,126.0151), (0,0,0), (0,0,0), (0,0,0)), ((-0.565,0.644,0.352,0.376), (0,0,0), (0,0,0))), Surface: (((1.000001,1.000001,1.000001), (1.000001,1.000001,1.000001)), ((124.9999,32,-150), (0,0,0), (0,0,0), (0,0,0)), ((0.131,-0.042,-0.3,0.944), (0,0,0), (0,0,0)))))	PacificEngine's Common Resources	
-NomaiInterfaceOrb_Body (OWRigidbody): (NomaiInterfaceOrb_Body (OWRigidbody), (GiantsDeep, Relative: (((0.219519,0.2195189,0.2195189), (0.2195189,0.2195188,0.2195188)), ((-15.16016,-76.82271,-24.45508), (0,0,0), (0,0,0), (0,0,0)), ((-0.45,0.028,0.438,-0.778), (0,0,0), (0,0,0))), Surface: (((0.219519,0.2195189,0.2195189), (0.2195189,0.2195188,0.2195188)), ((-19.91337,-76.82271,-20.7687), (0,0,0), (0,0,0), (0,0,0)), ((0.866,0.321,-0.133,-0.359), (0,0,0), (0,0,0)))))	PacificEngine's Common Resources	
-Lamp_Body (1) (OWRigidbody): (Lamp_Body (1) (OWRigidbody), (ProbeCannon, Relative: (((1.000023,1.000001,1.000024), (1.000023,1.000001,1.000024)), ((11.61816,-17.39644,52.80859), (0,0,0), (0,0,0), (0,0,0)), ((-0.458,0.838,0.018,0.295), (0,0,0), (0,0,0))), Surface: (((1.000023,1.000001,1.000024), (1.000023,1.000001,1.000024)), ((-50.90722,-24.34545,6.489871), (0,0,0), (0,0,0), (0,0,0)), ((0.88,-0.148,-0.075,0.445), (0,0,0), (0,0,0)))))	PacificEngine's Common Resources	
-Ball_Body (OWRigidbody): (Ball_Body (OWRigidbody), (TimberHearth, Relative: (((0.5000011,0.5000006,0.5000017), (0.5000011,0.5000004,0.5000015)), ((98.97205,-0.7548395,-203.2666), (0,0,0), (0,0,0), (0,0,0)), ((-0.955,0.047,0.291,0.042), (0,0,0), (0,0,0))), Surface: (((0.5000011,0.5000006,0.5000017), (0.5000011,0.5000004,0.5000015)), ((-62.17152,-0.7548395,217.3648), (0,0,0), (0,0,0), (0,0,0)), ((-0.612,-0.352,0.353,0.613), (0,0,0), (0,0,0)))))	PacificEngine's Common Resources	
-Rock_Body (2) (OWRigidbody): (Rock_Body (2) (OWRigidbody), (TimberHearth, Relative: (((1,1,0.9999644), (1,1,0.9999641)), ((-20.0542,-7.326337,-2.036133), (0,0,0), (0,0,0), (0,0,0)), ((0.353,-0.884,-0.294,0.092), (0,0,0), (0,0,0))), Surface: (((1,1,0.9999644), (1,1,0.9999641)), ((20.10309,-7.326337,-1.477177), (0,0,0), (0,0,0), (0,0,0)), ((-0.311,-0.207,0.514,0.773), (0,0,0), (0,0,0)))))	PacificEngine's Common Resources	
-DB_EscapePodDimension_Body (OWRigidbody): (DB_EscapePodDimension_Body (OWRigidbody), (InnerDarkBramble_EscapePod, Relative: (((1.000001,1,1.000001), (1,1,1)), ((0,0,0), (0,0,0), (0,0,0), (0,0,0)), ((0,0.996,0,0.087), (0,0,0), (0,0,0))), Surface: (((1.000001,1,1.000001), (1,1,1)), ((0,0,0), (0,0,0), (0,0,0), (0,0,0)), ((0,0.996,0,0.087), (0,0,0), (0,0,0)))))	PacificEngine's Common Resources	
-Prefab_NOM_InterfaceOrb (OWRigidbody): (Prefab_NOM_InterfaceOrb (OWRigidbody), (WhiteHoleStation, Relative: (((0.6980276,0.6980302,0.6980293), (0.6980274,0.6980298,0.6980287)), ((2.125,-0.5385424,-25.06689), (0,0,0), (0,0,0), (0,0,0)), ((-0.999,0,-0.042,0), (0,0,0), (0,0,0))), Surface: (((0.6980276,0.6980302,0.6980293), (0.6980274,0.6980298,0.6980287)), ((0.000745,-0.5385424,-25.1568), (0,0,0), (0,0,0), (0,0,0)), ((-0.699,0,0,0.715), (0,0,0), (0,0,0)))))	PacificEngine's Common Resources	
-Rock_DB_Iceshard1 (7) (OWRigidbody): (Rock_DB_Iceshard1 (7) (OWRigidbody), (InnerDarkBramble_EscapePod, Relative: (((1.000001,1,1.000001), (1.000001,1,1.000001)), ((-110.9263,-89.80078,382.0421), (0,0,0), (0,0,0), (0,0,0)), ((0.107,0.913,-0.259,-0.298), (0,0,0), (0,0,0))), Surface: (((1.000001,1,1.000001), (1.000001,1,1.000001)), ((42.90009,-89.80078,-395.5), (0,0,0), (0,0,0), (0,0,0)), ((0.918,0.305,0.08,0.24), (0,0,0), (0,0,0)))))	PacificEngine's Common Resources	
-Prefab_NOM_InterfaceOrb (OWRigidbody): (Prefab_NOM_InterfaceOrb (OWRigidbody), (InnerDarkBramble_Vessel, Relative: (((1.061401,1.0614,1.061401), (1.061401,1.0614,1.0614)), ((-181.6663,14.28906,-11.92871), (0,0,0), (0,0,0), (0,0,0)), ((0.033,-0.681,0.115,-0.722), (0,0,0), (0,0,0))), Surface: (((1.061401,1.0614,1.061401), (1.061401,1.0614,1.0614)), ((180.9777,14.28906,-19.79854), (0,0,0), (0,0,0), (0,0,0)), ((-0.718,0,0,-0.696), (0,0,0), (0,0,0)))))	PacificEngine's Common Resources	
-Jellyfish_Body (OWRigidbody): (Jellyfish_Body (OWRigidbody), (GiantsDeep, Relative: (((1.000001,1.000001,1), (1.000001,1,1)), ((67.81348,-199.4353,-104.8145), (0,0,0), (0,0,0), (0,0,0)), ((0.139,-0.208,0.951,-0.182), (0,0,0), (0,0,0))), Surface: (((1.000001,1.000001,1), (1.000001,1,1)), ((44.53943,-199.4353,-116.6232), (0,0,0), (0,0,0), (0,0,0)), ((0,0,0,1), (0,0,0), (0,0,0)))))	PacificEngine's Common Resources	
-DB_AnglerNestDimension_Body (OWRigidbody): (DB_AnglerNestDimension_Body (OWRigidbody), (InnerDarkBramble_Nest, Relative: (((1.000001,1,1.000001), (1,1,1)), ((0,0,0), (0,0,0), (0,0,0), (0,0,0)), ((0,0.996,0,0.087), (0,0,0), (0,0,0))), Surface: (((1.000001,1,1.000001), (1,1,1)), ((0,0,0), (0,0,0), (0,0,0), (0,0,0)), ((0,0.996,0,0.087), (0,0,0), (0,0,0)))))	PacificEngine's Common Resources	
-NomaiInterfaceOrb_Body (OWRigidbody): (NomaiInterfaceOrb_Body (OWRigidbody), (BrittleHollow, Relative: (((0.8999999,0.8999996,0.9000001), (0.8999999,0.8999997,0.9)), ((-125.2852,0.5842743,-207.8114), (0,0,0), (0,0,0), (0,0,0)), ((0.366,0.392,-0.603,-0.591), (0,0,0), (0,0,0))), Surface: (((0.8999999,0.8999996,0.9000001), (0.8999999,0.8999997,0.9)), ((-226.4098,0.5842743,87.29574), (0,0,0), (0,0,0), (0,0,0)), ((0.052,0,0,-0.999), (0,0,0), (0,0,0)))))	PacificEngine's Common Resources	
-NomaiInterfaceOrb_Body (OWRigidbody): (NomaiInterfaceOrb_Body (OWRigidbody), (EmberTwin, Relative: (((0.9,0.8999997,0.8999997), (0.9000002,0.9,0.8999999)), ((63.42383,-76.03513,61.21606), (0,0,0), (0,0,0), (0,0,0)), ((-0.843,-0.142,0.375,-0.358), (0,0,0), (0,0,0))), Surface: (((0.9,0.8999997,0.8999997), (0.9000002,0.9,0.8999999)), ((13.76688,-76.03513,-87.06585), (0,0,0), (0,0,0), (0,0,0)), ((-0.034,0,-0.002,-0.999), (0,0,0), (0,0,0)))))	PacificEngine's Common Resources	
-Prefab_NOM_InterfaceOrbSmall (OWRigidbody): (Prefab_NOM_InterfaceOrbSmall (OWRigidbody), (BrittleHollow, Relative: (((0.1467422,0.1467421,0.1467422), (0.1467422,0.1467422,0.1467422)), ((-18.9209,196.1681,-71.08557), (0,0,0), (0,0,0), (0,0,0)), ((0.13,-0.623,0.11,-0.763), (0,0,0), (0,0,0))), Surface: (((0.1467422,0.1467421,0.1467422), (0.1467422,0.1467422,0.1467422)), ((-73.29121,196.1681,6.289572), (0,0,0), (0,0,0), (0,0,0)), ((-0.047,0,0.007,-0.999), (0,0,0), (0,0,0)))))	PacificEngine's Common Resources	
-Prefab_NOM_InterfaceOrbSmall (OWRigidbody): (Prefab_NOM_InterfaceOrbSmall (OWRigidbody), (EmberTwin, Relative: (((0.1467422,0.1467422,0.1467422), (0.1467422,0.1467422,0.1467422)), ((121.6235,45.44814,-34.73145), (0,0,0), (0,0,0), (0,0,0)), ((-0.521,-0.808,0.243,-0.128), (0,0,0), (0,0,0))), Surface: (((0.1467422,0.1467422,0.1467422), (0.1467422,0.1467422,0.1467422)), ((-98.21071,45.44814,-79.70706), (0,0,0), (0,0,0), (0,0,0)), ((0,0,0.001,-1), (0,0,0), (0,0,0)))))	PacificEngine's Common Resources	
-Prefab_NOM_InterfaceOrbSmall (OWRigidbody): (Prefab_NOM_InterfaceOrbSmall (OWRigidbody), (BrittleHollow, Relative: (((0.1467423,0.1467422,0.1467445), (0.1467422,0.1467422,0.1467422)), ((-249.3135,10.34579,-19.26233), (0,0,0), (0,0,0), (0,0,0)), ((-0.557,0.612,-0.411,-0.382), (0,0,0), (0,0,0))), Surface: (((0.1467423,0.1467422,0.1467445), (0.1467422,0.1467422,0.1467422)), ((-62.26251,10.34579,242.181), (0,0,0), (0,0,0), (0,0,0)), ((0,0,0,1), (0,0,0), (0,0,0)))))	PacificEngine's Common Resources	
-Prefab_NOM_InterfaceOrbSmall (OWRigidbody): (Prefab_NOM_InterfaceOrbSmall (OWRigidbody), (BrittleHollow, Relative: (((0.1467421,0.1467422,0.1467421), (0.1467422,0.1467422,0.1467422)), ((-6.881836,-50.65372,116.225), (0,0,0), (0,0,0), (0,0,0)), ((-0.143,-0.534,-0.824,-0.127), (0,0,0), (0,0,0))), Surface: (((0.1467421,0.1467422,0.1467421), (0.1467422,0.1467422,0.1467422)), ((113.2642,-50.65372,26.95953), (0,0,0), (0,0,0), (0,0,0)), ((0,0,0.001,-1), (0,0,0), (0,0,0)))))	PacificEngine's Common Resources	
-Prefab_NOM_InterfaceOrbSmall (OWRigidbody): (Prefab_NOM_InterfaceOrbSmall (OWRigidbody), (BrittleHollow, Relative: (((0.1467422,0.1467422,0.1467439), (0.1467422,0.1467422,0.1467422)), ((-153.0977,-3.30928,38.97876), (0,0,0), (0,0,0), (0,0,0)), ((-0.711,0.659,-0.069,-0.237), (0,0,0), (0,0,0))), Surface: (((0.1467422,0.1467422,0.1467439), (0.1467422,0.1467422,0.1467422)), ((11.80147,-3.30928,157.5404), (0,0,0), (0,0,0), (0,0,0)), ((0,0,-0.001,-1), (0,0,0), (0,0,0)))))	PacificEngine's Common Resources	
-Prefab_NOM_InterfaceOrbSmall (OWRigidbody): (Prefab_NOM_InterfaceOrbSmall (OWRigidbody), (BrittleHollow, Relative: (((0.1467423,0.1467422,0.1467422), (0.1467422,0.1467422,0.1467422)), ((-201.1367,5.964722,-14.79651), (0,0,0), (0,0,0), (0,0,0)), ((-0.19,0.246,-0.67,-0.674), (0,0,0), (0,0,0))), Surface: (((0.1467423,0.1467422,0.1467422), (0.1467422,0.1467422,0.1467422)), ((-49.49873,5.964722,195.5116), (0,0,0), (0,0,0), (0,0,0)), ((0,0,0,-1), (0,0,0), (0,0,0)))))	PacificEngine's Common Resources	
-Prefab_NOM_InterfaceOrbSmall (OWRigidbody): (Prefab_NOM_InterfaceOrbSmall (OWRigidbody), (BrittleHollow, Relative: (((0.1467422,0.1467422,0.1467422), (0.1467422,0.1467422,0.1467422)), ((-29.34375,-10.26715,-255.0333), (0,0,0), (0,0,0), (0,0,0)), ((0.597,0.32,-0.405,-0.614), (0,0,0), (0,0,0))), Surface: (((0.1467422,0.1467422,0.1467422), (0.1467422,0.1467422,0.1467422)), ((-256.2543,-10.26715,-15.3881), (0,0,0), (0,0,0), (0,0,0)), ((0,0,0,-1), (0,0,0), (0,0,0)))))	PacificEngine's Common Resources	
-Prefab_NOM_InterfaceOrbSmall (OWRigidbody): (Prefab_NOM_InterfaceOrbSmall (OWRigidbody), (BrittleHollow, Relative: (((0.1467422,0.1467422,0.1467423), (0.1467422,0.1467422,0.1467422)), ((-25.00781,-22.25113,122.9302), (0,0,0), (0,0,0), (0,0,0)), ((-0.687,-0.169,-0.327,-0.626), (0,0,0), (0,0,0))), Surface: (((0.1467422,0.1467422,0.1467423), (0.1467422,0.1467422,0.1467422)), ((116.72,-22.25113,45.97448), (0,0,0), (0,0,0), (0,0,0)), ((0,0,0.013,-1), (0,0,0), (0,0,0)))))	PacificEngine's Common Resources	
-Prefab_NOM_InterfaceOrbSmall (OWRigidbody): (Prefab_NOM_InterfaceOrbSmall (OWRigidbody), (BrittleHollow, Relative: (((0.1467421,0.1467422,0.1467422), (0.1467421,0.1467422,0.1467422)), ((42.60547,120.2526,11.61877), (0,0,0), (0,0,0), (0,0,0)), ((-0.19,-0.978,-0.035,0.084), (0,0,0), (0,0,0))), Surface: (((0.1467421,0.1467422,0.1467422), (0.1467421,0.1467422,0.1467422)), ((18.84062,120.2526,-39.94062), (0,0,0), (0,0,0), (0,0,0)), ((-0.022,-0.001,-0.028,-0.999), (0,0,0), (0,0,0)))))	PacificEngine's Common Resources	
-Prefab_NOM_InterfaceOrbSmall (OWRigidbody): (Prefab_NOM_InterfaceOrbSmall (OWRigidbody), (BrittleHollow, Relative: (((0.1467422,0.1467422,0.1467422), (0.1467422,0.1467422,0.1467422)), ((37.19824,-51.50386,192.1154), (0,0,0), (0,0,0), (0,0,0)), ((-0.593,0.214,0.545,-0.553), (0,0,0), (0,0,0))), Surface: (((0.1467422,0.1467422,0.1467422), (0.1467422,0.1467422,0.1467422)), ((195.6561,-51.50386,-3.272648), (0,0,0), (0,0,0), (0,0,0)), ((0.071,-0.004,0.056,-0.996), (0,0,0), (0,0,0)))))	PacificEngine's Common Resources	
-Prefab_NOM_InterfaceOrbSmall (OWRigidbody): (Prefab_NOM_InterfaceOrbSmall (OWRigidbody), (BrittleHollow, Relative: (((0.1467422,0.1467422,0.1467423), (0.1467422,0.1467422,0.1467422)), ((-19.02832,241.8223,-85.89148), (0,0,0), (0,0,0), (0,0,0)), ((0.135,-0.622,0.115,-0.763), (0,0,0), (0,0,0))), Surface: (((0.1467422,0.1467422,0.1467423), (0.1467422,0.1467422,0.1467422)), ((-87.89083,241.8223,3.824344), (0,0,0), (0,0,0), (0,0,0)), ((-0.039,0.001,0.016,-0.999), (0,0,0), (0,0,0)))))	PacificEngine's Common Resources	
-Prefab_NOM_InterfaceOrbSmall (OWRigidbody): (Prefab_NOM_InterfaceOrbSmall (OWRigidbody), (BrittleHollow, Relative: (((0.1467423,0.1467422,0.1467422), (0.1467422,0.1467422,0.1467422)), ((-8.980469,-86.912,189.9695), (0,0,0), (0,0,0), (0,0,0)), ((-0.029,-0.539,-0.841,-0.045), (0,0,0), (0,0,0))), Surface: (((0.1467423,0.1467422,0.1467422), (0.1467422,0.1467422,0.1467422)), ((185.524,-86.912,41.83188), (0,0,0), (0,0,0), (0,0,0)), ((0,0,0,-1), (0,0,0), (0,0,0)))))	PacificEngine's Common Resources	
-Prefab_NOM_InterfaceOrbSmall (OWRigidbody): (Prefab_NOM_InterfaceOrbSmall (OWRigidbody), (BrittleHollow, Relative: (((0.1467422,0.1467422,0.1467422), (0.1467422,0.1467422,0.1467422)), ((45.63379,127.6826,11.91748), (0,0,0), (0,0,0), (0,0,0)), ((-0.19,-0.978,-0.035,0.084), (0,0,0), (0,0,0))), Surface: (((0.1467422,0.1467422,0.1467422), (0.1467422,0.1467422,0.1467422)), ((19.66065,127.6826,-42.87106), (0,0,0), (0,0,0), (0,0,0)), ((-0.021,-0.001,-0.026,-0.999), (0,0,0), (0,0,0)))))	PacificEngine's Common Resources	
-Cage_Body (OWRigidbody): (Cage_Body (OWRigidbody), (Stranger, Relative: (((1.000001,1.000001,1.000001), (1,1,1)), ((-116.7754,-39.21484,-261.9995), (0,0,0), (0,0,0), (0,0,0)), ((-0.318,-0.581,-0.72,-0.206), (0,0,0), (0,0,0))), Surface: (((1.000001,1.000001,1.000001), (1,1,1)), ((161.8999,-141.2177,194.0723), (0,0,0), (0,0,0), (0,0,0)), ((-0.968,0.001,0,-0.252), (0,0,0), (0,0,0)))))	PacificEngine's Common Resources	
-Cage_Body (OWRigidbody): (Cage_Body (OWRigidbody), (Stranger, Relative: (((1.000001,1.000001,1.000001), (1,1.000001,1.000001)), ((-223.1621,11.31836,136.3245), (0,0,0), (0,0,0), (0,0,0)), ((-0.851,-0.38,0.085,0.352), (0,0,0), (0,0,0))), Surface: (((1.000001,1.000001,1.000001), (1,1.000001,1.000001)), ((78.6501,-130.6598,-212.7345), (0,0,0), (0,0,0), (0,0,0)), ((-0.966,0.258,0.001,-0.005), (0,0,0), (0,0,0)))))	PacificEngine's Common Resources	
-Cage_Body (OWRigidbody): (Cage_Body (OWRigidbody), (Stranger, Relative: (((1.000001,1.000001,1.000001), (1.000001,1,1)), ((-19.85205,15.08984,-268.9265), (0,0,0), (0,0,0), (0,0,0)), ((0.093,0.641,0.757,0.083), (0,0,0), (0,0,0))), Surface: (((1.000001,1.000001,1.000001), (1.000001,1,1)), ((143.4486,-36.17509,225.9583), (0,0,0), (0,0,0), (0,0,0)), ((-0.998,-0.025,-0.002,-0.063), (0,0,0), (0,0,0)))))	PacificEngine's Common Resources	
-Cage_Body (OWRigidbody): (Cage_Body (OWRigidbody), (Stranger, Relative: (((1,1.000001,1.000001), (0.9999999,1,1)), ((-57.98633,0.984375,-241.571), (0,0,0), (0,0,0), (0,0,0)), ((0.716,-0.219,-0.308,0.587), (0,0,0), (0,0,0))), Surface: (((1,1.000001,1.000001), (0.9999999,1,1)), ((144.3948,-69.34558,189.8982), (0,0,0), (0,0,0), (0,0,0)), ((0.99,0.004,-0.001,-0.141), (0,0,0), (0,0,0)))))	PacificEngine's Common Resources	
-Prefab_NOM_InterfaceOrbSmall_Back (OWRigidbody): (Prefab_NOM_InterfaceOrbSmall_Back (OWRigidbody), (EmberTwin, Relative: (((0.1500004,0.1500003,0.1500002), (0.1500002,0.1500002,0.1500002)), ((49.07324,-95.25098,46.76318), (0,0,0), (0,0,0), (0,0,0)), ((0.339,0.28,0.888,-0.133), (0,0,0), (0,0,0))), Surface: (((0.1500004,0.1500003,0.1500002), (0.1500002,0.1500002,0.1500002)), ((10.15892,-95.25098,-67.02071), (0,0,0), (0,0,0), (0,0,0)), ((0.006,0,0,1), (0,0,0), (0,0,0)))))	PacificEngine's Common Resources	
-Prefab_NOM_InterfaceOrbSmall_Back (OWRigidbody): (Prefab_NOM_InterfaceOrbSmall_Back (OWRigidbody), (AshTwin, Relative: (((0.1500002,0.15,0.1500003), (0.1500001,0.15,0.1500002)), ((79.70825,-0.0002823,61.13281), (0,0,0), (0,0,0), (0,0,0)), ((0.651,0.651,0.277,0.277), (0,0,0), (0,0,0))), Surface: (((0.1500002,0.15,0.1500003), (0.1500001,0.15,0.1500002)), ((-100.3575,-0.0002823,-4.358326), (0,0,0), (0,0,0), (0,0,0)), ((-0.075,0,0,0.997), (0,0,0), (0,0,0)))))	PacificEngine's Common Resources	
-Prefab_NOM_InterfaceOrbSmall_Back (OWRigidbody): (Prefab_NOM_InterfaceOrbSmall_Back (OWRigidbody), (EmberTwin, Relative: (((0.1500003,0.1500002,0.1500002), (0.1500002,0.1500001,0.1500002)), ((-21.55786,-108.4537,27.44946), (0,0,0), (0,0,0), (0,0,0)), ((-0.59,-0.081,-0.795,-0.116), (0,0,0), (0,0,0))), Surface: (((0.1500003,0.1500002,0.1500002), (0.1500002,0.1500001,0.1500002)), ((34.85036,-108.4537,1.914811), (0,0,0), (0,0,0), (0,0,0)), ((-0.052,0,-0.004,-0.999), (0,0,0), (0,0,0)))))	PacificEngine's Common Resources	
-Prefab_NOM_InterfaceOrbSmall_Back (OWRigidbody): (Prefab_NOM_InterfaceOrbSmall_Back (OWRigidbody), (EmberTwin, Relative: (((0.1500002,0.1500001,0.1500002), (0.1500001,0.15,0.1500001)), ((-18.69141,-117.2213,41.87109), (0,0,0), (0,0,0), (0,0,0)), ((-0.795,0.116,0.59,-0.081), (0,0,0), (0,0,0))), Surface: (((0.1500002,0.1500001,0.1500002), (0.1500001,0.15,0.1500001)), ((45.01974,-117.2213,-8.705156), (0,0,0), (0,0,0), (0,0,0)), ((0.019,-0.001,0.043,-0.999), (0,0,0), (0,0,0)))))	PacificEngine's Common Resources	
-Prefab_NOM_InterfaceOrbSmall_Back (OWRigidbody): (Prefab_NOM_InterfaceOrbSmall_Back (OWRigidbody), (AshTwin, Relative: (((0.1500002,0.1500001,0.1500002), (0.1500001,0.15,0.1500001)), ((58.03589,0.0002823,81.99023), (0,0,0), (0,0,0), (0,0,0)), ((-0.277,0.277,0.651,-0.651), (0,0,0), (0,0,0))), Surface: (((0.1500002,0.1500001,0.1500002), (0.1500001,0.15,0.1500001)), ((-94.56785,0.0002823,-33.87447), (0,0,0), (0,0,0), (0,0,0)), ((0.075,0,0,-0.997), (0,0,0), (0,0,0)))))	PacificEngine's Common Resources	
-DreamRaft_Body (OWRigidbody): (DreamRaft_Body (OWRigidbody), (DreamWorld, Relative: (((1,1,1), (0.9999999,1,0.9999999)), ((156.2837,0,-886.3269), (0,0,0), (0,0,0), (0,0,0)), ((0,-0.481,0,0.877), (0,0,0), (0,0,0))), Surface: (((1,1,1), (0.9999999,1,0.9999999)), ((7.96E-05,0,-900), (0,0,0), (0,0,0), (0,0,0)), ((0.647,-0.285,-0.285,0.647), (0,0,0), (0,0,0)))))	PacificEngine's Common Resources	
-BackRaft_Body (OWRigidbody): (BackRaft_Body (OWRigidbody), (DreamWorld, Relative: (((1.000001,1,1.000001), (1.000001,1,1.000001)), ((153.8652,0,-313.6116), (0,0,0), (0,0,0), (0,0,0)), ((0,0.772,0,-0.636), (0,0,0), (0,0,0))), Surface: (((1.000001,1,1.000001), (1.000001,1,1.000001)), ((97.0695,0,-335.5656), (0,0,0), (0,0,0), (0,0,0)), ((-0.561,0.43,0.43,-0.561), (0,0,0), (0,0,0)))))	PacificEngine's Common Resources	
-SealRaft_Body (OWRigidbody): (SealRaft_Body (OWRigidbody), (DreamWorld, Relative: (((1.000001,1,1.000001), (1.000001,1,1.000001)), ((-114.7646,-296.73,610.9531), (0,0,0), (0,0,0), (0,0,0)), ((0,0.996,0,0.087), (0,0,0), (0,0,0))), Surface: (((1.000001,1,1.000001), (1.000001,1,1.000001)), ((-6.930039,-296.73,621.6), (0,0,0), (0,0,0), (0,0,0)), ((0.846,0.004,0.003,0.533), (0,0,0), (0,0,0)))))	PacificEngine's Common Resources	
-Prefab_NOM_InterfaceOrbSmall_Front (OWRigidbody): (Prefab_NOM_InterfaceOrbSmall_Front (OWRigidbody), (EmberTwin, Relative: (((0.1500003,0.1500002,0.1500001), (0.1500002,0.1500001,0.1500001)), ((50.65674,-93.48798,48.60278), (0,0,0), (0,0,0), (0,0,0)), ((0.339,0.28,0.888,-0.133), (0,0,0), (0,0,0))), Surface: (((0.1500003,0.1500002,0.1500001), (0.1500002,0.1500001,0.1500001)), ((10.75758,-93.48798,-69.37298), (0,0,0), (0,0,0), (0,0,0)), ((-0.007,0,0,1), (0,0,0), (0,0,0)))))	PacificEngine's Common Resources	
-Prefab_NOM_InterfaceOrbSmall_Front (OWRigidbody): (Prefab_NOM_InterfaceOrbSmall_Front (OWRigidbody), (AshTwin, Relative: (((0.1500001,0.1500001,0.1500002), (0.1500001,0.15,0.1500001)), ((81.86987,-0.0002823,59.05225), (0,0,0), (0,0,0), (0,0,0)), ((0.651,0.651,0.277,0.277), (0,0,0), (0,0,0))), Surface: (((0.1500001,0.1500001,0.1500002), (0.1500001,0.15,0.1500001)), ((-100.9348,-0.0002823,-1.414172), (0,0,0), (0,0,0), (0,0,0)), ((-0.09,0,0,0.996), (0,0,0), (0,0,0)))))	PacificEngine's Common Resources	
-Prefab_NOM_InterfaceOrbSmall_Front (OWRigidbody): (Prefab_NOM_InterfaceOrbSmall_Front (OWRigidbody), (EmberTwin, Relative: (((0.1500001,0.1500001,0.1500001), (0.1500001,0.15,0.1500001)), ((-18.68774,-108.476,28.32202), (0,0,0), (0,0,0), (0,0,0)), ((-0.59,-0.081,-0.795,-0.116), (0,0,0), (0,0,0))), Surface: (((0.1500001,0.1500001,0.1500001), (0.1500001,0.15,0.1500001)), ((33.91889,-108.476,-0.9367304), (0,0,0), (0,0,0), (0,0,0)), ((-0.039,0,-0.004,-0.999), (0,0,0), (0,0,0)))))	PacificEngine's Common Resources	
-Prefab_NOM_InterfaceOrbSmall_Front (OWRigidbody): (Prefab_NOM_InterfaceOrbSmall_Front (OWRigidbody), (EmberTwin, Relative: (((0.1500001,0.1500001,0.1500002), (0.1500001,0.1500001,0.1500001)), ((-21.56177,-117.199,40.99878), (0,0,0), (0,0,0), (0,0,0)), ((-0.795,0.116,0.59,-0.081), (0,0,0), (0,0,0))), Surface: (((0.1500001,0.1500001,0.1500002), (0.1500001,0.1500001,0.1500001)), ((45.95156,-117.199,-5.853554), (0,0,0), (0,0,0), (0,0,0)), ((0.031,-0.001,0.043,-0.999), (0,0,0), (0,0,0)))))	PacificEngine's Common Resources	
-Prefab_NOM_InterfaceOrbSmall_Front (OWRigidbody): (Prefab_NOM_InterfaceOrbSmall_Front (OWRigidbody), (AshTwin, Relative: (((0.1500001,0.1500001,0.1500002), (0.1500001,0.15,0.1500001)), ((55.87427,0.0002823,84.0708), (0,0,0), (0,0,0), (0,0,0)), ((-0.277,0.277,0.651,-0.651), (0,0,0), (0,0,0))), Surface: (((0.1500001,0.1500001,0.1500002), (0.1500001,0.15,0.1500001)), ((-93.99052,0.0002823,-36.81863), (0,0,0), (0,0,0), (0,0,0)), ((0.09,0,0,-0.996), (0,0,0), (0,0,0)))))	PacificEngine's Common Resources	
-Prefab_NOM_InterfaceOrbSmall_Back (OWRigidbody): (Prefab_NOM_InterfaceOrbSmall_Back (OWRigidbody), (AshTwin, Relative: (((0.15,0.1500001,0.1500001), (0.15,0.15,0.15)), ((-147.5017,-0.0013885,2.360352), (0,0,0), (0,0,0), (0,0,0)), ((-0.02,-0.019,0.707,0.707), (0,0,0), (0,0,0))), Surface: (((0.15,0.1500001,0.1500001), (0.15,0.15,0.15)), ((119.4725,-0.0013885,-86.53693), (0,0,0), (0,0,0), (0,0,0)), ((-0.035,0,0,0.999), (0,0,0), (0,0,0)))))	PacificEngine's Common Resources	
-Prefab_NOM_InterfaceOrbSmall_Back (OWRigidbody): (Prefab_NOM_InterfaceOrbSmall_Back (OWRigidbody), (GiantsDeep, Relative: (((0.1500002,0.1500002,0.1500002), (0.1500001,0.1500001,0.1500001)), ((457.6807,-79.58923,-198.8633), (0,0,0), (0,0,0), (0,0,0)), ((0.721,0.647,-0.243,-0.053), (0,0,0), (0,0,0))), Surface: (((0.1500002,0.1500002,0.1500002), (0.1500001,0.1500001,0.1500001)), ((406.3332,-79.58923,-289.6748), (0,0,0), (0,0,0), (0,0,0)), ((-0.002,0,0,1), (0,0,0), (0,0,0)))))	PacificEngine's Common Resources	
-Prefab_NOM_InterfaceOrbSmall_Back (OWRigidbody): (Prefab_NOM_InterfaceOrbSmall_Back (OWRigidbody), (BrittleHollow, Relative: (((0.1500001,0.1500002,0.1500001), (0.1500001,0.1500001,0.15)), ((-50.39648,-294.5183,10.70044), (0,0,0), (0,0,0), (0,0,0)), ((0.643,0,-0.766,0), (0,0,0), (0,0,0))), Surface: (((0.1500001,0.1500002,0.1500001), (0.1500001,0.1500001,0.15)), ((1.786622,-294.5183,51.48896), (0,0,0), (0,0,0), (0,0,0)), ((0.086,0,0.003,-0.996), (0,0,0), (0,0,0)))))	PacificEngine's Common Resources	
-Prefab_NOM_InterfaceOrbSmall_Back (OWRigidbody): (Prefab_NOM_InterfaceOrbSmall_Back (OWRigidbody), (EmberTwin, Relative: (((0.1500001,0.1500001,0.1500001), (0.15,0.15,0.15)), ((80.15088,-116.9961,-49.23779), (0,0,0), (0,0,0), (0,0,0)), ((0.413,0.276,-0.85,0.177), (0,0,0), (0,0,0))), Surface: (((0.1500001,0.1500001,0.1500001), (0.15,0.15,0.15)), ((-86.30589,-116.9961,-37.41415), (0,0,0), (0,0,0), (0,0,0)), ((-0.005,0,-0.001,-1), (0,0,0), (0,0,0)))))	PacificEngine's Common Resources	
-Prefab_NOM_InterfaceOrbSmall_Back (OWRigidbody): (Prefab_NOM_InterfaceOrbSmall_Back (OWRigidbody), (EmberTwin, Relative: (((0.15,0.15,0.1500001), (0.15,0.15,0.15)), ((-150.7427,50.97838,30.5918), (0,0,0), (0,0,0), (0,0,0)), ((-0.544,0.804,-0.023,-0.236), (0,0,0), (0,0,0))), Surface: (((0.15,0.15,0.1500001), (0.15,0.15,0.15)), ((111.5218,50.97838,105.9345), (0,0,0), (0,0,0), (0,0,0)), ((-0.035,-0.001,0.04,0.999), (0,0,0), (0,0,0)))))	PacificEngine's Common Resources	
-Prefab_NOM_InterfaceOrbSmall_Back (OWRigidbody): (Prefab_NOM_InterfaceOrbSmall_Back (OWRigidbody), (EmberTwin, Relative: (((0.1500001,0.1500001,0.1500001), (0.1500001,0.1500001,0.15)), ((12.65601,-89.22191,-39.43164), (0,0,0), (0,0,0), (0,0,0)), ((-0.34,0.154,-0.919,0.126), (0,0,0), (0,0,0))), Surface: (((0.1500001,0.1500001,0.1500001), (0.1500001,0.1500001,0.15)), ((-39.5597,-89.22191,12.24986), (0,0,0), (0,0,0), (0,0,0)), ((-0.013,0,0.012,-1), (0,0,0), (0,0,0)))))	PacificEngine's Common Resources	
-Prefab_NOM_InterfaceOrb (OWRigidbody): (Prefab_NOM_InterfaceOrb (OWRigidbody), (TimberHearth, Relative: (((0.561585,0.5615845,0.5615844), (0.5615844,0.5615841,0.5615841)), ((26.94959,20.23764,216.5986), (0,0,0), (0,0,0), (0,0,0)), ((0.063,0.738,0.671,-0.033), (0,0,0), (0,0,0))), Surface: (((0.561585,0.5615845,0.5615844), (0.5615844,0.5615841,0.5615841)), ((-64.15211,20.23764,-208.6282), (0,0,0), (0,0,0), (0,0,0)), ((0,0,0.007,1), (0,0,0), (0,0,0)))))	PacificEngine's Common Resources	
-Prefab_NOM_InterfaceOrb (OWRigidbody): (Prefab_NOM_InterfaceOrb (OWRigidbody), (QuantumMoon, Relative: (((0.3369504,0.3369504,0.3369503), (0.5615839,0.561584,0.5615838)), ((0.9658203,3.279541,5.289063), (-49.92022,19.94364,-134.356), (-2995.213,1196.619,-8061.361), (0,0,0)), ((0,0.087,0,-0.996), (0,0,0), (0,0,0))), Surface: (((0.3369504,0.3369504,0.3369503), (0.5615839,0.561584,0.5615838)), ((1.869585,3.279541,5.040996), (-49.92022,19.94364,-134.356), (-2995.213,1196.619,-8061.361), (0,0,0)), ((0.471,0.072,-0.132,-0.869), (0,0,0), (0,0,0)))))	PacificEngine's Common Resources	
-Prefab_NOM_InterfaceOrb (OWRigidbody): (Prefab_NOM_InterfaceOrb (OWRigidbody), (EmberTwin, Relative: (((0.5615844,0.5615845,0.5615842), (0.5615843,0.5615842,0.561584)), ((10.07764,-88.9769,18.57446), (0,0,0), (0,0,0), (0,0,0)), ((0.283,0.101,0.953,-0.038), (0,0,0), (0,0,0))), Surface: (((0.5615844,0.5615845,0.5615842), (0.5615843,0.5615842,0.561584)), ((9.43502,-88.9769,-18.90899), (0,0,0), (0,0,0), (0,0,0)), ((-0.009,0,0.017,1), (0,0,0), (0,0,0)))))	PacificEngine's Common Resources	
-Prefab_NOM_InterfaceOrb (OWRigidbody): (Prefab_NOM_InterfaceOrb (OWRigidbody), (EmberTwin, Relative: (((0.5615842,0.5615841,0.5615839), (0.5615841,0.5615841,0.5615839)), ((4.519043,-115.7816,-26.01147), (0,0,0), (0,0,0), (0,0,0)), ((-0.205,-0.109,0.973,-0.008), (0,0,0), (0,0,0))), Surface: (((0.5615842,0.5615841,0.5615839), (0.5615841,0.5615841,0.5615839)), ((-23.89937,-115.7816,11.21778), (0,0,0), (0,0,0), (0,0,0)), ((0,0,0.012,1), (0,0,0), (0,0,0)))))	PacificEngine's Common Resources	
-Prefab_NOM_InterfaceOrb (OWRigidbody): (Prefab_NOM_InterfaceOrb (OWRigidbody), (EmberTwin, Relative: (((0.5615839,0.5615839,0.5615839), (0.561584,0.561584,0.5615839)), ((14.06958,-135.6514,24.97461), (0,0,0), (0,0,0), (0,0,0)), ((0.345,0.007,0.938,-0.009), (0,0,0), (0,0,0))), Surface: (((0.5615839,0.5615839,0.5615839), (0.561584,0.561584,0.5615839)), ((12.38803,-135.6514,-25.84997), (0,0,0), (0,0,0), (0,0,0)), ((-0.093,-0.002,0.026,0.995), (0,0,0), (0,0,0)))))	PacificEngine's Common Resources	
-Prefab_NOM_InterfaceOrb (OWRigidbody): (Prefab_NOM_InterfaceOrb (OWRigidbody), (EmberTwin, Relative: (((0.5615838,0.5615839,0.5615839), (0.5615839,0.5615839,0.5615839)), ((-4.859375,-45.70147,-17.7395), (0,0,0), (0,0,0), (0,0,0)), ((0.008,-0.184,0.983,0.017), (0,0,0), (0,0,0))), Surface: (((0.5615838,0.5615839,0.5615839), (0.5615839,0.5615839,0.5615839)), ((-11.74413,-45.70147,14.15552), (0,0,0), (0,0,0), (0,0,0)), ((0,0,0.032,0.999), (0,0,0), (0,0,0)))))	PacificEngine's Common Resources	
-Prefab_NOM_InterfaceOrbSmall (OWRigidbody): (Prefab_NOM_InterfaceOrbSmall (OWRigidbody), (Interloper, Relative: (((0.0892331,0.0892332,0.0892332), (0.0892331,0.0892332,0.0892332)), ((-101.2832,-9.067476,4.012281), (0,0,0), (0,0,0), (0,0,0)), ((0.658,0.528,-0.519,-0.135), (0,0,0), (0,0,0))), Surface: (((0.0892331,0.0892332,0.0892332), (0.0892331,0.0892332,0.0892332)), ((101.2832,-9.067476,-4.012271), (0,0,0), (0,0,0), (0,0,0)), ((0.879,0,0,-0.477), (0,0,0), (0,0,0)))))	PacificEngine's Common Resources	
-Prefab_NOM_InterfaceOrbSmall (OWRigidbody): (Prefab_NOM_InterfaceOrbSmall (OWRigidbody), (QuantumMoon, Relative: (((0.0892332,0.0892332,0.0892332), (0.0892331,0.0892332,0.0892331)), ((0.3046875,22.01001,-1.755371), (-49.92022,19.94364,-134.356), (-2995.213,1196.619,-8061.361), (0,0,0)), ((0.076,-0.483,-0.871,-0.042), (0,0,0), (0,0,0))), Surface: (((0.0892332,0.0892332,0.0892332), (0.0892331,0.0892332,0.0892331)), ((-0.0047589,22.01001,-1.781611), (-49.92022,19.94364,-134.356), (-2995.213,1196.619,-8061.361), (0,0,0)), ((0.894,0,0,-0.449), (0,0,0), (0,0,0)))))	PacificEngine's Common Resources	
-Prefab_NOM_InterfaceOrb (OWRigidbody): (Prefab_NOM_InterfaceOrb (OWRigidbody), (BrittleHollow, Relative: (((0.8500009,0.8500009,0.8500001), (0.8500002,0.8500003,0.8500001)), ((-19.4209,-314.3537,10.8324), (0,0,0), (0,0,0), (0,0,0)), ((0.522,0,-0.853,0), (0,0,0), (0,0,0))), Surface: (((0.8500009,0.8500009,0.8500001), (0.8500002,0.8500003,0.8500001)), ((7.295427,-314.3537,21.00688), (0,0,0), (0,0,0), (0,0,0)), ((0.035,0,0.001,-0.999), (0,0,0), (0,0,0)))))	PacificEngine's Common Resources	
-Prefab_NOM_InterfaceOrb (OWRigidbody): (Prefab_NOM_InterfaceOrb (OWRigidbody), (AshTwin, Relative: (((1.275009,1.275006,1.27501), (0.8500003,0.8500003,0.8500003)), ((19.47974,8.981414,11.48486), (0,0,0), (0,0,0), (0,0,0)), ((-0.351,0.614,-0.614,-0.351), (0,0,0), (0,0,0))), Surface: (((1.275009,1.275006,1.27501), (0.8500003,0.8500003,0.8500003)), ((-22.54431,8.981414,1.76526), (0,0,0), (0,0,0), (0,0,0)), ((0.982,0,0,0.188), (0,0,0), (0,0,0)))))	PacificEngine's Common Resources	
-Prefab_NOM_InterfaceOrb (OWRigidbody): (Prefab_NOM_InterfaceOrb (OWRigidbody), (BrittleHollow, Relative: (((0.8500007,0.8500007,0.85), (0.8500001,0.8500001,0.85)), ((-21.50195,-314.3537,-1.61731), (0,0,0), (0,0,0), (0,0,0)), ((0.732,0,-0.681,0), (0,0,0), (0,0,0))), Surface: (((0.8500007,0.8500007,0.85), (0.8500001,0.8500001,0.85)), ((-5.326513,-314.3537,20.89445), (0,0,0), (0,0,0), (0,0,0)), ((-0.034,0,0,0.999), (0,0,0), (0,0,0)))))	PacificEngine's Common Resources	
-Prefab_NOM_InterfaceOrb (OWRigidbody): (Prefab_NOM_InterfaceOrb (OWRigidbody), (BrittleHollow, Relative: (((0.8500002,0.8500006,0.8500003), (0.8500001,0.8500004,0.8500002)), ((-17.30371,-314.3536,-13.19043), (0,0,0), (0,0,0), (0,0,0)), ((0.897,0,-0.443,0), (0,0,0), (0,0,0))), Surface: (((0.8500002,0.8500006,0.8500003), (0.8500001,0.8500004,0.8500002)), ((-15.99479,-314.3536,14.75034), (0,0,0), (0,0,0), (0,0,0)), ((-0.035,0,0,0.999), (0,0,0), (0,0,0)))))	PacificEngine's Common Resources	
-Prefab_NOM_InterfaceOrb (OWRigidbody): (Prefab_NOM_InterfaceOrb (OWRigidbody), (BrittleHollow, Relative: (((0.8500006,0.8500007,0.8500002), (0.8500001,0.8500001,0.8500001)), ((-19.92383,-314.3537,-7.753906), (0,0,0), (0,0,0), (0,0,0)), ((0.801,0,-0.598,0), (0,0,0), (0,0,0))), Surface: (((0.8500006,0.8500007,0.8500002), (0.8500001,0.8500001,0.8500001)), ((-11.09584,-314.3537,18.27469), (0,0,0), (0,0,0), (0,0,0)), ((-0.034,0,0.003,0.999), (0,0,0), (0,0,0)))))	PacificEngine's Common Resources	
-Prefab_NOM_InterfaceOrb (OWRigidbody): (Prefab_NOM_InterfaceOrb (OWRigidbody), (BrittleHollow, Relative: (((0.8500007,0.8500007,0.85), (0.8500003,0.8500001,0.85)), ((-14.6123,-314.3537,16.16626), (0,0,0), (0,0,0), (0,0,0)), ((0.394,0,-0.919,0), (0,0,0), (0,0,0))), Surface: (((0.8500007,0.8500007,0.85), (0.8500003,0.8500001,0.85)), ((13.38326,-314.3537,17.19755), (0,0,0), (0,0,0), (0,0,0)), ((0.035,0,0.003,-0.999), (0,0,0), (0,0,0)))))	PacificEngine's Common Resources	
-Prefab_NOM_InterfaceOrb (OWRigidbody): (Prefab_NOM_InterfaceOrb (OWRigidbody), (BrittleHollow, Relative: (((0.8500009,0.8500012,0.8500003), (0.8500002,0.8500004,0.8500002)), ((-21.57422,-314.3537,4.460205), (0,0,0), (0,0,0), (0,0,0)), ((0.615,0,-0.789,0), (0,0,0), (0,0,0))), Surface: (((0.8500009,0.8500012,0.8500003), (0.8500002,0.8500004,0.8500002)), ((0.6461222,-314.3537,22.02097), (0,0,0), (0,0,0), (0,0,0)), ((0.035,0,-0.001,-0.999), (0,0,0), (0,0,0)))))	PacificEngine's Common Resources	
-Raft_Body (2) (OWRigidbody): (Raft_Body (2) (OWRigidbody), (Stranger, Relative: (((1,1.000001,1.000001), (1,1,1)), ((-173.8564,163.5439,25.11963), (0,0,0), (0,0,0), (0,0,0)), ((-0.913,-0.382,-0.097,0.108), (0,0,0), (0,0,0))), Surface: (((1,1.000001,1.000001), (1,1,1)), ((200.7502,-2.340035,-131.5202), (0,0,0), (0,0,0), (0,0,0)), ((-1,0.006,0,0.008), (0,0,0), (0,0,0)))))	PacificEngine's Common Resources	
-Raft_Body (3) (OWRigidbody): (Raft_Body (3) (OWRigidbody), (Stranger, Relative: (((1.000001,1.000001,1.000001), (1,1,1.000001)), ((-199.4014,57.68262,226.8804), (0,0,0), (0,0,0), (0,0,0)), ((-0.494,-0.649,0.578,-0.04), (0,0,0), (0,0,0))), Surface: (((1.000001,1.000001,1.000001), (1,1,1.000001)), ((54.37031,-70.21004,-294.4101), (0,0,0), (0,0,0), (0,0,0)), ((-1,0.009,0,-0.027), (0,0,0), (0,0,0)))))	PacificEngine's Common Resources	
-Raft_Body_AirlockRaftHouse (OWRigidbody): (Raft_Body_AirlockRaftHouse (OWRigidbody), (Stranger, Relative: (((1.000001,1.000001,1.000001), (1.000001,1.000001,1.000001)), ((-104.2515,165.7734,221.0115), (0,0,0), (0,0,0), (0,0,0)), ((-0.106,0.398,-0.831,0.375), (0,0,0), (0,0,0))), Surface: (((1.000001,1.000001,1.000001), (1.000001,1.000001,1.000001)), ((72.2346,71.76005,-277.1785), (0,0,0), (0,0,0), (0,0,0)), ((0.992,-0.122,0,0), (0,0,0), (0,0,0)))))	PacificEngine's Common Resources	
-Raft_Body (1) (OWRigidbody): (Raft_Body (1) (OWRigidbody), (Stranger, Relative: (((0.9999999,1,0.9999999), (0.9999999,0.9999999,0.9999998)), ((276.2397,-145.2803,25.12207), (0,0,0), (0,0,0), (0,0,0)), ((0.29,-0.929,-0.163,-0.16), (0,0,0), (0,0,0))), Surface: (((0.9999999,1,0.9999999), (0.9999999,0.9999999,0.9999998)), ((-272.2501,92.71956,123.8098), (0,0,0), (0,0,0), (0,0,0)), ((0.966,-0.255,-0.011,0.043), (0,0,0), (0,0,0)))))	PacificEngine's Common Resources	
-Raft_Body (8) (OWRigidbody): (Raft_Body (8) (OWRigidbody), (Stranger, Relative: (((1.000002,1.000001,1.000001), (1.000001,1.000001,1)), ((-145.2896,-3.886719,-271.4133), (0,0,0), (0,0,0), (0,0,0)), ((-0.344,-0.566,-0.729,-0.171), (0,0,0), (0,0,0))), Surface: (((1.000002,1.000001,1.000001), (1.000001,1.000001,1)), ((206.5964,-137.2491,182.4006), (0,0,0), (0,0,0), (0,0,0)), ((-0.973,-0.025,-0.006,-0.229), (0,0,0), (0,0,0)))))	PacificEngine's Common Resources	
-Raft_Body (OWRigidbody): (Raft_Body (OWRigidbody), (Stranger, Relative: (((1,1,1), (1,1,1)), ((30.21631,54.39648,-292.4185), (0,0,0), (0,0,0), (0,0,0)), ((-0.456,0.543,0.596,-0.377), (0,0,0), (0,0,0))), Surface: (((1,1,1), (1,1,1)), ((150.4001,23.60019,257.3002), (0,0,0), (0,0,0), (0,0,0)), ((-0.999,0.035,0.001,-0.018), (0,0,0), (0,0,0)))))	PacificEngine's Common Resources	
-Raft_Body (4) (OWRigidbody): (Raft_Body (4) (OWRigidbody), (Stranger, Relative: (((1,1,1), (0.9999999,0.9999999,0.9999999)), ((-1.479004,-102.4209,283.5984), (0,0,0), (0,0,0), (0,0,0)), ((-0.245,-0.819,0.495,0.156), (0,0,0), (0,0,0))), Surface: (((1,1,1), (0.9999999,0.9999999,0.9999999)), ((-195.4201,-38.62993,-226.3603), (0,0,0), (0,0,0), (0,0,0)), ((-0.992,0.086,0.008,-0.092), (0,0,0), (0,0,0)))))	PacificEngine's Common Resources	
-Raft_Body (7) (OWRigidbody): (Raft_Body (7) (OWRigidbody), (Stranger, Relative: (((0.9999999,1,1), (0.9999999,0.9999999,1)), ((191.9653,-212.708,-42.10889), (0,0,0), (0,0,0), (0,0,0)), ((0.123,-0.114,0.379,0.91), (0,0,0), (0,0,0))), Surface: (((0.9999999,1,1), (0.9999999,0.9999999,1)), ((-236.5096,-21.89989,165.6868), (0,0,0), (0,0,0), (0,0,0)), ((-0.999,0.037,0,0.007), (0,0,0), (0,0,0)))))	PacificEngine's Common Resources	
-Prefab_NOM_InterfaceOrbSmall (OWRigidbody): (Prefab_NOM_InterfaceOrbSmall (OWRigidbody), (InnerDarkBramble_EscapePod, Relative: (((0.3000001,0.2999999,0.2999999), (0.3,0.2999999,0.2999999)), ((463.6121,163.7813,71.7525), (0,0,0), (0,0,0), (0,0,0)), ((-0.036,0.686,0.727,0.001), (0,0,0), (0,0,0))), Surface: (((0.3000001,0.2999999,0.2999999), (0.3,0.2999999,0.2999999)), ((-469.0283,163.7813,9.843013), (0,0,0), (0,0,0), (0,0,0)), ((-0.492,0.361,-0.469,0.638), (0,0,0), (0,0,0)))))	PacificEngine's Common Resources	
-Prefab_NOM_InterfaceOrbSmall (1) (OWRigidbody): (Prefab_NOM_InterfaceOrbSmall (1) (OWRigidbody), (InnerDarkBramble_Vessel, Relative: (((0.3183801,0.3183799,0.3183801), (0.31838,0.3183799,0.3183799)), ((-180.8779,9.291016,-11.90552), (0,0,0), (0,0,0), (0,0,0)), ((0.033,-0.681,0.115,-0.722), (0,0,0), (0,0,0))), Surface: (((0.3183801,0.3183799,0.3183801), (0.31838,0.3183799,0.3183799)), ((180.1972,9.291016,-19.68448), (0,0,0), (0,0,0), (0,0,0)), ((0.727,0.003,0.002,0.687), (0,0,0), (0,0,0)))))	PacificEngine's Common Resources	
-Prefab_NOM_InterfaceOrbSmall (OWRigidbody): (Prefab_NOM_InterfaceOrbSmall (OWRigidbody), (BrittleHollow, Relative: (((0.3000004,0.3000002,0.3000005), (0.3000003,0.3000001,0.3000003)), ((312.1973,71.65765,-119.5135), (0,0,0), (0,0,0), (0,0,0)), ((-0.506,-0.641,0.223,0.532), (0,0,0), (0,0,0))), Surface: (((0.3000004,0.3000002,0.3000005), (0.3000003,0.3000001,0.3000003)), ((-63.48541,71.65765,-328.2076), (0,0,0), (0,0,0), (0,0,0)), ((-0.354,-0.018,-0.046,-0.934), (0,0,0), (0,0,0)))))	PacificEngine's Common Resources	
-Prefab_NOM_InterfaceOrbSmall (OWRigidbody): (Prefab_NOM_InterfaceOrbSmall (OWRigidbody), (BrittleHollow, Relative: (((0.3900003,0.39,0.3900003), (0.3900002,0.39,0.3900002)), ((-25.09863,173.9844,-20.46814), (0,0,0), (0,0,0), (0,0,0)), ((0.033,-0.832,0.099,0.546), (0,0,0), (0,0,0))), Surface: (((0.3900003,0.39,0.3900003), (0.3900002,0.39,0.3900002)), ((-24.51551,173.9844,21.16307), (0,0,0), (0,0,0), (0,0,0)), ((0.013,0,0.001,1), (0,0,0), (0,0,0)))))	PacificEngine's Common Resources	
-Prefab_NOM_InterfaceOrbSmall (OWRigidbody): (Prefab_NOM_InterfaceOrbSmall (OWRigidbody), (EmberTwin, Relative: (((0.3199999,0.32,0.32), (0.32,0.32,0.32)), ((-113.2544,77.92848,26.99023), (0,0,0), (0,0,0), (0,0,0)), ((0.369,-0.402,0.401,0.736), (0,0,0), (0,0,0))), Surface: (((0.3199999,0.32,0.32), (0.32,0.32,0.32)), ((87.06914,77.92848,77.29163), (0,0,0), (0,0,0), (0,0,0)), ((0.083,0.002,0.024,0.996), (0,0,0), (0,0,0)))))	PacificEngine's Common Resources	
-Cage_Body (OWRigidbody): (Cage_Body (OWRigidbody), (DreamWorld, Relative: (((1.000001,1,1.000001), (1,1,1)), ((24.57715,10.66016,-582.7607), (0,0,0), (0,0,0), (0,0,0)), ((0,0.936,0,0.351), (0,0,0), (0,0,0))), Surface: (((1.000001,1,1.000001), (1,1,1)), ((-76.99175,10.66016,-578.175), (0,0,0), (0,0,0), (0,0,0)), ((-0.659,-0.231,0.237,0.675), (0,0,0), (0,0,0)))))	PacificEngine's Common Resources	
-Cage_Body (OWRigidbody): (Cage_Body (OWRigidbody), (DreamWorld, Relative: (((1,0.9999999,1), (1,1,1)), ((109.8823,7.182129,-291.6539), (0,0,0), (0,0,0), (0,0,0)), ((-0.004,-0.609,-0.013,-0.793), (0,0,0), (0,0,0))), Surface: (((1,0.9999999,1), (1,1,1)), ((57.5677,7.182129,-306.3039), (0,0,0), (0,0,0), (0,0,0)), ((0.53,0.48,-0.469,-0.518), (0,0,0), (0,0,0)))))	PacificEngine's Common Resources	
-Cage_Body (OWRigidbody): (Cage_Body (OWRigidbody), (DreamWorld, Relative: (((1.000001,1,1.000001), (1.000001,1,1.000001)), ((120.9297,19.67578,-164.8489), (0,0,0), (0,0,0), (0,0,0)), ((0,0.972,0,-0.233), (0,0,0), (0,0,0))), Surface: (((1.000001,1,1.000001), (1.000001,1,1.000001)), ((90.46674,19.67578,-183.3437), (0,0,0), (0,0,0), (0,0,0)), ((-0.537,0.327,-0.405,0.664), (0,0,0), (0,0,0)))))	PacificEngine's Common Resources	
-Cage_Body (OWRigidbody): (Cage_Body (OWRigidbody), (DreamWorld, Relative: (((1.000001,1,1.000001), (1.000001,1,1.000001)), ((137.8643,31,-220.9742), (0,0,0), (0,0,0), (0,0,0)), ((0,0.743,0,0.67), (0,0,0), (0,0,0))), Surface: (((1.000001,1,1.000001), (1.000001,1,1.000001)), ((97.39795,31,-241.5571), (0,0,0), (0,0,0), (0,0,0)), ((-0.573,-0.277,0.336,0.694), (0,0,0), (0,0,0)))))	PacificEngine's Common Resources	
-Cage_Body (OWRigidbody): (Cage_Body (OWRigidbody), (DreamWorld, Relative: (((1,1,1), (1,1,1)), ((-3.594238,63.09277,240.7129), (0,0,0), (0,0,0), (0,0,0)), ((0,-0.766,0,0.643), (0,0,0), (0,0,0))), Surface: (((1,1,1), (1,1,1)), ((38.25979,63.09277,237.68), (0,0,0), (0,0,0), (0,0,0)), ((-0.217,-0.16,-0.571,-0.775), (0,0,0), (0,0,0)))))	PacificEngine's Common Resources	
-Cage_Body (OWRigidbody): (Cage_Body (OWRigidbody), (DreamWorld, Relative: (((1.000001,1,1.000001), (1.000001,1,1.000001)), ((65.91992,24.35986,-232.2135), (0,0,0), (0,0,0), (0,0,0)), ((0,0.973,0,0.229), (0,0,0), (0,0,0))), Surface: (((1.000001,1,1.000001), (1.000001,1,1.000001)), ((24.59493,24.35986,-240.1325), (0,0,0), (0,0,0), (0,0,0)), ((-0.667,-0.062,0.068,0.739), (0,0,0), (0,0,0)))))	PacificEngine's Common Resources	
-Cage_Body (OWRigidbody): (Cage_Body (OWRigidbody), (DreamWorld, Relative: (((1,1,1), (1,1,1)), ((-124.791,10.08008,696.2073), (0,0,0), (0,0,0), (0,0,0)), ((0,-0.996,0,-0.087), (0,0,0), (0,0,0))), Surface: (((1,1,1), (1,1,1)), ((-1.999831,10.08008,707.3), (0,0,0), (0,0,0), (0,0,0)), ((-0.702,-0.001,-0.001,-0.712), (0,0,0), (0,0,0)))))	PacificEngine's Common Resources	
-Cage_Body (OWRigidbody): (Cage_Body (OWRigidbody), (DreamWorld, Relative: (((1.000001,1,1.000001), (1,1,1)), ((102.2637,31.0498,-255.4259), (0,0,0), (0,0,0), (0,0,0)), ((0,0.999,0,0.032), (0,0,0), (0,0,0))), Surface: (((1.000001,1,1.000001), (1,1,1)), ((56.35574,31.0498,-269.3033), (0,0,0), (0,0,0), (0,0,0)), ((-0.656,0.104,-0.117,0.738), (0,0,0), (0,0,0)))))	PacificEngine's Common Resources	
-Cage_Body (OWRigidbody): (Cage_Body (OWRigidbody), (DreamWorld, Relative: (((1,0.9999999,1.000001), (1,1,1)), ((80.56445,25.66797,-186.5034), (0,0,0), (0,0,0), (0,0,0)), ((0,0.195,0.003,-0.981), (0,0,0), (0,0,0))), Surface: (((1,0.9999999,1.000001), (1,1,1)), ((46.95446,25.66797,-197.6599), (0,0,0), (0,0,0), (0,0,0)), ((-0.661,-0.005,-0.006,-0.75), (0,0,0), (0,0,0)))))	PacificEngine's Common Resources	
-Cage_Body (OWRigidbody): (Cage_Body (OWRigidbody), (DreamWorld, Relative: (((1.000001,1,1.000001), (1.000001,1,1.000001)), ((221.4878,-53.04004,-229.6412), (0,0,0), (0,0,0), (0,0,0)), ((0,0.67,0,-0.743), (0,0,0), (0,0,0))), Surface: (((1.000001,1,1.000001), (1.000001,1,1.000001)), ((178.246,-53.04004,-264.6135), (0,0,0), (0,0,0), (0,0,0)), ((-0.733,0.263,0.212,-0.591), (0,0,0), (0,0,0)))))	PacificEngine's Common Resources	
-Cage_Body (OWRigidbody): (Cage_Body (OWRigidbody), (DreamWorld, Relative: (((1.000001,1,1.000001), (1,1,1)), ((-77.88184,80.93506,270.0791), (0,0,0), (0,0,0), (0,0,0)), ((0,-0.887,0,-0.462), (0,0,0), (0,0,0))), Surface: (((1.000001,1,1.000001), (1,1,1)), ((-29.79981,80.93506,279.5), (0,0,0), (0,0,0), (0,0,0)), ((-0.542,0.182,0.261,-0.778), (0,0,0), (0,0,0)))))	PacificEngine's Common Resources
-     */
-
     public static class Planet
     {
         private const string classId = "PacificEngine.OW_CommonResources.Game.State.Planet";
@@ -351,11 +390,6 @@ Cage_Body (OWRigidbody): (Cage_Body (OWRigidbody), (DreamWorld, Relative: (((1.0
 
         private static List<Tuple<OWRigidbody, RelativeState>> trackMovingItems(HashSet<OWRigidbody> ignorables)
         {
-            var sunStation = Position.getBody(Position.HeavenlyBodies.SunStation);
-            var giantDeep = Position.getBody(Position.HeavenlyBodies.GiantsDeep);
-            var probeCannon = Position.getBody(Position.HeavenlyBodies.ProbeCannon);
-            var whiteHole = Position.getBody(Position.HeavenlyBodies.WhiteHole);
-
             List<Tuple<OWRigidbody, RelativeState>> bodies = new List<Tuple<OWRigidbody, RelativeState>>();
             if (PlayerState.IsInsideTheEye())
             {
@@ -386,34 +420,48 @@ Cage_Body (OWRigidbody): (Cage_Body (OWRigidbody), (DreamWorld, Relative: (((1.0
             foreach (var child in GameObject.FindObjectsOfType<OWRigidbody>())
             {
                 var name = child?.gameObject?.name;
+                var parentName = child?.GetOrigParentBody()?.gameObject?.name;
                 if (name == null)
                 {
                     continue;
                 }
-                if (sunStation != null)
+                if (parentName != null)
                 {
-                    if (child.GetOrigParentBody() == sunStation
-                            && (name.StartsWith("SS_Debris_Body")))
+                    if (parentName.StartsWith("SunStation_Body")
+                        && (name.StartsWith("SS_Debris_Body")))
                     {
                         var surface = RelativeState.getSurfaceMovement(Position.HeavenlyBodies.SunStation, child);
                         bodies.Add(Tuple.Create(child, RelativeState.fromSurface(Position.HeavenlyBodies.SunStation, surface)));
                         continue;
                     }
-                }
-                if (probeCannon != null)
-                {
-                    if (child.GetOrigParentBody() == probeCannon
-                        && (name.StartsWith("Debris_Body")
-                            || name.StartsWith("FakeCannonMuzzle_Body")))
+                    if (parentName.StartsWith("TowerTwin_Body")
+                        && (name.StartsWith("TimeLoopRing_Body")))
                     {
+                        // TODO: Handle TimeLoopRing_Body
+                        // StaticRing_Body has no parent
+                        var relative = RelativeState.getRelativeMovement(Position.HeavenlyBodies.AshTwin, child);
+                        bodies.Add(Tuple.Create(child, RelativeState.fromSurface(Position.HeavenlyBodies.AshTwin, relative)));
+                        continue;
+                    }
+                    if (parentName.StartsWith("TimeLoopRing_Body")
+                        && (name.StartsWith("Prefab_NOM_InterfaceOrb")))
+                    {
+                        // TODO: Figure out why TimeLoop Orb keeps disappearing
+                        var relative = RelativeState.getRelativeMovement(Position.HeavenlyBodies.AshTwin, child);
+                        bodies.Add(Tuple.Create(child, RelativeState.fromSurface(Position.HeavenlyBodies.AshTwin, relative)));
+                        continue;
+                    }
+                    if (parentName.StartsWith("OrbitalProbeCannon_Body")
+                        && (name.StartsWith("Debris_Body")
+                            || name.StartsWith("FakeCannonMuzzle_Body")
+                            || name.StartsWith("FakeCannonBarrel_Body")))
+                    {
+                        // CannonBarrel_Body has no parent
                         var surface = RelativeState.getSurfaceMovement(Position.HeavenlyBodies.ProbeCannon, child);
                         bodies.Add(Tuple.Create(child, RelativeState.fromSurface(Position.HeavenlyBodies.ProbeCannon, surface)));
                         continue;
                     }
-                }
-                if (giantDeep != null)
-                {
-                    if (child.GetOrigParentBody() == giantDeep
+                    if (parentName.StartsWith("GiantsDeep_Body")
                         && (name.StartsWith("GabbroShip_Body")
                             || name.StartsWith("StatueIsland_Body")
                             || name.StartsWith("ConstructionYardIsland_Body")
@@ -424,10 +472,7 @@ Cage_Body (OWRigidbody): (Cage_Body (OWRigidbody), (DreamWorld, Relative: (((1.0
                         bodies.Add(captureState(child, Position.HeavenlyBodies.GiantsDeep));
                         continue;
                     }
-                }
-                if (whiteHole != null)
-                {
-                    if (child.GetOrigParentBody() == whiteHole
+                    if (parentName.StartsWith("WhiteholeStation_Body")
                         && (name.StartsWith("WhiteholeStationSuperstructure_Body")))
                     {
                         bodies.Add(captureState(child, Position.HeavenlyBodies.WhiteHoleStation));
