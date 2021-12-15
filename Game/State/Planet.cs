@@ -327,7 +327,7 @@ Cage_Body (OWRigidbody): (Cage_Body (OWRigidbody), (DreamWorld, Relative: (((1.0
 
         private static void updateList()
         {
-            if (update)
+            if (update && Time.timeSinceLevelLoad > 0.01f)
             {
                 update = false;
 
@@ -691,7 +691,7 @@ Cage_Body (OWRigidbody): (Cage_Body (OWRigidbody), (DreamWorld, Relative: (((1.0
                 update = true;
             }
 
-            return false;
+            return true;
         }
 
         private static bool onInitialVelocityStart(ref InitialVelocity __instance)
@@ -703,7 +703,7 @@ Cage_Body (OWRigidbody): (Cage_Body (OWRigidbody), (DreamWorld, Relative: (((1.0
                 update = true;
             }
 
-            return false;
+            return true;
         }
 
         private static bool onMatchInitialMotionStart(ref MatchInitialMotion __instance)
@@ -715,7 +715,7 @@ Cage_Body (OWRigidbody): (Cage_Body (OWRigidbody), (DreamWorld, Relative: (((1.0
                 update = true;
             }
 
-            return false;
+            return true;
         }
 
         private static bool onKinematicRigidbodyMove(ref KinematicRigidbody __instance, ref Vector3 position, ref Quaternion rotation)

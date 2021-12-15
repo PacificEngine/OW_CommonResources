@@ -516,22 +516,17 @@ namespace PacificEngine.OW_CommonResources.Game.State
                Quaternion.Inverse(rotation) * (worldPoint - position));
         }
 
-        public Quaternion PointRotation(Vector3 worldPoint, Quaternion rotation)
+        public Quaternion PointRotation(Vector3 worldPoint)
         {
             var groundNormal = worldPoint - position;
             var forwardDirection = -Vector3.Cross(groundNormal, orientation.right);
             return Quaternion.LookRotation(forwardDirection, groundNormal);
         }
 
-        public void apply(OWRigidbody target)
+        public void apply(Position.HeavenlyBodies parent, AbsoluteState parentState, OWRigidbody target)
         {
             applyMovement(target);
             applyRotation(target);
-        }
-
-        public void apply(Position.HeavenlyBodies parent, AbsoluteState parentState, OWRigidbody target)
-        {
-            apply(target);
             applyCachedState(parent, parentState, target);
         }
 
@@ -555,11 +550,15 @@ namespace PacificEngine.OW_CommonResources.Game.State
 
         private void applyRotation(OWRigidbody target)
         {
-            target.SetRotation(new Quaternion(rotation.x, rotation.y, rotation.z, rotation.w));
-            target.SetAngularVelocity(new Vector3(angularVelocity.x, angularVelocity.y, angularVelocity.z));
+            var r = rotation;
+            var v = angularVelocity;
+            var a = angularAcceleration;
 
-            target.SetValue("_currentAngularVelocity", new Vector3(angularVelocity.x, angularVelocity.y, angularVelocity.z));
-            target.SetValue("_lastAngularVelocity", new Vector3(angularVelocity.x, angularVelocity.y, angularVelocity.z));
+            target.SetRotation(new Quaternion(r.x, r.y, r.z, r.w));
+            target.SetAngularVelocity(new Vector3(a.x, a.y, a.z));
+
+            target.SetValue("_currentAngularVelocity", new Vector3(a.x, a.y, a.z));
+            target.SetValue("_lastAngularVelocity", new Vector3(a.x, a.y, a.z));
         }
 
         private void applyCachedState(Position.HeavenlyBodies parent, AbsoluteState parentState, OWRigidbody target)
@@ -629,7 +628,7 @@ namespace PacificEngine.OW_CommonResources.Game.State
 
         public AbsoluteState apply(OWRigidbody body, AbsoluteState parentState, Gravity gravity)
         {
-            var state = getAbsoluteState(parentState, gravity);
+            var state = getAbsoluteState(parentState, gravity, body);
             if (state != null)
             {
                 state.apply(parent, parentState, body);
@@ -637,15 +636,15 @@ namespace PacificEngine.OW_CommonResources.Game.State
             return state;
         }
 
-        public AbsoluteState getAbsoluteState()
+        public AbsoluteState getAbsoluteState(OWRigidbody body)
         {
             var parentState = AbsoluteState.fromCurrentState(parent);
             var parentGravity = Position.getGravity(parent);
 
-            return getAbsoluteState(parentState, parentGravity);
+            return getAbsoluteState(parentState, parentGravity, body);
         }
 
-        public AbsoluteState getAbsoluteState(AbsoluteState parentState, Gravity gravity)
+        public AbsoluteState getAbsoluteState(AbsoluteState parentState, Gravity gravity, OWRigidbody body)
         {
             var scale = getAbsoluteScale(parentState, gravity);
             if (scale == null)
@@ -659,7 +658,7 @@ namespace PacificEngine.OW_CommonResources.Game.State
                 return null;
             }
 
-            var orientation = getAbsoluteOrientation(parentState, gravity, movement.position);
+            var orientation = getAbsoluteOrientation(parentState, gravity, movement.position, body);
             if (orientation == null)
             {
                 return null;
@@ -762,8 +761,27 @@ namespace PacificEngine.OW_CommonResources.Game.State
             return new PositionState(position, velocity, acceleration, jerk);
         }
 
-        private OrientationState getAbsoluteOrientation(AbsoluteState parentState, Gravity gravity, Vector3 worldPosition)
+        private OrientationState getAbsoluteOrientation(AbsoluteState parentState, Gravity gravity, Vector3 worldPosition, OWRigidbody target)
         {
+            switch (Position.find(target))
+            {
+                case Position.HeavenlyBodies.SunStation:
+                case Position.HeavenlyBodies.Attlerock:
+                case Position.HeavenlyBodies.Interloper:
+                    var alignment = target.GetComponent<AlignWithTargetBody>();
+                    if (alignment != null)
+                    {
+                        var alignmentAxis = alignment.GetValue<Vector3>("_localAlignmentAxis");
+                        var targetDirection = parentState.position - worldPosition;
+
+                        var rotation = Quaternion.FromToRotation(alignmentAxis, targetDirection);
+                        var velocity = Vector3.zero;
+
+                        return new OrientationState(rotation, velocity, Vector3.zero);
+                    }
+                    break;
+            }
+
             if (orbit != null && orbit.coordinates != null && orbit.coordinates.isOrbit() && gravity != null)
             {
                 var rotation = orbit.rotation; // TODO
@@ -773,7 +791,7 @@ namespace PacificEngine.OW_CommonResources.Game.State
             }
             if (parentState != null && surface != null)
             {
-                var pointRotation = parentState.PointRotation(worldPosition, surface.rotation);
+                var pointRotation = parentState.PointRotation(worldPosition);
                 var rotation = pointRotation * surface.rotation;
                 var velocity = surface.angularVelocity; // TODO
 
@@ -848,8 +866,8 @@ namespace PacificEngine.OW_CommonResources.Game.State
             var relativeAcceleration = target.acceleration - (parentState == null ? offset.acceleration : parentState.acceleration);
             var relativeJerk = target.jerk - (parentState == null ? offset.jerk : parentState.jerk);
             var relativeOrientation = target.rotation;
-            var relaitveAngularVelocity = target.velocity;
-            var relativeAngularAcceleration = target.acceleration;
+            var relaitveAngularVelocity = target.angularVelocity;
+            var relativeAngularAcceleration = target.angularAcceleration;
 
             return new MovementState(targetScale, new PositionState(relativePosition, relativeVelocity, relativeAcceleration, relativeJerk), new OrientationState(relativeOrientation, relaitveAngularVelocity, relativeAngularAcceleration));
         }
@@ -871,10 +889,10 @@ namespace PacificEngine.OW_CommonResources.Game.State
             var surfaceAcceleration = target.acceleration - parentState.GetPointAcceleration(target.position);
             var surfaceJerk = target.jerk - (parentState == null ? Vector3.zero : parentState.jerk);
 
-            var pointRotation = parentState.PointRotation(target.position, target.rotation);
+            var pointRotation = parentState.PointRotation(target.position);
             var surfaceRotation = Quaternion.Inverse(pointRotation) * target.rotation;
-            var surfaceAngularVelocity = Vector3.zero; // TODO
-            var surfaceAngularAcceleration = Vector3.zero; // TODO
+            var surfaceAngularVelocity = target.angularVelocity; // TODO
+            var surfaceAngularAcceleration = target.angularAcceleration; // TODO
 
             return new MovementState(targetScale, new PositionState(surfacePosition, surfaceVelocity, surfaceAcceleration, surfaceJerk), new OrientationState(surfaceRotation, surfaceAngularVelocity, surfaceAngularAcceleration));
         }
