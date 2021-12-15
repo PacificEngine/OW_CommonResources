@@ -86,8 +86,6 @@ namespace PacificEngine.OW_CommonResources.Game.State
 
         private static Dictionary<Position.HeavenlyBodies, Tuple<InitialMotion, Vector3, Vector3, Quaternion, Vector3, GravityVolume>> dict = new Dictionary<Position.HeavenlyBodies, Tuple<InitialMotion, Vector3, Vector3, Quaternion, Vector3, GravityVolume>>();
         private static Dictionary<Position.HeavenlyBodies, Plantoid> _mapping = defaultMapping;
-        private static List<Tuple<OWRigidbody, RelativeState>> _movingItems = new List<Tuple<OWRigidbody, RelativeState>>();
-        private static Dictionary<Position.HeavenlyBodies, AbsoluteState> _newState = new Dictionary<Position.HeavenlyBodies, AbsoluteState>();
         private static bool update = false;
 
 
@@ -219,11 +217,6 @@ namespace PacificEngine.OW_CommonResources.Game.State
                 }
             }
 
-            relocateMovingItems(_movingItems);
-
-            _movingItems.Clear();
-            _newState.Clear();
-
             updateList();
         }
 
@@ -237,14 +230,16 @@ namespace PacificEngine.OW_CommonResources.Game.State
             {
                 update = false;
 
-                _movingItems = trackMovingItems();
+                var newState = new Dictionary<Position.HeavenlyBodies, AbsoluteState>();
+                var movingItems = trackMovingItems();
                 foreach (var body in _mapping.Keys)
                 {
-                    var state = updatePlanet(body, _newState);
+                    var state = updatePlanet(body, newState);
                     if (state != null) {
-                        _newState.Add(body, state);
+                        newState.Add(body, state);
                     }
                 }
+                relocateMovingItems(newState, movingItems);
             }
         }
 
@@ -319,16 +314,25 @@ namespace PacificEngine.OW_CommonResources.Game.State
             return bodies;
         }
 
-        private static void relocateMovingItems(List<Tuple<OWRigidbody, RelativeState>> movingItems)
+        private static void relocateMovingItems(Dictionary<Position.HeavenlyBodies, AbsoluteState> newStates, List<Tuple<OWRigidbody, RelativeState>> movingItems)
         {
-            foreach(var movingItem in movingItems)
+
+            foreach (var movingItem in movingItems)
             {
                 if (movingItem == null || movingItem.Item1 == null || movingItem.Item2 == null)
                 {
                     continue;
                 }
 
-                movingItem.Item2.apply(movingItem.Item1);
+                var parentState = !newStates.ContainsKey(movingItem.Item2.parent)
+                    ? AbsoluteState.fromCurrentState(movingItem.Item2.parent)
+                    : newStates[movingItem.Item2.parent];
+                var parentGravity = Position.getGravity(movingItem.Item2.parent);
+                if (parentState == null || parentGravity == null)
+                {
+                    continue;
+                }
+                movingItem.Item2.apply(movingItem.Item1, parentState, parentGravity);
             }
         }
 
