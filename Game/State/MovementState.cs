@@ -128,7 +128,7 @@ namespace PacificEngine.OW_CommonResources.Game.State
             }
 
             var offset = PositionState.offset;
-            var position = target.GetWorldCenterOfMass() - offset.position;
+            var position = target.GetPosition() - offset.position;//target.GetWorldCenterOfMass() - offset.position;
             var velocity = target.GetVelocity() - offset.velocity;
             var acceleration = target.GetAcceleration() - offset.acceleration;
             var jerk = target.GetJerk() - offset.jerk;
