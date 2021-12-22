@@ -950,14 +950,14 @@ namespace PacificEngine.OW_CommonResources.Game.State
             var targetState = PositionState.fromCurrentState(target);
             if (targetState == null)
             {
-                return fromGlobal(Position.HeavenlyBodies.None, target);
+                return null;
             }
 
             var parent = Position.getClosetInfluence(targetState.position, Position.getBodies(), exclude);
 
             if (parent.Count < 1)
             {
-                return fromGlobal(Position.HeavenlyBodies.None, target);
+                return null;
             }
             return fromGlobal(parent[0].Item1, target);
         }
