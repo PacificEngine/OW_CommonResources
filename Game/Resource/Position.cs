@@ -431,7 +431,7 @@ namespace PacificEngine.OW_CommonResources.Game.Resource
                 var size = getSize(body);
                 if (parentState == null || size == null)
                 {
-                    return false;
+                    return true;
                 }
                 else if ((position - parentState.position).sqrMagnitude < size.influence * size.influence)
                 {

@@ -304,8 +304,6 @@ namespace PacificEngine.OW_CommonResources.Game.State
                     if (parentName.StartsWith("TowerTwin_Body")
                         && (name.StartsWith("TimeLoopRing_Body")))
                     {
-                        // TODO: Handle TimeLoopRing_Body
-                        // StaticRing_Body has no parent
                         var relative = RelativeState.getRelativeMovement(Position.HeavenlyBodies.AshTwin, child);
                         bodies.Add(Tuple.Create(child, RelativeState.fromSurface(Position.HeavenlyBodies.AshTwin, relative)));
                         continue;

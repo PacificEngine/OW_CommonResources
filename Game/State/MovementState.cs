@@ -629,6 +629,10 @@ namespace PacificEngine.OW_CommonResources.Game.State
         public AbsoluteState apply(OWRigidbody body, AbsoluteState parentState, Gravity gravity)
         {
             var state = getAbsoluteState(parentState, gravity, body);
+
+
+            Helper.helper.Console.WriteLine($"{body}: {this} -> {state}");
+
             if (state != null)
             {
                 state.apply(parent, parentState, body);
@@ -860,11 +864,10 @@ namespace PacificEngine.OW_CommonResources.Game.State
                 return null;
             }
 
-            var offset = PositionState.offset;
-            var relativePosition = target.position - (parentState == null ? offset.position : parentState.position);
-            var relativeVelocity = target.velocity - (parentState == null ? offset.velocity : parentState.velocity);
-            var relativeAcceleration = target.acceleration - (parentState == null ? offset.acceleration : parentState.acceleration);
-            var relativeJerk = target.jerk - (parentState == null ? offset.jerk : parentState.jerk);
+            var relativePosition = target.position - (parentState == null ? Vector3.zero : parentState.position);
+            var relativeVelocity = target.velocity - (parentState == null ? Vector3.zero : parentState.velocity);
+            var relativeAcceleration = target.acceleration - (parentState == null ? Vector3.zero : parentState.acceleration);
+            var relativeJerk = target.jerk - (parentState == null ? Vector3.zero : parentState.jerk);
             var relativeOrientation = target.rotation;
             var relativeAngularVelocity = target.angularVelocity;
             var relativeAngularAcceleration = target.angularAcceleration;
@@ -950,15 +953,14 @@ namespace PacificEngine.OW_CommonResources.Game.State
             var targetState = PositionState.fromCurrentState(target);
             if (targetState == null)
             {
-                return null;
+                return fromGlobal(Position.HeavenlyBodies.None, target);
             }
 
-            var includes = (Position.HeavenlyBodies[])Enum.GetValues(typeof(Position.HeavenlyBodies));
-            var parent = Position.getClosetInfluence(targetState.position, includes, exclude);
+            var parent = Position.getClosetInfluence(targetState.position, Position.getBodies(), exclude);
 
             if (parent.Count < 1)
             {
-                return null;
+                return fromGlobal(Position.HeavenlyBodies.None, target);
             }
             return fromGlobal(parent[0].Item1, target);
         }
