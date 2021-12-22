@@ -630,9 +630,6 @@ namespace PacificEngine.OW_CommonResources.Game.State
         {
             var state = getAbsoluteState(parentState, gravity, body);
 
-
-            Helper.helper.Console.WriteLine($"{body}: {this} -> {state}");
-
             if (state != null)
             {
                 state.apply(parent, parentState, body);
