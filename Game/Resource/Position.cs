@@ -226,15 +226,10 @@ namespace PacificEngine.OW_CommonResources.Game.Resource
         {
             if (comparison)
             {
-                var relativeState = RelativeState.fromClosetInfluence(comparison, Position.HeavenlyBodies.Player,
-                    Position.HeavenlyBodies.Probe,
-                    Position.HeavenlyBodies.Ship,
-                    Position.HeavenlyBodies.ModelShip,
-                    Position.HeavenlyBodies.NomaiProbe,
-                    Position.HeavenlyBodies.NomaiBrittleHollowShuttle,
-                    Position.HeavenlyBodies.NomaiEmberTwinShuttle,
-                    Position.HeavenlyBodies.TimberHearthProbe);
-                listValue(id, name, index, relativeState.parent, relativeState?.surface.position ?? Vector3.zero, relativeState?.surface.velocity ?? Vector3.zero);
+                var absoluteState = PositionState.fromCurrentState(comparison);
+                var parent = getClosetInfluence(absoluteState.position, getAstros(), new HeavenlyBodies[0]);
+                var relativeState = RelativeState.getSurfaceMovement(parent[0].Item1, comparison);
+                listValue(id, name, index, parent[0].Item1, relativeState?.position ?? Vector3.zero, relativeState?.velocity ?? Vector3.zero);
             }
             else
             {
@@ -366,6 +361,13 @@ namespace PacificEngine.OW_CommonResources.Game.Resource
             return obj == null || obj?.gameObject == null ? null : obj;
         }
 
+        public static HeavenlyBodies[] getAstros()
+        {
+            var keys = new HeavenlyBodies[astroLookup.Count];
+            astroLookup.Keys.CopyTo(keys, 0);
+            return keys;
+        }
+
         private static OWRigidbody lookupBody(HeavenlyBodies value)
         {
             BodyLookup obj;
@@ -392,11 +394,16 @@ namespace PacificEngine.OW_CommonResources.Game.Resource
             return obj == null || obj?.GetRigidbody() == null || obj?.gameObject == null ? null : obj;
         }
 
-        public static List<Tuple<HeavenlyBodies, float>> getClosest(Vector3 position)
+        public static HeavenlyBodies[] getBodies()
         {
             var keys = new HeavenlyBodies[bodyLookup.Count];
             bodyLookup.Keys.CopyTo(keys, 0);
-            return getClosest(position, keys, new HeavenlyBodies[0]);
+            return keys;
+        }
+
+        public static List<Tuple<HeavenlyBodies, float>> getClosest(Vector3 position)
+        {
+            return getClosest(position, getBodies(), new HeavenlyBodies[0]);
         }
 
         public static List<Tuple<HeavenlyBodies, float>> getClosest(Vector3 position, params HeavenlyBodies[] include)
@@ -404,23 +411,34 @@ namespace PacificEngine.OW_CommonResources.Game.Resource
             return getClosest(position, include, new HeavenlyBodies[0]);
         }
 
-
-        public static List<Tuple<HeavenlyBodies, float>> getClosest(Vector3 position, bool isInclude = true, params HeavenlyBodies[] values)
-        {
-            if (isInclude)
-            {
-                return getClosest(position, values, new HeavenlyBodies[0]);
-            }
-
-            var keys = new HeavenlyBodies[bodyLookup.Count];
-            bodyLookup.Keys.CopyTo(keys, 0);
-            return getClosest(position, keys, values);
-        }
-
         private static List<Tuple<HeavenlyBodies, float>> getClosest(Vector3 position, HeavenlyBodies[] include, HeavenlyBodies[] exclude)
         {
             var excl = new HashSet<HeavenlyBodies>(exclude);
             return getClosest(position, include, (body) => excl.Contains(body));
+        }
+
+        public static List<Tuple<HeavenlyBodies, float>> getClosetInfluence(Vector3 position, HeavenlyBodies[] include, HeavenlyBodies[] exclude)
+        {
+            var excl = new HashSet<HeavenlyBodies>(exclude);
+            return Position.getClosest(position, (body) =>
+            {
+                if (excl.Contains(body))
+                {
+                    return true;
+                }
+
+                var parentState = PositionState.fromCurrentState(body);
+                var size = getSize(body);
+                if (parentState == null || size == null)
+                {
+                    return false;
+                }
+                else if ((position - parentState.position).sqrMagnitude < size.influence * size.influence)
+                {
+                    return false;
+                }
+                return true;
+            }, include);
         }
 
         public static List<Tuple<HeavenlyBodies, float>> getClosest(Vector3 position, Predicate<HeavenlyBodies> shouldExclude, params HeavenlyBodies[] include)

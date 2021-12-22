@@ -954,26 +954,7 @@ namespace PacificEngine.OW_CommonResources.Game.State
             }
 
             var includes = (Position.HeavenlyBodies[])Enum.GetValues(typeof(Position.HeavenlyBodies));
-            var excl = new HashSet<Position.HeavenlyBodies>(exclude);
-            var parent = Position.getClosest(targetState.position, (body) =>
-            {
-                if (excl.Contains(body))
-                {
-                    return true;
-                }
-
-                var parentState = PositionState.fromCurrentState(body);
-                var size = Position.getSize(body);
-                if (parentState == null || size == null)
-                {
-                    return false;
-                }
-                else if ((targetState.position - parentState.position).sqrMagnitude < size.influence * size.influence)
-                {
-                    return false;
-                }
-                return true;
-            }, includes);
+            var parent = Position.getClosetInfluence(targetState.position, includes, exclude);
 
             if (parent.Count < 1)
             {

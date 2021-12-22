@@ -29,6 +29,7 @@ namespace PacificEngine.OW_CommonResources
             WarpPad.Start();
             Data.Start();
             Planet.Start();
+            Tracker.Start();
             ModHelper.Console.WriteLine("Common Resources Mod: Started!");
         }
 
@@ -44,6 +45,7 @@ namespace PacificEngine.OW_CommonResources
             BramblePortals.Destroy();
             WarpPad.Destroy();
             Planet.Destroy();
+            Tracker.Destroy();
             ModHelper.Console.WriteLine("Common Resources Mod: Clean Up!");
         }
 
@@ -58,6 +60,7 @@ namespace PacificEngine.OW_CommonResources
             BramblePortals.Awake();
             WarpPad.Awake();
             Planet.Awake();
+            Tracker.Awake();
             ModHelper.Console.WriteLine("Common Resources Mod: Player Awakes");
         }
 
@@ -84,6 +87,7 @@ namespace PacificEngine.OW_CommonResources
             BramblePortals.Update();
             WarpPad.Update();
             Planet.Update();
+            Tracker.Update();
         }
 
         void FixedUpdate()
@@ -98,6 +102,7 @@ namespace PacificEngine.OW_CommonResources
             BramblePortals.FixedUpdate();
             WarpPad.FixedUpdate();
             Planet.FixedUpdate();
+            Tracker.FixedUpdate();
         }
     }
 }

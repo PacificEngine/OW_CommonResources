@@ -85,6 +85,7 @@
     <Compile Include="Game\Config\InputMapping.cs" />
     <Compile Include="Game\Display\DisplayConsole.cs" />
     <Compile Include="Game\Player\Possession.cs" />
+    <Compile Include="Game\Resource\Tracker.cs" />
     <Compile Include="Game\State\Anglerfish.cs" />
     <Compile Include="CommonResources.cs" />
     <Compile Include="Game\Config\Config.cs" />
