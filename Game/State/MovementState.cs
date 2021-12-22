@@ -99,7 +99,17 @@ namespace PacificEngine.OW_CommonResources.Game.State
 
     public class PositionState
     {
-        public static PositionState offset { get { return new PositionState((Locator.GetCenterOfTheUniverse()?.GetOffsetPosition() ?? Vector3.zero), (Locator.GetCenterOfTheUniverse()?.GetOffsetVelocity() ?? Vector3.zero), Vector3.zero, Vector3.zero); } }
+        public static PositionState offset { get {
+                var position = Vector3.zero;
+                var velocity = Vector3.zero;
+                var acceleration = Vector3.zero;
+                var jerk = Vector3.zero;
+                try
+                {
+                    position = Locator.GetCenterOfTheUniverse().GetOffsetPosition();
+                    velocity = Locator.GetCenterOfTheUniverse().GetOffsetVelocity();
+                } catch (Exception) { }
+                return new PositionState(position, velocity, acceleration, jerk); } }
         public static PositionState identity { get { return new PositionState(Vector3.zero, Vector3.zero, Vector3.zero, Vector3.zero); } }
 
         public Vector3 position { get; }

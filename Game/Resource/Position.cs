@@ -228,6 +228,7 @@ namespace PacificEngine.OW_CommonResources.Game.Resource
             {
                 var absoluteState = PositionState.fromCurrentState(comparison);
                 var parent = getClosetInfluence(absoluteState.position, getAstros(), new HeavenlyBodies[0]);
+
                 var relativeState = RelativeState.getSurfaceMovement(parent[0].Item1, comparison);
                 listValue(id, name, index, parent[0].Item1, relativeState?.position ?? Vector3.zero, relativeState?.velocity ?? Vector3.zero);
             }
@@ -354,11 +355,11 @@ namespace PacificEngine.OW_CommonResources.Game.Resource
         {
             AstroObject obj;
             if (!astros.TryGetValue(body, out obj)
-                || obj == null || obj?.gameObject == null)
+                || obj == null || obj?.gameObject == null || !obj.gameObject.activeSelf)
             {
                 obj = lookupAstro(body);
             }
-            return obj == null || obj?.gameObject == null ? null : obj;
+            return obj == null || obj?.gameObject == null || !obj.gameObject.activeSelf ? null : obj;
         }
 
         public static HeavenlyBodies[] getAstros()
@@ -387,11 +388,11 @@ namespace PacificEngine.OW_CommonResources.Game.Resource
         {
             OWRigidbody obj;
             if (!bodies.TryGetValue(body, out obj)
-                || obj == null || obj?.GetRigidbody() == null || obj?.gameObject == null)
+                || obj == null || obj?.GetRigidbody() == null || obj?.gameObject == null || !obj.gameObject.activeSelf)
             {
                 obj = lookupBody(body);
             }
-            return obj == null || obj?.GetRigidbody() == null || obj?.gameObject == null ? null : obj;
+            return obj == null || obj?.GetRigidbody() == null || obj?.gameObject == null || !obj.gameObject.activeSelf ? null : obj;
         }
 
         public static HeavenlyBodies[] getBodies()
@@ -462,7 +463,7 @@ namespace PacificEngine.OW_CommonResources.Game.Resource
                 }
             }
 
-            if (obj.Count == 0)
+            if (obj.Count < 1)
             {
                 var distance = position.sqrMagnitude;
                 obj.Add(new Tuple<HeavenlyBodies, float>(HeavenlyBodies.None, distance));
