@@ -227,6 +227,7 @@ namespace PacificEngine.OW_CommonResources.Game.State
         private static Dictionary<Position.HeavenlyBodies, Tuple<InitialMotion, Vector3, Vector3, Quaternion, Vector3, GravityVolume>> dict = new Dictionary<Position.HeavenlyBodies, Tuple<InitialMotion, Vector3, Vector3, Quaternion, Vector3, GravityVolume>>();
         private static Dictionary<Position.HeavenlyBodies, Plantoid> _mapping = defaultMapping;
         private static bool update = false;
+        private static bool fixUpdate = false;
 
 
         public static Dictionary<Position.HeavenlyBodies, Plantoid> mapping
@@ -362,6 +363,11 @@ namespace PacificEngine.OW_CommonResources.Game.State
 
         public static void FixedUpdate()
         {
+            if (fixUpdate && Time.timeSinceLevelLoad > 0.01f)
+            {
+                fixUpdate = false;
+                relocateMovingOrbs();
+            }
         }
 
         private static void updateList()
@@ -369,6 +375,7 @@ namespace PacificEngine.OW_CommonResources.Game.State
             if (update && Time.timeSinceLevelLoad > 0.01f)
             {
                 update = false;
+                fixUpdate = true;
 
                 var ignorables = new HashSet<OWRigidbody>();
                 foreach (var body in _mapping.Keys)
@@ -417,7 +424,7 @@ namespace PacificEngine.OW_CommonResources.Game.State
                     ignorables.Add(body.Item1);
             }
 
-            foreach (var child in GameObject.FindObjectsOfType<OWRigidbody>())
+            foreach (var child in Resources.FindObjectsOfTypeAll<OWRigidbody>())
             {
                 var name = child?.gameObject?.name;
                 var parentName = child?.GetOrigParentBody()?.gameObject?.name;
@@ -439,14 +446,6 @@ namespace PacificEngine.OW_CommonResources.Game.State
                     {
                         // TODO: Handle TimeLoopRing_Body
                         // StaticRing_Body has no parent
-                        var relative = RelativeState.getRelativeMovement(Position.HeavenlyBodies.AshTwin, child);
-                        bodies.Add(Tuple.Create(child, RelativeState.fromSurface(Position.HeavenlyBodies.AshTwin, relative)));
-                        continue;
-                    }
-                    if (parentName.StartsWith("TimeLoopRing_Body")
-                        && (name.StartsWith("Prefab_NOM_InterfaceOrb")))
-                    {
-                        // TODO: Figure out why TimeLoop Orb keeps disappearing
                         var relative = RelativeState.getRelativeMovement(Position.HeavenlyBodies.AshTwin, child);
                         bodies.Add(Tuple.Create(child, RelativeState.fromSurface(Position.HeavenlyBodies.AshTwin, relative)));
                         continue;
@@ -480,6 +479,12 @@ namespace PacificEngine.OW_CommonResources.Game.State
                     }
                 }
 
+                if (child.GetComponentInChildren<NomaiInterfaceOrb>(true) != null)
+                {
+                    // Handle Orbs Afterwards
+                    continue;
+                }
+
                 if (!ignorables.Contains(child))
                 {
                     bodies.Add(captureState(child));
@@ -489,9 +494,36 @@ namespace PacificEngine.OW_CommonResources.Game.State
             return bodies;
         }
 
+        private static void relocateMovingOrbs()
+        {
+            foreach (var child in Resources.FindObjectsOfTypeAll<NomaiInterfaceOrb>())
+            {
+                var body = child.GetValue<OWRigidbody>("_orbBody");
+                if (child.GetValue<bool>("_isBeingDragged"))
+                {
+                    body.SetPosition(body.GetOrigParent().TransformPoint(child.GetValue<Vector3>("_localTargetPos")));
+                }
+                else
+                {
+                    var slot = child.GetCurrentSlot();
+                    if (slot != null)
+                    {
+                        body.SetPosition(slot.transform.position);
+                    }
+                    else
+                    {
+                        var slots = child.GetValue<NomaiInterfaceSlot[]>("_slots");
+                        if (slots != null && slots.Length > 0)
+                        {
+                            body.SetPosition(slots[0].transform.position);
+                        }
+                    }
+                }
+            }
+        }
+
         private static void relocateMovingItems(Dictionary<Position.HeavenlyBodies, AbsoluteState> newStates, List<Tuple<OWRigidbody, RelativeState>> movingItems)
         {
-
             foreach (var movingItem in movingItems)
             {
                 if (movingItem == null || movingItem.Item1 == null || movingItem.Item2 == null)
