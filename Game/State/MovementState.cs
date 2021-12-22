@@ -555,10 +555,10 @@ namespace PacificEngine.OW_CommonResources.Game.State
             var a = angularAcceleration;
 
             target.SetRotation(new Quaternion(r.x, r.y, r.z, r.w));
-            target.SetAngularVelocity(new Vector3(a.x, a.y, a.z));
+            target.SetAngularVelocity(new Vector3(v.x, v.y, v.z));
 
-            target.SetValue("_currentAngularVelocity", new Vector3(a.x, a.y, a.z));
-            target.SetValue("_lastAngularVelocity", new Vector3(a.x, a.y, a.z));
+            target.SetValue("_currentAngularVelocity", new Vector3(v.x, v.y, v.z));
+            target.SetValue("_lastAngularVelocity", new Vector3(v.x, v.y, v.z));
         }
 
         private void applyCachedState(Position.HeavenlyBodies parent, AbsoluteState parentState, OWRigidbody target)
@@ -866,10 +866,10 @@ namespace PacificEngine.OW_CommonResources.Game.State
             var relativeAcceleration = target.acceleration - (parentState == null ? offset.acceleration : parentState.acceleration);
             var relativeJerk = target.jerk - (parentState == null ? offset.jerk : parentState.jerk);
             var relativeOrientation = target.rotation;
-            var relaitveAngularVelocity = target.angularVelocity;
+            var relativeAngularVelocity = target.angularVelocity;
             var relativeAngularAcceleration = target.angularAcceleration;
 
-            return new MovementState(targetScale, new PositionState(relativePosition, relativeVelocity, relativeAcceleration, relativeJerk), new OrientationState(relativeOrientation, relaitveAngularVelocity, relativeAngularAcceleration));
+            return new MovementState(targetScale, new PositionState(relativePosition, relativeVelocity, relativeAcceleration, relativeJerk), new OrientationState(relativeOrientation, relativeAngularVelocity, relativeAngularAcceleration));
         }
 
         public static MovementState getSurfaceMovement(Position.HeavenlyBodies parent, OWRigidbody target)
@@ -908,8 +908,14 @@ namespace PacificEngine.OW_CommonResources.Game.State
             {
                 return null;
             }
+            var absolutePosition = target.position;
+            var absoluteVelocity = target.velocity;
 
-            return new KeplerState(targetScale, Position.getKepler(parentState, parentGravity, target.position, target.velocity), new OrientationState(target.rotation, target.angularVelocity, target.angularAcceleration));
+            var keplerOrientation = target.rotation;
+            var keplerAngularVelocity = target.angularVelocity;
+            var keplerAngularAcceleration = target.angularAcceleration;
+
+            return new KeplerState(targetScale, Position.getKepler(parentState, parentGravity, absolutePosition, absoluteVelocity), new OrientationState(keplerOrientation, keplerAngularVelocity, keplerAngularAcceleration));
         }
 
         public static RelativeState fromRelative(Position.HeavenlyBodies parent, MovementState relative)
