@@ -494,29 +494,7 @@ namespace PacificEngine.OW_CommonResources.Game.State
 
         private static void updatePlanetParent(Position.HeavenlyBodies parent, OWRigidbody owBody)
         {
-
-            var owParent = Position.getBody(parent);
-            if (owParent != null)
-            {
-                if (owParent.transform != null)
-                {
-                    if (owBody?.transform != null)
-                    {
-                        owBody.transform.parent = owParent.transform;
-                    }
-                    owBody.SetValue("_origParent", owParent.transform);
-                    owBody.SetValue("_origParentBody", owParent);
-                }
-            }
-            else if (parent == Position.HeavenlyBodies.None)
-            {
-                if (owBody?.transform != null)
-                {
-                    owBody.transform.parent = null;
-                }
-                owBody.SetValue("_origParent", null);
-                owBody.SetValue("_origParentBody", null);
-            }
+            // TODO: Allow different gravity parent
         }
 
         private static AbsoluteState updatePlanetPosition(AbsoluteState parentState, Gravity gravity, RelativeState relativeState, OWRigidbody owBody)
