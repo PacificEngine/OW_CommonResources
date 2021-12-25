@@ -56,6 +56,7 @@ namespace PacificEngine.OW_CommonResources
             Fog.Awake();
             Anglerfish.Awake();
             Inhabitants.Awake();
+            Items.Awake();
             EyeCoordinates.Awake();
             BramblePortals.Awake();
             WarpPad.Awake();
