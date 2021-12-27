@@ -274,7 +274,6 @@ namespace PacificEngine.OW_CommonResources.Game.State
             }
             bodies.Add(captureState(Position.getBody(Position.HeavenlyBodies.Ship)));
             bodies.Add(captureState(Position.getBody(Position.HeavenlyBodies.Probe)));
-            bodies.Add(captureState(Position.getBody(Position.HeavenlyBodies.ModelShip)));
             bodies.Add(captureState(Position.getBody(Position.HeavenlyBodies.NomaiProbe)));
             bodies.Add(captureState(Position.getBody(Position.HeavenlyBodies.NomaiEmberTwinShuttle)));
             bodies.Add(captureState(Position.getBody(Position.HeavenlyBodies.NomaiBrittleHollowShuttle)));
@@ -283,6 +282,7 @@ namespace PacificEngine.OW_CommonResources.Game.State
                 if (body?.Item1 != null)
                     ignorables.Add(body.Item1);
             }
+            ignorables.Add(Position.getBody(Position.HeavenlyBodies.ModelShip));
 
             foreach (var child in GameObject.FindObjectsOfType<OWRigidbody>())
             {
