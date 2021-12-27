@@ -14,7 +14,7 @@ namespace PacificEngine.OW_CommonResources.Game.Player
     {
         public static void teleportPlayerToSun()
         {
-            var parent = Position.getBody(Position.HeavenlyBodies.Sun);
+            var parent = Position.getBody(HeavenlyBodies.Sun);
             if (Locator.GetPlayerBody() && parent)
             {
                 ignoreSand(false);
@@ -24,7 +24,7 @@ namespace PacificEngine.OW_CommonResources.Game.Player
 
         public static void teleportPlayerToSunStation()
         {
-            var parent = Position.getBody(Position.HeavenlyBodies.SunStation);
+            var parent = Position.getBody(HeavenlyBodies.SunStation);
             if (Locator.GetPlayerBody() && parent)
             {
                 ignoreSand(false);
@@ -34,7 +34,7 @@ namespace PacificEngine.OW_CommonResources.Game.Player
 
         public static void teleportPlayerToEmberTwin()
         {
-            var parent = Position.getBody(Position.HeavenlyBodies.EmberTwin);
+            var parent = Position.getBody(HeavenlyBodies.EmberTwin);
             if (Locator.GetPlayerBody() && parent)
             {
                 ignoreSand(false);
@@ -44,7 +44,7 @@ namespace PacificEngine.OW_CommonResources.Game.Player
 
         public static void teleportPlayerToAshTwin()
         {
-            var parent = Position.getBody(Position.HeavenlyBodies.AshTwin);
+            var parent = Position.getBody(HeavenlyBodies.AshTwin);
             if (Locator.GetPlayerBody() && parent)
             {
                 ignoreSand(false);
@@ -54,7 +54,7 @@ namespace PacificEngine.OW_CommonResources.Game.Player
 
         public static void teleportPlayerToAshTwinProject()
         {
-            var planet = Position.getBody(Position.HeavenlyBodies.AshTwin);
+            var planet = Position.getBody(HeavenlyBodies.AshTwin);
             if (Locator.GetPlayerBody() && planet)
             {
                 var platform = Locator.GetWarpReceiver(NomaiWarpPlatform.Frequency.TimeLoop).GetPlatformCenter();
@@ -77,7 +77,7 @@ namespace PacificEngine.OW_CommonResources.Game.Player
 
         public static void teleportPlayerToTimberHearth()
         {
-            var parent = Position.getBody(Position.HeavenlyBodies.TimberHearth);
+            var parent = Position.getBody(HeavenlyBodies.TimberHearth);
             if (Locator.GetPlayerBody() && parent)
             {
                 ignoreSand(false);
@@ -87,7 +87,7 @@ namespace PacificEngine.OW_CommonResources.Game.Player
 
         public static void teleportPlayerToTimberHearthProbe()
         {
-            var parent = Position.getBody(Position.HeavenlyBodies.TimberHearthProbe);
+            var parent = Position.getBody(HeavenlyBodies.TimberHearthProbe);
             if (Locator.GetPlayerBody() && parent)
             {
                 ignoreSand(false);
@@ -105,7 +105,7 @@ namespace PacificEngine.OW_CommonResources.Game.Player
 
         public static void teleportPlayerToAttlerock()
         {
-            var parent = Position.getBody(Position.HeavenlyBodies.Attlerock);
+            var parent = Position.getBody(HeavenlyBodies.Attlerock);
             if (Locator.GetPlayerBody() && parent)
             {
                 ignoreSand(false);
@@ -115,7 +115,7 @@ namespace PacificEngine.OW_CommonResources.Game.Player
 
         public static void teleportPlayerToBlackHoleForgeTeleporter()
         {
-            var planet = Position.getBody(Position.HeavenlyBodies.BrittleHollow);
+            var planet = Position.getBody(HeavenlyBodies.BrittleHollow);
             if (Locator.GetPlayerBody() && planet)
             {
                 var platform = Locator.GetWarpReceiver(NomaiWarpPlatform.Frequency.BrittleHollowForge).GetPlatformCenter();
@@ -126,7 +126,7 @@ namespace PacificEngine.OW_CommonResources.Game.Player
 
         public static void teleportPlayerToHollowLattern()
         {
-            var parent = Position.getBody(Position.HeavenlyBodies.HollowLantern);
+            var parent = Position.getBody(HeavenlyBodies.HollowLantern);
             if (Locator.GetPlayerBody() && parent)
             {
                 ignoreSand(false);
@@ -143,7 +143,7 @@ namespace PacificEngine.OW_CommonResources.Game.Player
 
         public static void teleportPlayerToGiantsDeep()
         {
-            var parent = Position.getBody(Position.HeavenlyBodies.GiantsDeep);
+            var parent = Position.getBody(HeavenlyBodies.GiantsDeep);
             if (Locator.GetPlayerBody() && parent)
             {
                 ignoreSand(false);
@@ -160,7 +160,7 @@ namespace PacificEngine.OW_CommonResources.Game.Player
 
         public static void teleportPlayerToProbeCannon()
         {
-            var parent = Position.getBody(Position.HeavenlyBodies.ProbeCannon);
+            var parent = Position.getBody(HeavenlyBodies.ProbeCannon);
             if (Locator.GetPlayerBody() && parent)
             {
                 ignoreSand(false);
@@ -170,7 +170,7 @@ namespace PacificEngine.OW_CommonResources.Game.Player
 
         public static void teleportPlayerToProbeCannonCommandModule()
         {
-            var parent = Position.getBody(Position.HeavenlyBodies.GiantsDeep);
+            var parent = Position.getBody(HeavenlyBodies.GiantsDeep);
             if (Locator.GetPlayerBody() && parent)
             {
                 ignoreSand(false);
@@ -181,7 +181,7 @@ namespace PacificEngine.OW_CommonResources.Game.Player
 
         public static void teleportPlayerToDarkBramble()
         {
-            var parent = Position.getBody(Position.HeavenlyBodies.DarkBramble);
+            var parent = Position.getBody(HeavenlyBodies.DarkBramble);
             if (Locator.GetPlayerBody())
             {
                 ignoreSand(false);
@@ -191,7 +191,7 @@ namespace PacificEngine.OW_CommonResources.Game.Player
 
         public static void teleportPlayerToVessel()
         {
-            var parent = Position.getBody(Position.HeavenlyBodies.InnerDarkBramble_Vessel);
+            var parent = Position.getBody(HeavenlyBodies.InnerDarkBramble_Vessel);
             if (Locator.GetPlayerBody() && parent)
             {
                 ignoreSand(false);
@@ -228,7 +228,7 @@ namespace PacificEngine.OW_CommonResources.Game.Player
 
         public static void teleportPlayerToNomaiProbe()
         {
-            var parent = Position.getBody(Position.HeavenlyBodies.NomaiProbe);
+            var parent = Position.getBody(HeavenlyBodies.NomaiProbe);
             if (Locator.GetPlayerBody() && parent)
             {
                 ignoreSand(false);
@@ -247,7 +247,7 @@ namespace PacificEngine.OW_CommonResources.Game.Player
 
         public static void teleportPlayerToInterloper()
         {
-            var parent = Position.getBody(Position.HeavenlyBodies.Interloper);
+            var parent = Position.getBody(HeavenlyBodies.Interloper);
             if (Locator.GetPlayerBody() && parent)
             {
                 ignoreSand(false);
@@ -257,7 +257,7 @@ namespace PacificEngine.OW_CommonResources.Game.Player
 
         public static void teleportPlayerToWhiteHole()
         {
-            var parent = Position.getBody(Position.HeavenlyBodies.WhiteHole);
+            var parent = Position.getBody(HeavenlyBodies.WhiteHole);
             if (Locator.GetPlayerBody() && parent)
             {
                 ignoreSand(false);
@@ -267,7 +267,7 @@ namespace PacificEngine.OW_CommonResources.Game.Player
 
         public static void teleportPlayerToMappingSatellite()
         {
-            var parent = Position.getBody(Position.HeavenlyBodies.MapSatilite);
+            var parent = Position.getBody(HeavenlyBodies.SatiliteMapping);
             if (Locator.GetPlayerBody() && parent)
             {
                 ignoreSand(false);
@@ -277,7 +277,7 @@ namespace PacificEngine.OW_CommonResources.Game.Player
 
         public static void teleportPlayerToBackerSatellite()
         {
-            var parent = Position.getBody(Position.HeavenlyBodies.BackerSatilite);
+            var parent = Position.getBody(HeavenlyBodies.SatiliteBacker);
             if (Locator.GetPlayerBody() && parent)
             {
                 ignoreSand(false);
@@ -287,7 +287,7 @@ namespace PacificEngine.OW_CommonResources.Game.Player
 
         public static void teleportPlayerToWhiteHoleStation()
         {
-            var parent = Position.getBody(Position.HeavenlyBodies.WhiteHoleStation);
+            var parent = Position.getBody(HeavenlyBodies.WhiteHoleStation);
             if (Locator.GetPlayerBody() && parent)
             {
                 ignoreSand(false);
@@ -297,7 +297,7 @@ namespace PacificEngine.OW_CommonResources.Game.Player
 
         public static void teleportPlayerToStranger()
         {
-            var parent = Position.getBody(Position.HeavenlyBodies.Stranger);
+            var parent = Position.getBody(HeavenlyBodies.Stranger);
             if (Locator.GetPlayerBody() && parent)
             {
                 ignoreSand(false);
@@ -307,7 +307,7 @@ namespace PacificEngine.OW_CommonResources.Game.Player
 
         public static void teleportPlayerToDreamWorld()
         {
-            var parent = Position.getBody(Position.HeavenlyBodies.DreamWorld);
+            var parent = Position.getBody(HeavenlyBodies.DreamWorld);
             if (Locator.GetPlayerBody() && parent)
             {
                 ignoreSand(false);
@@ -317,7 +317,7 @@ namespace PacificEngine.OW_CommonResources.Game.Player
 
         public static void teleportPlayerToQuantumMoon()
         {
-            var parent = Position.getBody(Position.HeavenlyBodies.QuantumMoon);
+            var parent = Position.getBody(HeavenlyBodies.QuantumMoon);
             if (Locator.GetPlayerBody() && parent)
             {
                 ignoreSand(false);

@@ -85,6 +85,8 @@
     <Compile Include="Game\Config\InputMapping.cs" />
     <Compile Include="Game\Display\DisplayConsole.cs" />
     <Compile Include="Game\Player\Possession.cs" />
+    <Compile Include="Game\Resource\HeavenlyBody.cs" />
+    <Compile Include="Game\Resource\Standard.cs" />
     <Compile Include="Game\Resource\Tracker.cs" />
     <Compile Include="Game\State\Anglerfish.cs" />
     <Compile Include="CommonResources.cs" />
@@ -146,4 +148,9 @@
       rmdir /Q /S "$(ProjectDir)$(ProjectName)"
     </PostBuildEvent>
   </PropertyGroup>
+  <ProjectExtensions>
+    <VisualStudio>
+      <UserProperties manifest_1json__JsonSchema="https://json.schemastore.org/circleciconfig.json" />
+    </VisualStudio>
+  </ProjectExtensions>
 </Project>

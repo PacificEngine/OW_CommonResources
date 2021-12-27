@@ -17,28 +17,28 @@ namespace PacificEngine.OW_CommonResources.Game.State
         private static float _lastUpdate = 0f;
         private static List<string> debugIds = new List<string>();
 
-        public delegate void PadWarpEvent(OWRigidbody warpObject, Tuple<Position.HeavenlyBodies, int> sender, Tuple<Position.HeavenlyBodies, int> reciever);
+        public delegate void PadWarpEvent(OWRigidbody warpObject, Tuple<HeavenlyBody, int> sender, Tuple<HeavenlyBody, int> reciever);
 
         private static bool requireUpdate = false;
         private static List<NomaiWarpPlatform> unprocessedPortals = new List<NomaiWarpPlatform>();
-        private static Dictionary<Position.HeavenlyBodies, List<Tuple<NomaiWarpPlatform, float>>> _portals = new Dictionary<Position.HeavenlyBodies, List<Tuple<NomaiWarpPlatform, float>>>();
-        private static Dictionary<Tuple<Position.HeavenlyBodies, int>, Tuple<Position.HeavenlyBodies, int>> _mapping = defaultMapping;
+        private static Dictionary<HeavenlyBody, List<Tuple<NomaiWarpPlatform, float>>> _portals = new Dictionary<HeavenlyBody, List<Tuple<NomaiWarpPlatform, float>>>();
+        private static Dictionary<Tuple<HeavenlyBody, int>, Tuple<HeavenlyBody, int>> _mapping = defaultMapping;
 
-        public static List<Position.HeavenlyBodies> bodies
+        public static List<HeavenlyBody> bodies
         {
             get
             {
                 updateLists();
-                return new List<Position.HeavenlyBodies>(_portals.Keys);
+                return new List<HeavenlyBody>(_portals.Keys);
             }
         }
 
-        public static List<Tuple<Position.HeavenlyBodies, NomaiWarpPlatform>> portals
+        public static List<Tuple<HeavenlyBody, NomaiWarpPlatform>> portals
         {
             get
             {
                 updateLists();
-                var obj = new List<Tuple<Position.HeavenlyBodies, NomaiWarpPlatform>>();
+                var obj = new List<Tuple<HeavenlyBody, NomaiWarpPlatform>>();
                 foreach (var key in _portals.Keys)
                 {
                     obj.AddRange(_portals[key].ConvertAll(x => Tuple.Create(key, x.Item1)));
@@ -47,7 +47,7 @@ namespace PacificEngine.OW_CommonResources.Game.State
             }
         }
 
-        public static List<Tuple<Position.HeavenlyBodies, NomaiWarpTransmitter>> senderPortals
+        public static List<Tuple<HeavenlyBody, NomaiWarpTransmitter>> senderPortals
         {
             get
             {
@@ -55,7 +55,7 @@ namespace PacificEngine.OW_CommonResources.Game.State
             }
         }
 
-        public static List<Tuple<Position.HeavenlyBodies, NomaiWarpReceiver>> recieverPortals
+        public static List<Tuple<HeavenlyBody, NomaiWarpReceiver>> recieverPortals
         {
             get
             {
@@ -63,7 +63,7 @@ namespace PacificEngine.OW_CommonResources.Game.State
             }
         }
 
-        public static Dictionary<Tuple<Position.HeavenlyBodies, int>, Tuple<Position.HeavenlyBodies, int>> mapping
+        public static Dictionary<Tuple<HeavenlyBody, int>, Tuple<HeavenlyBody, int>> mapping
         {
             get
             {
@@ -74,7 +74,7 @@ namespace PacificEngine.OW_CommonResources.Game.State
                 }
 
                 updateLists();
-                var mapping = new Dictionary<Tuple<Position.HeavenlyBodies, int>, Tuple<Position.HeavenlyBodies, int>>();
+                var mapping = new Dictionary<Tuple<HeavenlyBody, int>, Tuple<HeavenlyBody, int>>();
                 foreach(var portal in allPortals)
                 {
                     var index = findIndex(portal.Item2, portal.Item1);
@@ -97,7 +97,7 @@ namespace PacificEngine.OW_CommonResources.Game.State
                             }
                             else
                             {
-                                Tuple<Position.HeavenlyBodies, int> target;
+                                Tuple<HeavenlyBody, int> target;
                                 if (_mapping.TryGetValue(Tuple.Create(portal.Item1, index.Value), out target))
                                 {
                                     mapping[Tuple.Create(portal.Item1, index.Value)] = target;
@@ -117,18 +117,18 @@ namespace PacificEngine.OW_CommonResources.Game.State
             }
         }
 
-        public static Dictionary<Tuple<Position.HeavenlyBodies, int>, Tuple<Position.HeavenlyBodies, int>> defaultMapping
+        public static Dictionary<Tuple<HeavenlyBody, int>, Tuple<HeavenlyBody, int>> defaultMapping
         {
             get
             {
-                var mapping = new Dictionary<Tuple<Position.HeavenlyBodies, int>, Tuple<Position.HeavenlyBodies, int>>();
-                mapping.Add(Tuple.Create(Position.HeavenlyBodies.AshTwin, 0), Tuple.Create(Position.HeavenlyBodies.GiantsDeep, -1));
-                mapping.Add(Tuple.Create(Position.HeavenlyBodies.AshTwin, 1), Tuple.Create(Position.HeavenlyBodies.BrittleHollow, -1));
-                mapping.Add(Tuple.Create(Position.HeavenlyBodies.AshTwin, 2), Tuple.Create(Position.HeavenlyBodies.TimberHearth, -1));
-                mapping.Add(Tuple.Create(Position.HeavenlyBodies.AshTwin, 3), Tuple.Create(Position.HeavenlyBodies.EmberTwin, -1));
-                mapping.Add(Tuple.Create(Position.HeavenlyBodies.AshTwin, 4), Tuple.Create(Position.HeavenlyBodies.AshTwin, -1));
-                mapping.Add(Tuple.Create(Position.HeavenlyBodies.AshTwin, 5), Tuple.Create(Position.HeavenlyBodies.SunStation, -1));
-                mapping.Add(Tuple.Create(Position.HeavenlyBodies.WhiteHoleStation, 0), Tuple.Create(Position.HeavenlyBodies.BrittleHollow, -2));
+                var mapping = new Dictionary<Tuple<HeavenlyBody, int>, Tuple<HeavenlyBody, int>>();
+                mapping.Add(Tuple.Create(HeavenlyBodies.AshTwin, 0), Tuple.Create(HeavenlyBodies.GiantsDeep, -1));
+                mapping.Add(Tuple.Create(HeavenlyBodies.AshTwin, 1), Tuple.Create(HeavenlyBodies.BrittleHollow, -1));
+                mapping.Add(Tuple.Create(HeavenlyBodies.AshTwin, 2), Tuple.Create(HeavenlyBodies.TimberHearth, -1));
+                mapping.Add(Tuple.Create(HeavenlyBodies.AshTwin, 3), Tuple.Create(HeavenlyBodies.EmberTwin, -1));
+                mapping.Add(Tuple.Create(HeavenlyBodies.AshTwin, 4), Tuple.Create(HeavenlyBodies.AshTwin, -1));
+                mapping.Add(Tuple.Create(HeavenlyBodies.AshTwin, 5), Tuple.Create(HeavenlyBodies.SunStation, -1));
+                mapping.Add(Tuple.Create(HeavenlyBodies.WhiteHoleStation, 0), Tuple.Create(HeavenlyBodies.BrittleHollow, -2));
 
                 return mapping;
             }
@@ -142,16 +142,16 @@ namespace PacificEngine.OW_CommonResources.Game.State
             requireUpdate = false;
 
             _portals.Clear();
-            _portals[Position.HeavenlyBodies.SunStation] = new List<Tuple<NomaiWarpPlatform, float>>();
-            _portals[Position.HeavenlyBodies.AshTwin] = new List<Tuple<NomaiWarpPlatform, float>>();
-            _portals[Position.HeavenlyBodies.EmberTwin] = new List<Tuple<NomaiWarpPlatform, float>>();
-            _portals[Position.HeavenlyBodies.TimberHearth] = new List<Tuple<NomaiWarpPlatform, float>>();
-            _portals[Position.HeavenlyBodies.BrittleHollow] = new List<Tuple<NomaiWarpPlatform, float>>();
-            _portals[Position.HeavenlyBodies.GiantsDeep] = new List<Tuple<NomaiWarpPlatform, float>>();
-            _portals[Position.HeavenlyBodies.WhiteHoleStation] = new List<Tuple<NomaiWarpPlatform, float>>();
-            _portals[Position.HeavenlyBodies.InnerDarkBramble_Vessel] = new List<Tuple<NomaiWarpPlatform, float>>();
-            _portals[Position.HeavenlyBodies.EyeOfTheUniverse] = new List<Tuple<NomaiWarpPlatform, float>>();
-            _portals[Position.HeavenlyBodies.EyeOfTheUniverse_Vessel] = new List<Tuple<NomaiWarpPlatform, float>>();
+            _portals[HeavenlyBodies.SunStation] = new List<Tuple<NomaiWarpPlatform, float>>();
+            _portals[HeavenlyBodies.AshTwin] = new List<Tuple<NomaiWarpPlatform, float>>();
+            _portals[HeavenlyBodies.EmberTwin] = new List<Tuple<NomaiWarpPlatform, float>>();
+            _portals[HeavenlyBodies.TimberHearth] = new List<Tuple<NomaiWarpPlatform, float>>();
+            _portals[HeavenlyBodies.BrittleHollow] = new List<Tuple<NomaiWarpPlatform, float>>();
+            _portals[HeavenlyBodies.GiantsDeep] = new List<Tuple<NomaiWarpPlatform, float>>();
+            _portals[HeavenlyBodies.WhiteHoleStation] = new List<Tuple<NomaiWarpPlatform, float>>();
+            _portals[HeavenlyBodies.InnerDarkBramble_Vessel] = new List<Tuple<NomaiWarpPlatform, float>>();
+            _portals[HeavenlyBodies.EyeOfTheUniverse] = new List<Tuple<NomaiWarpPlatform, float>>();
+            _portals[HeavenlyBodies.EyeOfTheUniverse_Vessel] = new List<Tuple<NomaiWarpPlatform, float>>();
         }
 
         public static void Start()
@@ -232,9 +232,9 @@ namespace PacificEngine.OW_CommonResources.Game.State
             return id;
         }
 
-        private static string getString(Tuple<Position.HeavenlyBodies, int> sender, ref Dictionary<Tuple<Position.HeavenlyBodies, int>, Tuple<Position.HeavenlyBodies, int>> map)
+        private static string getString(Tuple<HeavenlyBody, int> sender, ref Dictionary<Tuple<HeavenlyBody, int>, Tuple<HeavenlyBody, int>> map)
         {
-            Tuple<Position.HeavenlyBodies, int> reciever;
+            Tuple<HeavenlyBody, int> reciever;
             if (map.TryGetValue(sender, out reciever))
             {
                 if (reciever != null)
@@ -252,19 +252,20 @@ namespace PacificEngine.OW_CommonResources.Game.State
             }
         }
 
-        public static Tuple<Position.HeavenlyBodies, int> find(NomaiWarpPlatform volume)
+        public static Tuple<HeavenlyBody, int> find(NomaiWarpPlatform volume)
         {
-            Position.HeavenlyBodies? body = findBody(volume);
-            if (!body.HasValue)
+            var body = findBody(volume);
+            if (body == null
+                || body == HeavenlyBodies.None)
                 return null;
 
-            int? index = findIndex(volume, body.Value);
+            int? index = findIndex(volume, body);
             if (!index.HasValue)
                 return null;
-            return Tuple.Create(body.Value, index.Value);
+            return Tuple.Create(body, index.Value);
         }
 
-        public static NomaiWarpPlatform getPlatform(Position.HeavenlyBodies body, int index)
+        public static NomaiWarpPlatform getPlatform(HeavenlyBody body, int index)
         {
             List<Tuple<NomaiWarpPlatform, float>> platform;
             if (_portals.TryGetValue(body, out platform))
@@ -283,7 +284,7 @@ namespace PacificEngine.OW_CommonResources.Game.State
             return null;
         }
 
-        private static Position.HeavenlyBodies? findBody(NomaiWarpPlatform volume)
+        private static HeavenlyBody findBody(NomaiWarpPlatform volume)
         {
             var state = PositionState.fromCurrentState(volume?.GetAttachedOWRigidbody());
             if (state == null)
@@ -291,7 +292,7 @@ namespace PacificEngine.OW_CommonResources.Game.State
             return getClosest(state.position).Item1;
         }
 
-        private static int? findIndex(NomaiWarpPlatform volume, Position.HeavenlyBodies body)
+        private static int? findIndex(NomaiWarpPlatform volume, HeavenlyBody body)
         {
             var index = portals.FindAll(x => x.Item1 == body && (volume is NomaiWarpReceiver == x.Item2 is NomaiWarpReceiver)).FindIndex(x => x.Item2 == volume);
             if (index < 0)
@@ -301,7 +302,7 @@ namespace PacificEngine.OW_CommonResources.Game.State
             return volume is NomaiWarpReceiver ? ((-1 * index) - 1) : index;
         }
 
-        public static void remapPad(Tuple<Position.HeavenlyBodies, int> sender, Tuple<Position.HeavenlyBodies, int> reciever)
+        public static void remapPad(Tuple<HeavenlyBody, int> sender, Tuple<HeavenlyBody, int> reciever)
         {
             _remapPad(sender, reciever);
             if (sender != null)
@@ -315,7 +316,7 @@ namespace PacificEngine.OW_CommonResources.Game.State
             }
         }
 
-        private static void _remapPad(Tuple<Position.HeavenlyBodies, int> sender, Tuple<Position.HeavenlyBodies, int> reciever)
+        private static void _remapPad(Tuple<HeavenlyBody, int> sender, Tuple<HeavenlyBody, int> reciever)
         {
             var senderPlatform = sender == null ? null : getPlatform(sender.Item1, sender.Item2);
             var recieverPlatform = reciever == null ? null : getPlatform(reciever.Item1, reciever.Item2);
@@ -360,7 +361,7 @@ namespace PacificEngine.OW_CommonResources.Game.State
                 {
                     if (volume != null && volume?.gameObject != null)
                     {
-                        Tuple<Position.HeavenlyBodies, float> parent;
+                        Tuple<HeavenlyBody, float> parent;
                         var state = PositionState.fromCurrentState(volume.gameObject);
                         parent = getClosest(state.position);
                         if (!_portals.ContainsKey(parent.Item1))
@@ -373,7 +374,7 @@ namespace PacificEngine.OW_CommonResources.Game.State
                 }
                 unprocessedPortals.Clear();
 
-                foreach (Position.HeavenlyBodies key in _portals.Keys)
+                foreach (HeavenlyBody key in _portals.Keys)
                 {
                     var volumes = _portals[key];
                     volumes.RemoveAll(v => v?.Item1 == null || v?.Item1?.gameObject == null);
@@ -385,9 +386,9 @@ namespace PacificEngine.OW_CommonResources.Game.State
             }
         }
 
-        private static Tuple<Position.HeavenlyBodies, float> getClosest(Vector3 position)
+        private static Tuple<HeavenlyBody, float> getClosest(Vector3 position)
         {
-            var keys = new Position.HeavenlyBodies[_portals.Count];
+            var keys = new HeavenlyBody[_portals.Count];
             _portals.Keys.CopyTo(keys, 0);
             return Position.getClosest(position, keys)[0];
         }
@@ -401,7 +402,7 @@ namespace PacificEngine.OW_CommonResources.Game.State
                 if (index.HasValue)
                 {
                     var sender = Tuple.Create(portal.Item1, index.Value);
-                    Tuple<Position.HeavenlyBodies, int> linked;
+                    Tuple<HeavenlyBody, int> linked;
                     if (map.TryGetValue(sender, out linked))
                     {
                         _remapPad(sender, linked);
@@ -426,7 +427,7 @@ namespace PacificEngine.OW_CommonResources.Game.State
 
             if (__instance.GetValue<NomaiWarpReceiver>("_targetReceiver") == null)
             {
-                Tuple<Position.HeavenlyBodies, int> target;
+                Tuple<HeavenlyBody, int> target;
                 if (_mapping.TryGetValue(sender, out target))
                 {
                     var targetPlatform = getPlatform(target.Item1, target.Item2);
@@ -439,7 +440,7 @@ namespace PacificEngine.OW_CommonResources.Game.State
                         }
                         else
                         {
-                            alignmentTarget = (targetPlatform.GetAttachedOWRigidbody() == __instance.GetAttachedOWRigidbody() ? Position.getBody(Position.HeavenlyBodies.EmberTwin) : targetPlatform.GetAttachedOWRigidbody()).transform;
+                            alignmentTarget = (targetPlatform.GetAttachedOWRigidbody() == __instance.GetAttachedOWRigidbody() ? Position.getBody(HeavenlyBodies.EmberTwin) : targetPlatform.GetAttachedOWRigidbody()).transform;
                         }
                         var angle = Vector3.Angle(alignmentTarget.position - __instance.transform.position, __instance.GetValue<bool>("_upsideDown") ? (-1f * __instance.transform.up) : __instance.transform.up);
                         if (__instance.GetValue<List<OWRigidbody>>("_objectsOnPlatform").Count <= 0 || __instance.IsBlackHoleOpen() || angle > 0.5f * (TimeLoop.GetSecondsRemaining() < 30.0f ? 5.0f : (double)__instance.GetValue<float>("_alignmentWindow")))
@@ -465,7 +466,7 @@ namespace PacificEngine.OW_CommonResources.Game.State
         private static void onNomaiWarpReceiverReceiveWarpedBody(ref NomaiWarpReceiver __instance)
         {
             var linked = find(__instance);
-            Tuple<Position.HeavenlyBodies, int> original;
+            Tuple<HeavenlyBody, int> original;
             if (_mapping.TryGetValue(linked, out original))
             {
                 var originalPlatform = original == null ? null : getPlatform(original.Item1, original.Item2);
@@ -479,7 +480,7 @@ namespace PacificEngine.OW_CommonResources.Game.State
         private static void onNomaiWarpReceiverOnEntry(ref NomaiWarpReceiver __instance)
         {
             var linked = find(__instance);
-            Tuple<Position.HeavenlyBodies, int> original;
+            Tuple<HeavenlyBody, int> original;
             if (_mapping.TryGetValue(linked, out original))
             {
                 var originalPlatform = original == null ? null : getPlatform(original.Item1, original.Item2);
@@ -490,7 +491,7 @@ namespace PacificEngine.OW_CommonResources.Game.State
             }
         }
 
-        private static void onWarp(NomaiWarpPlatform caller, Position.HeavenlyBodies parentBody, OWRigidbody warpedBody, NomaiWarpPlatform startPlatform, NomaiWarpPlatform targetPlatform)
+        private static void onWarp(NomaiWarpPlatform caller, HeavenlyBody parentBody, OWRigidbody warpedBody, NomaiWarpPlatform startPlatform, NomaiWarpPlatform targetPlatform)
         {
             if (caller == startPlatform)
             {
@@ -512,7 +513,7 @@ namespace PacificEngine.OW_CommonResources.Game.State
             if (targetPlatform is NomaiWarpReceiver)
             {
                 var linked = find(targetPlatform);
-                Tuple<Position.HeavenlyBodies, int> original;
+                Tuple<HeavenlyBody, int> original;
                 if (_mapping.TryGetValue(linked, out original))
                 {
                     var originalPlatform = original == null ? null : getPlatform(original.Item1, original.Item2);

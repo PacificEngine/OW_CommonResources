@@ -24,7 +24,7 @@ namespace PacificEngine.OW_CommonResources.Game.State
             this.localScale = localScale;
         }
 
-        public static ScaleState fromCurrentState(Position.HeavenlyBodies target)
+        public static ScaleState fromCurrentState(HeavenlyBody target)
         {
             return fromCurrentState(Position.getBody(target));
         }
@@ -125,7 +125,7 @@ namespace PacificEngine.OW_CommonResources.Game.State
             this.jerk = jerk;
         }
 
-        public static PositionState fromCurrentState(Position.HeavenlyBodies target)
+        public static PositionState fromCurrentState(HeavenlyBody target)
         {
             return fromCurrentState(Position.getBody(target));
         }
@@ -235,7 +235,7 @@ namespace PacificEngine.OW_CommonResources.Game.State
             this.angularAcceleration = angularAcceleration;
         }
 
-        public static OrientationState fromCurrentState(Position.HeavenlyBodies target)
+        public static OrientationState fromCurrentState(HeavenlyBody target)
         {
             return fromCurrentState(Position.getBody(target));
         }
@@ -417,7 +417,7 @@ namespace PacificEngine.OW_CommonResources.Game.State
         {
         }
 
-        public static AbsoluteState fromCurrentState(Position.HeavenlyBodies target)
+        public static AbsoluteState fromCurrentState(HeavenlyBody target)
         {
             return fromCurrentState(Position.getBody(target));
         }
@@ -533,7 +533,7 @@ namespace PacificEngine.OW_CommonResources.Game.State
             return Quaternion.LookRotation(forwardDirection, groundNormal);
         }
 
-        public void apply(Position.HeavenlyBodies parent, AbsoluteState parentState, OWRigidbody target)
+        public void apply(HeavenlyBody parent, AbsoluteState parentState, OWRigidbody target)
         {
             applyMovement(target);
             applyRotation(target);
@@ -571,7 +571,7 @@ namespace PacificEngine.OW_CommonResources.Game.State
             target.SetValue("_lastAngularVelocity", new Vector3(v.x, v.y, v.z));
         }
 
-        private void applyCachedState(Position.HeavenlyBodies parent, AbsoluteState parentState, OWRigidbody target)
+        private void applyCachedState(HeavenlyBody parent, AbsoluteState parentState, OWRigidbody target)
         {
             if (target.IsSuspended())
             {
@@ -585,13 +585,13 @@ namespace PacificEngine.OW_CommonResources.Game.State
 
     public class RelativeState
     {
-        public Position.HeavenlyBodies parent { get; }
+        public HeavenlyBody parent { get; }
         public MovementState relative { get; }
         public MovementState surface { get; }
         public KeplerState orbit { get; }
 
 
-        private RelativeState(Position.HeavenlyBodies parent, MovementState relative, MovementState surface, KeplerState orbit)
+        private RelativeState(HeavenlyBody parent, MovementState relative, MovementState surface, KeplerState orbit)
         {
             this.parent = parent;
             this.relative = relative;
@@ -774,23 +774,16 @@ namespace PacificEngine.OW_CommonResources.Game.State
 
         private OrientationState getAbsoluteOrientation(AbsoluteState parentState, Gravity gravity, Vector3 worldPosition, OWRigidbody target)
         {
-            switch (Position.find(target))
+            var alignment = target.GetComponent<AlignWithTargetBody>();
+            if (alignment != null)
             {
-                case Position.HeavenlyBodies.SunStation:
-                case Position.HeavenlyBodies.Attlerock:
-                case Position.HeavenlyBodies.Interloper:
-                    var alignment = target.GetComponent<AlignWithTargetBody>();
-                    if (alignment != null)
-                    {
-                        var alignmentAxis = alignment.GetValue<Vector3>("_localAlignmentAxis");
-                        var targetDirection = parentState.position - worldPosition;
+                var alignmentAxis = alignment.GetValue<Vector3>("_localAlignmentAxis");
+                var targetDirection = parentState.position - worldPosition;
 
-                        var rotation = Quaternion.FromToRotation(alignmentAxis, targetDirection);
-                        var velocity = Vector3.zero;
+                var rotation = Quaternion.FromToRotation(alignmentAxis, targetDirection);
+                var velocity = Vector3.zero;
 
-                        return new OrientationState(rotation, velocity, Vector3.zero);
-                    }
-                    break;
+                return new OrientationState(rotation, velocity, Vector3.zero);
             }
 
             if (orbit != null && orbit.coordinates != null && orbit.coordinates.isOrbit() && gravity != null)
@@ -819,17 +812,17 @@ namespace PacificEngine.OW_CommonResources.Game.State
             return new OrientationState(Quaternion.identity, Vector3.zero, Vector3.zero);
         }
 
-        public static RelativeState fromGlobal(Position.HeavenlyBodies parent, OWRigidbody target)
+        public static RelativeState fromGlobal(HeavenlyBody parent, OWRigidbody target)
         {
             return fromGlobal(parent, AbsoluteState.fromCurrentState(Position.getBody(parent)), Position.getGravity(parent), Position.getSize(parent), ScaleState.fromCurrentState(target), AbsoluteState.fromCurrentState(target));
         }
 
-        public static RelativeState fromGlobal(Position.HeavenlyBodies parent, AbsoluteState parentState, Gravity parentGravity, Position.Size parentSize, ScaleState targetScale, AbsoluteState target)
+        public static RelativeState fromGlobal(HeavenlyBody parent, AbsoluteState parentState, Gravity parentGravity, Position.Size parentSize, ScaleState targetScale, AbsoluteState target)
         {
             MovementState surfaceMovement = null;
             KeplerState orbit = null;
 
-            parent = parentState == null ? Position.HeavenlyBodies.None : parent;
+            parent = parentState == null ? HeavenlyBody.None : parent;
             var relativeMovement = getRelativeMovement(parentState, parentGravity, targetScale, target);
             if (relativeMovement == null)
             {
@@ -859,7 +852,7 @@ namespace PacificEngine.OW_CommonResources.Game.State
             return new RelativeState(parent, relativeMovement, surfaceMovement, orbit);
         }
 
-        public static MovementState getRelativeMovement(Position.HeavenlyBodies parent, OWRigidbody target)
+        public static MovementState getRelativeMovement(HeavenlyBody parent, OWRigidbody target)
         {
             return getRelativeMovement(AbsoluteState.fromCurrentState(Position.getBody(parent)), Position.getGravity(parent), ScaleState.fromCurrentState(target), AbsoluteState.fromCurrentState(target));
         }
@@ -882,7 +875,7 @@ namespace PacificEngine.OW_CommonResources.Game.State
             return new MovementState(targetScale, new PositionState(relativePosition, relativeVelocity, relativeAcceleration, relativeJerk), new OrientationState(relativeOrientation, relativeAngularVelocity, relativeAngularAcceleration));
         }
 
-        public static MovementState getSurfaceMovement(Position.HeavenlyBodies parent, OWRigidbody target)
+        public static MovementState getSurfaceMovement(HeavenlyBody parent, OWRigidbody target)
         {
             return getSurfaceMovement(AbsoluteState.fromCurrentState(Position.getBody(parent)), Position.getGravity(parent), ScaleState.fromCurrentState(target), AbsoluteState.fromCurrentState(target));
         }
@@ -907,7 +900,7 @@ namespace PacificEngine.OW_CommonResources.Game.State
             return new MovementState(targetScale, new PositionState(surfacePosition, surfaceVelocity, surfaceAcceleration, surfaceJerk), new OrientationState(surfaceRotation, surfaceAngularVelocity, surfaceAngularAcceleration));
         }
 
-        public static KeplerState getKepler(Position.HeavenlyBodies parent, OWRigidbody target)
+        public static KeplerState getKepler(HeavenlyBody parent, OWRigidbody target)
         {
             return getKepler(AbsoluteState.fromCurrentState(Position.getBody(parent)), Position.getGravity(parent), ScaleState.fromCurrentState(target), AbsoluteState.fromCurrentState(target));
         }
@@ -928,7 +921,7 @@ namespace PacificEngine.OW_CommonResources.Game.State
             return new KeplerState(targetScale, Position.getKepler(parentState, parentGravity, absolutePosition, absoluteVelocity), new OrientationState(keplerOrientation, keplerAngularVelocity, keplerAngularAcceleration));
         }
 
-        public static RelativeState fromRelative(Position.HeavenlyBodies parent, MovementState relative)
+        public static RelativeState fromRelative(HeavenlyBody parent, MovementState relative)
         {
             if (relative == null)
             {
@@ -937,7 +930,7 @@ namespace PacificEngine.OW_CommonResources.Game.State
             return new RelativeState(parent, relative, null, null);
         }
 
-        public static RelativeState fromSurface(Position.HeavenlyBodies parent, MovementState surface)
+        public static RelativeState fromSurface(HeavenlyBody parent, MovementState surface)
         {
             if (surface == null)
             {
@@ -946,7 +939,7 @@ namespace PacificEngine.OW_CommonResources.Game.State
             return new RelativeState(parent, null, surface, null);
         }
 
-        public static RelativeState fromKepler(Position.HeavenlyBodies parent, ScaleState targetScale, KeplerCoordinates kepler, OrientationState orientation)
+        public static RelativeState fromKepler(HeavenlyBody parent, ScaleState targetScale, KeplerCoordinates kepler, OrientationState orientation)
         {
             if (kepler != null && kepler.isOrbit())
             {
@@ -955,7 +948,7 @@ namespace PacificEngine.OW_CommonResources.Game.State
             return null;
         }
 
-        public static RelativeState fromClosetInfluence(OWRigidbody target, params Position.HeavenlyBodies[] exclude)
+        public static RelativeState fromClosetInfluence(OWRigidbody target, params HeavenlyBody[] exclude)
         {
             var targetState = PositionState.fromCurrentState(target);
             if (targetState == null)

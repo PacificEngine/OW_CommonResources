@@ -9,16 +9,16 @@ namespace PacificEngine.OW_CommonResources.Game.Resource
 {
     public class TrackedObject
     {
-        private Position.HeavenlyBodies body;
-        private Position.HeavenlyBodies previousAstro;
+        private HeavenlyBody body;
+        private HeavenlyBody previousAstro;
 
-        public delegate void AstroUpdateEvent(Position.HeavenlyBodies body, Position.HeavenlyBodies previous, Position.HeavenlyBodies current);
+        public delegate void AstroUpdateEvent(HeavenlyBody body, HeavenlyBody previous, HeavenlyBody current);
         public event AstroUpdateEvent onAstroUpdateEvent;
 
-        public TrackedObject(Position.HeavenlyBodies body)
+        public TrackedObject(HeavenlyBody body)
         {
             this.body = body;
-            this.previousAstro = Position.HeavenlyBodies.None;
+            this.previousAstro = HeavenlyBody.None;
             Update();
         }
 
@@ -34,21 +34,21 @@ namespace PacificEngine.OW_CommonResources.Game.Resource
             }
         }
 
-        private Position.HeavenlyBodies getCurrentAstro()
+        private HeavenlyBody getCurrentAstro()
         {
             var state = PositionState.fromCurrentState(body);
             if (state == null)
             {
-                return Position.HeavenlyBodies.None;
+                return HeavenlyBody.None;
             }
             
-            var closet = Position.getClosetInfluence(state.position, Position.getAstros(), new Position.HeavenlyBodies[0]);
+            var closet = Position.getClosetInfluence(state.position, Position.getAstros(), new HeavenlyBody[0]);
             if (closet != null && closet.Count > 0)
             {
                 return closet[0].Item1;
             }
 
-            return Position.HeavenlyBodies.None;
+            return HeavenlyBody.None;
         }
     }
 
@@ -56,7 +56,7 @@ namespace PacificEngine.OW_CommonResources.Game.Resource
     {
         private static float _lastUpdate = 0f;
         private static float _trackingFrequency = 1f;
-        private static Dictionary<Position.HeavenlyBodies, TrackedObject> bodies = new Dictionary<Position.HeavenlyBodies, TrackedObject>();
+        private static Dictionary<HeavenlyBody, TrackedObject> bodies = new Dictionary<HeavenlyBody, TrackedObject>();
 
         public static void Start()
         {
@@ -88,7 +88,7 @@ namespace PacificEngine.OW_CommonResources.Game.Resource
         {
         }
 
-        public static TrackedObject getTracked(Position.HeavenlyBodies body)
+        public static TrackedObject getTracked(HeavenlyBody body)
         {
             TrackedObject value;
             if (!bodies.TryGetValue(body, out value))

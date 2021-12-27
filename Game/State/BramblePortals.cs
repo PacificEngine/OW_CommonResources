@@ -17,31 +17,31 @@ namespace PacificEngine.OW_CommonResources.Game.State
         private static float _lastUpdate = 0f;
         private static List<string> debugIds = new List<string>();
 
-        public delegate void BrambleWarpEvent(FogWarpDetector.Name warpObject, bool isInnerPortal, Tuple<Position.HeavenlyBodies, int> sender, Tuple<Position.HeavenlyBodies, int> reciever);
+        public delegate void BrambleWarpEvent(FogWarpDetector.Name warpObject, bool isInnerPortal, Tuple<HeavenlyBody, int> sender, Tuple<HeavenlyBody, int> reciever);
 
         private static int processingFrame = -1;
         private static HashSet<OuterFogWarpVolume> alreadyProcessed = new HashSet<OuterFogWarpVolume>();
         private static List<FogWarpVolume> unprocessedPortals = new List<FogWarpVolume>();
-        private static Dictionary<Position.HeavenlyBodies, List<Tuple<FogWarpVolume, float>>> _portals = new Dictionary<Position.HeavenlyBodies, List<Tuple<FogWarpVolume, float>>>();
-        private static Dictionary<Tuple<Position.HeavenlyBodies, int>, Tuple<Position.HeavenlyBodies, int>> _outerPortalMap = defaultMapping.Item1;
-        private static Dictionary<Tuple<Position.HeavenlyBodies, int>, Tuple<Position.HeavenlyBodies, int>> _innerPortalMap = defaultMapping.Item2;
+        private static Dictionary<HeavenlyBody, List<Tuple<FogWarpVolume, float>>> _portals = new Dictionary<HeavenlyBody, List<Tuple<FogWarpVolume, float>>>();
+        private static Dictionary<Tuple<HeavenlyBody, int>, Tuple<HeavenlyBody, int>> _outerPortalMap = defaultMapping.Item1;
+        private static Dictionary<Tuple<HeavenlyBody, int>, Tuple<HeavenlyBody, int>> _innerPortalMap = defaultMapping.Item2;
         private static Boolean requireUpdate = false;
 
-        public static List<Position.HeavenlyBodies> bodies
+        public static List<HeavenlyBody> bodies
         {
             get
             {
                 updateLists();
-                return new List<Position.HeavenlyBodies>(_portals.Keys);
+                return new List<HeavenlyBody>(_portals.Keys);
             }
         }
 
-        public static List<Tuple<Position.HeavenlyBodies, FogWarpVolume>> portals
+        public static List<Tuple<HeavenlyBody, FogWarpVolume>> portals
         {
             get
             {
                 updateLists();
-                var obj = new List<Tuple<Position.HeavenlyBodies, FogWarpVolume>>();
+                var obj = new List<Tuple<HeavenlyBody, FogWarpVolume>>();
                 foreach (var key in _portals.Keys)
                 {
                     obj.AddRange(_portals[key].ConvertAll(x => Tuple.Create(key, x.Item1)));
@@ -50,7 +50,7 @@ namespace PacificEngine.OW_CommonResources.Game.State
             }
         }
 
-        public static List<Tuple<Position.HeavenlyBodies, SecretFogWarpVolume>> secretPortals
+        public static List<Tuple<HeavenlyBody, SecretFogWarpVolume>> secretPortals
         {
             get
             {
@@ -58,7 +58,7 @@ namespace PacificEngine.OW_CommonResources.Game.State
             }
         }
 
-        public static List<Tuple<Position.HeavenlyBodies, OuterFogWarpVolume>> outerPortals
+        public static List<Tuple<HeavenlyBody, OuterFogWarpVolume>> outerPortals
         {
             get
             {
@@ -66,7 +66,7 @@ namespace PacificEngine.OW_CommonResources.Game.State
             }
         }
 
-        public static List<Tuple<Position.HeavenlyBodies, InnerFogWarpVolume>> innerPortals
+        public static List<Tuple<HeavenlyBody, InnerFogWarpVolume>> innerPortals
         {
             get
             {
@@ -74,7 +74,7 @@ namespace PacificEngine.OW_CommonResources.Game.State
             }
         }
 
-        public static List<Tuple<Position.HeavenlyBodies, CapsuleFogWarpVolume>> capsulePortals
+        public static List<Tuple<HeavenlyBody, CapsuleFogWarpVolume>> capsulePortals
         {
             get
             {
@@ -82,7 +82,7 @@ namespace PacificEngine.OW_CommonResources.Game.State
             }
         }
 
-        public static Tuple<Dictionary<Tuple<Position.HeavenlyBodies, int>, Tuple<Position.HeavenlyBodies, int>>, Dictionary<Tuple<Position.HeavenlyBodies, int>, Tuple<Position.HeavenlyBodies, int>>> mapping
+        public static Tuple<Dictionary<Tuple<HeavenlyBody, int>, Tuple<HeavenlyBody, int>>, Dictionary<Tuple<HeavenlyBody, int>, Tuple<HeavenlyBody, int>>> mapping
         {
             get
             {
@@ -93,8 +93,8 @@ namespace PacificEngine.OW_CommonResources.Game.State
                 }
 
                 updateLists();
-                var outerPortalMap = new Dictionary<Tuple<Position.HeavenlyBodies, int>, Tuple<Position.HeavenlyBodies, int>>();
-                var innerPortalMap = new Dictionary<Tuple<Position.HeavenlyBodies, int>, Tuple<Position.HeavenlyBodies, int>>();
+                var outerPortalMap = new Dictionary<Tuple<HeavenlyBody, int>, Tuple<HeavenlyBody, int>>();
+                var innerPortalMap = new Dictionary<Tuple<HeavenlyBody, int>, Tuple<HeavenlyBody, int>>();
                 foreach (var portal in allPortals)
                 {
                     var index = findIndex(portal.Item2, portal.Item1);
@@ -119,7 +119,7 @@ namespace PacificEngine.OW_CommonResources.Game.State
                     var defaults = defaultMapping;
                     if (_outerPortalMap == null)
                     {
-                        _outerPortalMap = new Dictionary<Tuple<Position.HeavenlyBodies, int>, Tuple<Position.HeavenlyBodies, int>>();
+                        _outerPortalMap = new Dictionary<Tuple<HeavenlyBody, int>, Tuple<HeavenlyBody, int>>();
                         foreach (var outerMappping in defaults.Item1)
                         {
                             _outerPortalMap[outerMappping.Key] = outerMappping.Value;
@@ -127,7 +127,7 @@ namespace PacificEngine.OW_CommonResources.Game.State
                     }
                     if (_innerPortalMap == null)
                     {
-                        _innerPortalMap = new Dictionary<Tuple<Position.HeavenlyBodies, int>, Tuple<Position.HeavenlyBodies, int>>();
+                        _innerPortalMap = new Dictionary<Tuple<HeavenlyBody, int>, Tuple<HeavenlyBody, int>>();
                         foreach (var innerMapping in defaults.Item2)
                         {
                             _innerPortalMap[innerMapping.Key] = innerMapping.Value;
@@ -149,54 +149,54 @@ namespace PacificEngine.OW_CommonResources.Game.State
             }
         }
 
-        public static Tuple<Dictionary<Tuple<Position.HeavenlyBodies, int>, Tuple<Position.HeavenlyBodies, int>>, Dictionary<Tuple<Position.HeavenlyBodies, int>, Tuple<Position.HeavenlyBodies, int>>> defaultMapping
+        public static Tuple<Dictionary<Tuple<HeavenlyBody, int>, Tuple<HeavenlyBody, int>>, Dictionary<Tuple<HeavenlyBody, int>, Tuple<HeavenlyBody, int>>> defaultMapping
         {
             get
             {
-                var outerPortalMap = new Dictionary<Tuple<Position.HeavenlyBodies, int>, Tuple<Position.HeavenlyBodies, int>>();
-                var innerPortalMap = new Dictionary<Tuple<Position.HeavenlyBodies, int>, Tuple<Position.HeavenlyBodies, int>>();
+                var outerPortalMap = new Dictionary<Tuple<HeavenlyBody, int>, Tuple<HeavenlyBody, int>>();
+                var innerPortalMap = new Dictionary<Tuple<HeavenlyBody, int>, Tuple<HeavenlyBody, int>>();
 
-                outerPortalMap.Add(Tuple.Create(Position.HeavenlyBodies.InnerDarkBramble_Hub, 0), Tuple.Create(Position.HeavenlyBodies.DarkBramble, 0));
-                outerPortalMap.Add(Tuple.Create(Position.HeavenlyBodies.InnerDarkBramble_EscapePod, 0), Tuple.Create(Position.HeavenlyBodies.InnerDarkBramble_Hub, 2));
-                outerPortalMap.Add(Tuple.Create(Position.HeavenlyBodies.InnerDarkBramble_Nest, 0), Tuple.Create(Position.HeavenlyBodies.DarkBramble, 0));
-                outerPortalMap.Add(Tuple.Create(Position.HeavenlyBodies.InnerDarkBramble_Feldspar, 0), Tuple.Create(Position.HeavenlyBodies.DarkBramble, 0));
-                outerPortalMap.Add(Tuple.Create(Position.HeavenlyBodies.InnerDarkBramble_Gutter, 0), Tuple.Create(Position.HeavenlyBodies.DarkBramble, 0));
-                outerPortalMap.Add(Tuple.Create(Position.HeavenlyBodies.InnerDarkBramble_Vessel, 0), Tuple.Create(Position.HeavenlyBodies.DarkBramble, 0));
-                outerPortalMap.Add(Tuple.Create(Position.HeavenlyBodies.InnerDarkBramble_Maze, 0), Tuple.Create(Position.HeavenlyBodies.InnerDarkBramble_Hub, 3));
-                outerPortalMap.Add(Tuple.Create(Position.HeavenlyBodies.InnerDarkBramble_SmallNest, 0), Tuple.Create(Position.HeavenlyBodies.InnerDarkBramble_Hub, 1));
-                outerPortalMap.Add(Tuple.Create(Position.HeavenlyBodies.InnerDarkBramble_Secret, -1), Tuple.Create(Position.HeavenlyBodies.InnerDarkBramble_Gutter, -1));
+                outerPortalMap.Add(Tuple.Create(HeavenlyBodies.InnerDarkBramble_Hub, 0), Tuple.Create(HeavenlyBodies.DarkBramble, 0));
+                outerPortalMap.Add(Tuple.Create(HeavenlyBodies.InnerDarkBramble_EscapePod, 0), Tuple.Create(HeavenlyBodies.InnerDarkBramble_Hub, 2));
+                outerPortalMap.Add(Tuple.Create(HeavenlyBodies.InnerDarkBramble_Nest, 0), Tuple.Create(HeavenlyBodies.DarkBramble, 0));
+                outerPortalMap.Add(Tuple.Create(HeavenlyBodies.InnerDarkBramble_Feldspar, 0), Tuple.Create(HeavenlyBodies.DarkBramble, 0));
+                outerPortalMap.Add(Tuple.Create(HeavenlyBodies.InnerDarkBramble_Gutter, 0), Tuple.Create(HeavenlyBodies.DarkBramble, 0));
+                outerPortalMap.Add(Tuple.Create(HeavenlyBodies.InnerDarkBramble_Vessel, 0), Tuple.Create(HeavenlyBodies.DarkBramble, 0));
+                outerPortalMap.Add(Tuple.Create(HeavenlyBodies.InnerDarkBramble_Maze, 0), Tuple.Create(HeavenlyBodies.InnerDarkBramble_Hub, 3));
+                outerPortalMap.Add(Tuple.Create(HeavenlyBodies.InnerDarkBramble_SmallNest, 0), Tuple.Create(HeavenlyBodies.InnerDarkBramble_Hub, 1));
+                outerPortalMap.Add(Tuple.Create(HeavenlyBodies.InnerDarkBramble_Secret, -1), Tuple.Create(HeavenlyBodies.InnerDarkBramble_Gutter, -1));
 
-                innerPortalMap.Add(Tuple.Create(Position.HeavenlyBodies.TimberHearth, -1), Tuple.Create(Position.HeavenlyBodies.InnerDarkBramble_Feldspar, 0));
+                innerPortalMap.Add(Tuple.Create(HeavenlyBodies.TimberHearth, -1), Tuple.Create(HeavenlyBodies.InnerDarkBramble_Feldspar, 0));
 
-                innerPortalMap.Add(Tuple.Create(Position.HeavenlyBodies.DarkBramble, 0), Tuple.Create(Position.HeavenlyBodies.InnerDarkBramble_Hub, 0));
+                innerPortalMap.Add(Tuple.Create(HeavenlyBodies.DarkBramble, 0), Tuple.Create(HeavenlyBodies.InnerDarkBramble_Hub, 0));
 
-                innerPortalMap.Add(Tuple.Create(Position.HeavenlyBodies.InnerDarkBramble_Hub, 0), Tuple.Create(Position.HeavenlyBodies.InnerDarkBramble_Nest, 0));
-                innerPortalMap.Add(Tuple.Create(Position.HeavenlyBodies.InnerDarkBramble_Hub, 1), Tuple.Create(Position.HeavenlyBodies.InnerDarkBramble_SmallNest, 0));
-                innerPortalMap.Add(Tuple.Create(Position.HeavenlyBodies.InnerDarkBramble_Hub, 2), Tuple.Create(Position.HeavenlyBodies.InnerDarkBramble_EscapePod, 0));
-                innerPortalMap.Add(Tuple.Create(Position.HeavenlyBodies.InnerDarkBramble_Hub, 3), Tuple.Create(Position.HeavenlyBodies.InnerDarkBramble_Maze, 0));
+                innerPortalMap.Add(Tuple.Create(HeavenlyBodies.InnerDarkBramble_Hub, 0), Tuple.Create(HeavenlyBodies.InnerDarkBramble_Nest, 0));
+                innerPortalMap.Add(Tuple.Create(HeavenlyBodies.InnerDarkBramble_Hub, 1), Tuple.Create(HeavenlyBodies.InnerDarkBramble_SmallNest, 0));
+                innerPortalMap.Add(Tuple.Create(HeavenlyBodies.InnerDarkBramble_Hub, 2), Tuple.Create(HeavenlyBodies.InnerDarkBramble_EscapePod, 0));
+                innerPortalMap.Add(Tuple.Create(HeavenlyBodies.InnerDarkBramble_Hub, 3), Tuple.Create(HeavenlyBodies.InnerDarkBramble_Maze, 0));
 
-                innerPortalMap.Add(Tuple.Create(Position.HeavenlyBodies.InnerDarkBramble_EscapePod, 0), Tuple.Create(Position.HeavenlyBodies.InnerDarkBramble_Nest, 0));
-                innerPortalMap.Add(Tuple.Create(Position.HeavenlyBodies.InnerDarkBramble_EscapePod, -1), Tuple.Create(Position.HeavenlyBodies.InnerDarkBramble_Vessel, 0));
+                innerPortalMap.Add(Tuple.Create(HeavenlyBodies.InnerDarkBramble_EscapePod, 0), Tuple.Create(HeavenlyBodies.InnerDarkBramble_Nest, 0));
+                innerPortalMap.Add(Tuple.Create(HeavenlyBodies.InnerDarkBramble_EscapePod, -1), Tuple.Create(HeavenlyBodies.InnerDarkBramble_Vessel, 0));
 
-                innerPortalMap.Add(Tuple.Create(Position.HeavenlyBodies.InnerDarkBramble_Nest, 0), Tuple.Create(Position.HeavenlyBodies.InnerDarkBramble_Vessel, 0));
-                innerPortalMap.Add(Tuple.Create(Position.HeavenlyBodies.InnerDarkBramble_Nest, 1), Tuple.Create(Position.HeavenlyBodies.InnerDarkBramble_Gutter, 0));
-                innerPortalMap.Add(Tuple.Create(Position.HeavenlyBodies.InnerDarkBramble_Nest, 2), Tuple.Create(Position.HeavenlyBodies.InnerDarkBramble_Gutter, 0));
-                innerPortalMap.Add(Tuple.Create(Position.HeavenlyBodies.InnerDarkBramble_Nest, 3), Tuple.Create(Position.HeavenlyBodies.InnerDarkBramble_Gutter, 0));
+                innerPortalMap.Add(Tuple.Create(HeavenlyBodies.InnerDarkBramble_Nest, 0), Tuple.Create(HeavenlyBodies.InnerDarkBramble_Vessel, 0));
+                innerPortalMap.Add(Tuple.Create(HeavenlyBodies.InnerDarkBramble_Nest, 1), Tuple.Create(HeavenlyBodies.InnerDarkBramble_Gutter, 0));
+                innerPortalMap.Add(Tuple.Create(HeavenlyBodies.InnerDarkBramble_Nest, 2), Tuple.Create(HeavenlyBodies.InnerDarkBramble_Gutter, 0));
+                innerPortalMap.Add(Tuple.Create(HeavenlyBodies.InnerDarkBramble_Nest, 3), Tuple.Create(HeavenlyBodies.InnerDarkBramble_Gutter, 0));
 
-                innerPortalMap.Add(Tuple.Create(Position.HeavenlyBodies.InnerDarkBramble_Feldspar, -1), Tuple.Create(Position.HeavenlyBodies.InnerDarkBramble_Nest, 0));
+                innerPortalMap.Add(Tuple.Create(HeavenlyBodies.InnerDarkBramble_Feldspar, -1), Tuple.Create(HeavenlyBodies.InnerDarkBramble_Nest, 0));
 
-                innerPortalMap.Add(Tuple.Create(Position.HeavenlyBodies.InnerDarkBramble_Gutter, 0), Tuple.Create(Position.HeavenlyBodies.InnerDarkBramble_Gutter, 0));
-                innerPortalMap.Add(Tuple.Create(Position.HeavenlyBodies.InnerDarkBramble_Gutter, -1), Tuple.Create(Position.HeavenlyBodies.InnerDarkBramble_Secret, -1));
+                innerPortalMap.Add(Tuple.Create(HeavenlyBodies.InnerDarkBramble_Gutter, 0), Tuple.Create(HeavenlyBodies.InnerDarkBramble_Gutter, 0));
+                innerPortalMap.Add(Tuple.Create(HeavenlyBodies.InnerDarkBramble_Gutter, -1), Tuple.Create(HeavenlyBodies.InnerDarkBramble_Secret, -1));
 
-                innerPortalMap.Add(Tuple.Create(Position.HeavenlyBodies.InnerDarkBramble_Maze, -1), Tuple.Create(Position.HeavenlyBodies.InnerDarkBramble_Feldspar, 0));
-                innerPortalMap.Add(Tuple.Create(Position.HeavenlyBodies.InnerDarkBramble_Maze, 0), Tuple.Create(Position.HeavenlyBodies.InnerDarkBramble_Gutter, 0));
-                innerPortalMap.Add(Tuple.Create(Position.HeavenlyBodies.InnerDarkBramble_Maze, 1), Tuple.Create(Position.HeavenlyBodies.InnerDarkBramble_Feldspar, 0));
-                innerPortalMap.Add(Tuple.Create(Position.HeavenlyBodies.InnerDarkBramble_Maze, 2), Tuple.Create(Position.HeavenlyBodies.InnerDarkBramble_Gutter, 0));
-                innerPortalMap.Add(Tuple.Create(Position.HeavenlyBodies.InnerDarkBramble_Maze, 3), Tuple.Create(Position.HeavenlyBodies.InnerDarkBramble_Gutter, 0));
-                innerPortalMap.Add(Tuple.Create(Position.HeavenlyBodies.InnerDarkBramble_Maze, 4), Tuple.Create(Position.HeavenlyBodies.InnerDarkBramble_Gutter, 0));
-                innerPortalMap.Add(Tuple.Create(Position.HeavenlyBodies.InnerDarkBramble_Maze, 5), Tuple.Create(Position.HeavenlyBodies.InnerDarkBramble_Gutter, 0));
-                innerPortalMap.Add(Tuple.Create(Position.HeavenlyBodies.InnerDarkBramble_Maze, 6), Tuple.Create(Position.HeavenlyBodies.InnerDarkBramble_Feldspar, 0));
-                innerPortalMap.Add(Tuple.Create(Position.HeavenlyBodies.InnerDarkBramble_Maze, 7), Tuple.Create(Position.HeavenlyBodies.InnerDarkBramble_Gutter, 0));
+                innerPortalMap.Add(Tuple.Create(HeavenlyBodies.InnerDarkBramble_Maze, -1), Tuple.Create(HeavenlyBodies.InnerDarkBramble_Feldspar, 0));
+                innerPortalMap.Add(Tuple.Create(HeavenlyBodies.InnerDarkBramble_Maze, 0), Tuple.Create(HeavenlyBodies.InnerDarkBramble_Gutter, 0));
+                innerPortalMap.Add(Tuple.Create(HeavenlyBodies.InnerDarkBramble_Maze, 1), Tuple.Create(HeavenlyBodies.InnerDarkBramble_Feldspar, 0));
+                innerPortalMap.Add(Tuple.Create(HeavenlyBodies.InnerDarkBramble_Maze, 2), Tuple.Create(HeavenlyBodies.InnerDarkBramble_Gutter, 0));
+                innerPortalMap.Add(Tuple.Create(HeavenlyBodies.InnerDarkBramble_Maze, 3), Tuple.Create(HeavenlyBodies.InnerDarkBramble_Gutter, 0));
+                innerPortalMap.Add(Tuple.Create(HeavenlyBodies.InnerDarkBramble_Maze, 4), Tuple.Create(HeavenlyBodies.InnerDarkBramble_Gutter, 0));
+                innerPortalMap.Add(Tuple.Create(HeavenlyBodies.InnerDarkBramble_Maze, 5), Tuple.Create(HeavenlyBodies.InnerDarkBramble_Gutter, 0));
+                innerPortalMap.Add(Tuple.Create(HeavenlyBodies.InnerDarkBramble_Maze, 6), Tuple.Create(HeavenlyBodies.InnerDarkBramble_Feldspar, 0));
+                innerPortalMap.Add(Tuple.Create(HeavenlyBodies.InnerDarkBramble_Maze, 7), Tuple.Create(HeavenlyBodies.InnerDarkBramble_Gutter, 0));
 
                 return Tuple.Create(outerPortalMap, innerPortalMap);
             }
@@ -212,17 +212,17 @@ namespace PacificEngine.OW_CommonResources.Game.State
             requireUpdate = false;
 
             _portals.Clear();
-            _portals[Position.HeavenlyBodies.TimberHearth] = new List<Tuple<FogWarpVolume, float>>();
-            _portals[Position.HeavenlyBodies.DarkBramble] = new List<Tuple<FogWarpVolume, float>>();
-            _portals[Position.HeavenlyBodies.InnerDarkBramble_Hub] = new List<Tuple<FogWarpVolume, float>>();
-            _portals[Position.HeavenlyBodies.InnerDarkBramble_EscapePod] = new List<Tuple<FogWarpVolume, float>>();
-            _portals[Position.HeavenlyBodies.InnerDarkBramble_Nest] = new List<Tuple<FogWarpVolume, float>>();
-            _portals[Position.HeavenlyBodies.InnerDarkBramble_Feldspar] = new List<Tuple<FogWarpVolume, float>>();
-            _portals[Position.HeavenlyBodies.InnerDarkBramble_Gutter] = new List<Tuple<FogWarpVolume, float>>();
-            _portals[Position.HeavenlyBodies.InnerDarkBramble_Vessel] = new List<Tuple<FogWarpVolume, float>>();
-            _portals[Position.HeavenlyBodies.InnerDarkBramble_Maze] = new List<Tuple<FogWarpVolume, float>>();
-            _portals[Position.HeavenlyBodies.InnerDarkBramble_SmallNest] = new List<Tuple<FogWarpVolume, float>>();
-            _portals[Position.HeavenlyBodies.InnerDarkBramble_Secret] = new List<Tuple<FogWarpVolume, float>>();
+            _portals[HeavenlyBodies.TimberHearth] = new List<Tuple<FogWarpVolume, float>>();
+            _portals[HeavenlyBodies.DarkBramble] = new List<Tuple<FogWarpVolume, float>>();
+            _portals[HeavenlyBodies.InnerDarkBramble_Hub] = new List<Tuple<FogWarpVolume, float>>();
+            _portals[HeavenlyBodies.InnerDarkBramble_EscapePod] = new List<Tuple<FogWarpVolume, float>>();
+            _portals[HeavenlyBodies.InnerDarkBramble_Nest] = new List<Tuple<FogWarpVolume, float>>();
+            _portals[HeavenlyBodies.InnerDarkBramble_Feldspar] = new List<Tuple<FogWarpVolume, float>>();
+            _portals[HeavenlyBodies.InnerDarkBramble_Gutter] = new List<Tuple<FogWarpVolume, float>>();
+            _portals[HeavenlyBodies.InnerDarkBramble_Vessel] = new List<Tuple<FogWarpVolume, float>>();
+            _portals[HeavenlyBodies.InnerDarkBramble_Maze] = new List<Tuple<FogWarpVolume, float>>();
+            _portals[HeavenlyBodies.InnerDarkBramble_SmallNest] = new List<Tuple<FogWarpVolume, float>>();
+            _portals[HeavenlyBodies.InnerDarkBramble_Secret] = new List<Tuple<FogWarpVolume, float>>();
         }
 
         public static void Start()
@@ -330,9 +330,9 @@ namespace PacificEngine.OW_CommonResources.Game.State
             return id;
         }
 
-        private static string getString(Tuple<Position.HeavenlyBodies, int> sender, ref Dictionary<Tuple<Position.HeavenlyBodies, int>, Tuple<Position.HeavenlyBodies, int>> map)
+        private static string getString(Tuple<HeavenlyBody, int> sender, ref Dictionary<Tuple<HeavenlyBody, int>, Tuple<HeavenlyBody, int>> map)
         {
-            Tuple<Position.HeavenlyBodies, int> reciever;
+            Tuple<HeavenlyBody, int> reciever;
             if (map.TryGetValue(sender, out reciever))
             {
                 if (reciever != null)
@@ -350,7 +350,7 @@ namespace PacificEngine.OW_CommonResources.Game.State
             }
         }
 
-        public static InnerFogWarpVolume getInnerPortal(Position.HeavenlyBodies body, int index)
+        public static InnerFogWarpVolume getInnerPortal(HeavenlyBody body, int index)
         {
             List<Tuple<FogWarpVolume, float>> portal;
             if (_portals.TryGetValue(body, out portal))
@@ -369,7 +369,7 @@ namespace PacificEngine.OW_CommonResources.Game.State
             return null;
         }
 
-        public static OuterFogWarpVolume getOuterPortal(Position.HeavenlyBodies body, int index)
+        public static OuterFogWarpVolume getOuterPortal(HeavenlyBody body, int index)
         {
             List<Tuple<FogWarpVolume, float>> portal;
             if (_portals.TryGetValue(body, out portal))
@@ -393,19 +393,20 @@ namespace PacificEngine.OW_CommonResources.Game.State
             return outer.GetValue<List<InnerFogWarpVolume>>("_senderWarps");
         }
 
-        public static Tuple<Position.HeavenlyBodies, int> find(FogWarpVolume volume)
+        public static Tuple<HeavenlyBody, int> find(FogWarpVolume volume)
         {
-            Position.HeavenlyBodies? body = findBody(volume);
-            if (!body.HasValue)
+            var body = findBody(volume);
+            if (body != null
+                    && body != HeavenlyBodies.None)
                 return null;
 
-            int? index = findIndex(volume, body.Value);
+            int? index = findIndex(volume, body);
             if (!index.HasValue)
                 return null;
-            return Tuple.Create(body.Value, index.Value);
+            return Tuple.Create(body, index.Value);
         }
 
-        private static Position.HeavenlyBodies? findBody(FogWarpVolume volume)
+        private static HeavenlyBody findBody(FogWarpVolume volume)
         {
             if (volume == null)
             {
@@ -413,7 +414,7 @@ namespace PacificEngine.OW_CommonResources.Game.State
             }
             if (volume is SecretFogWarpVolume)
             {
-                return Position.HeavenlyBodies.InnerDarkBramble_Secret;
+                return HeavenlyBodies.InnerDarkBramble_Secret;
             }
             if (volume == null 
                 || volume?.GetAttachedOWRigidbody() == null
@@ -429,21 +430,21 @@ namespace PacificEngine.OW_CommonResources.Game.State
             switch (volume?.GetAttachedOWRigidbody()?.GetComponentInChildren<OuterFogWarpVolume>()?.GetName())
             {
                 case OuterFogWarpVolume.Name.Hub:
-                    return Position.HeavenlyBodies.InnerDarkBramble_Hub;
+                    return HeavenlyBodies.InnerDarkBramble_Hub;
                 case OuterFogWarpVolume.Name.EscapePod:
-                    return Position.HeavenlyBodies.InnerDarkBramble_EscapePod;
+                    return HeavenlyBodies.InnerDarkBramble_EscapePod;
                 case OuterFogWarpVolume.Name.AnglerNest:
-                    return Position.HeavenlyBodies.InnerDarkBramble_Nest;
+                    return HeavenlyBodies.InnerDarkBramble_Nest;
                 case OuterFogWarpVolume.Name.Pioneer:
-                    return Position.HeavenlyBodies.InnerDarkBramble_Feldspar;
+                    return HeavenlyBodies.InnerDarkBramble_Feldspar;
                 case OuterFogWarpVolume.Name.ExitOnly:
-                    return Position.HeavenlyBodies.InnerDarkBramble_Gutter;
+                    return HeavenlyBodies.InnerDarkBramble_Gutter;
                 case OuterFogWarpVolume.Name.Vessel:
-                    return Position.HeavenlyBodies.InnerDarkBramble_Vessel;
+                    return HeavenlyBodies.InnerDarkBramble_Vessel;
                 case OuterFogWarpVolume.Name.Cluster:
-                    return Position.HeavenlyBodies.InnerDarkBramble_Maze;
+                    return HeavenlyBodies.InnerDarkBramble_Maze;
                 case OuterFogWarpVolume.Name.SmallNest:
-                    return Position.HeavenlyBodies.InnerDarkBramble_SmallNest;
+                    return HeavenlyBodies.InnerDarkBramble_SmallNest;
                 case null:
                 default:
                     var state = PositionState.fromCurrentState(volume.gameObject);
@@ -453,7 +454,7 @@ namespace PacificEngine.OW_CommonResources.Game.State
             }
         }
 
-        private static int? findIndex(FogWarpVolume volume, Position.HeavenlyBodies body)
+        private static int? findIndex(FogWarpVolume volume, HeavenlyBody body)
         {
             if (volume is SecretFogWarpVolume)
             {
@@ -492,7 +493,7 @@ namespace PacificEngine.OW_CommonResources.Game.State
             }
         }
 
-        public static void remapOuterPortal(Tuple<Position.HeavenlyBodies, int> start, Tuple<Position.HeavenlyBodies, int> end)
+        public static void remapOuterPortal(Tuple<HeavenlyBody, int> start, Tuple<HeavenlyBody, int> end)
         {
             _remapOuterPortal(start, end);
             if (end != null && start != null)
@@ -503,7 +504,7 @@ namespace PacificEngine.OW_CommonResources.Game.State
             }
         }
 
-        public static void remapInnerPortal(Tuple<Position.HeavenlyBodies, int> start, Tuple<Position.HeavenlyBodies, int> end)
+        public static void remapInnerPortal(Tuple<HeavenlyBody, int> start, Tuple<HeavenlyBody, int> end)
         {
             _remapInnerPortal(start, end);
             if (start != null && end != null)
@@ -514,7 +515,7 @@ namespace PacificEngine.OW_CommonResources.Game.State
             }
         }
 
-        private static void _remapOuterPortal(Tuple<Position.HeavenlyBodies, int> start, Tuple<Position.HeavenlyBodies, int> end)
+        private static void _remapOuterPortal(Tuple<HeavenlyBody, int> start, Tuple<HeavenlyBody, int> end)
         {
             var outerPortal = start == null ? null : getOuterPortal(start.Item1, start.Item2);
             var innerPortal = end == null ? null : getInnerPortal(end.Item1, end.Item2);
@@ -524,7 +525,7 @@ namespace PacificEngine.OW_CommonResources.Game.State
             }
         }
 
-        private static void _remapInnerPortal(Tuple<Position.HeavenlyBodies, int> start, Tuple<Position.HeavenlyBodies, int> end)
+        private static void _remapInnerPortal(Tuple<HeavenlyBody, int> start, Tuple<HeavenlyBody, int> end)
         {
             var outerPortal = end == null ? null : getOuterPortal(end.Item1, end.Item2);
             var innerPortal = start == null ? null : getInnerPortal(start.Item1, start.Item2);
@@ -546,7 +547,7 @@ namespace PacificEngine.OW_CommonResources.Game.State
                     if (volume != null && volume?.gameObject != null)
                     {
                         var state = PositionState.fromCurrentState(volume.gameObject);
-                        Tuple<Position.HeavenlyBodies, float> parent;
+                        Tuple<HeavenlyBody, float> parent;
                         parent = getClosest(state.position);
                         _portals[parent.Item1].Add(Tuple.Create(volume, parent.Item2));
                         volume.OnWarpDetector += (detector) => onWarp(volume, parent.Item1, detector);
@@ -554,7 +555,7 @@ namespace PacificEngine.OW_CommonResources.Game.State
                 }
                 unprocessedPortals.Clear();
 
-                foreach (Position.HeavenlyBodies key in _portals.Keys)
+                foreach (HeavenlyBody key in _portals.Keys)
                 {
                     var volumes = _portals[key];
                     volumes.RemoveAll(v => v?.Item1 == null || v?.Item1?.gameObject == null);
@@ -580,9 +581,9 @@ namespace PacificEngine.OW_CommonResources.Game.State
             }
         }
 
-        private static Tuple<Position.HeavenlyBodies, float> getClosest(Vector3 position)
+        private static Tuple<HeavenlyBody, float> getClosest(Vector3 position)
         {
-            var keys = new Position.HeavenlyBodies[_portals.Count];
+            var keys = new HeavenlyBody[_portals.Count];
             _portals.Keys.CopyTo(keys, 0);
             return Position.getClosest(position, keys)[0];
         }
@@ -611,7 +612,7 @@ namespace PacificEngine.OW_CommonResources.Game.State
             return false;
         }
 
-        private static void onWarp(FogWarpVolume instance, Position.HeavenlyBodies portalParent, FogWarpDetector warpedObject)
+        private static void onWarp(FogWarpVolume instance, HeavenlyBody portalParent, FogWarpDetector warpedObject)
         {
             if (instance is SphericalFogWarpVolume)
             {
