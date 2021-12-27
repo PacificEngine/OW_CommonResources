@@ -30,7 +30,7 @@ namespace PacificEngine.OW_CommonResources.Game.Resource
             {
                 var old = previousAstro;
                 previousAstro = currentAstro;
-                onAstroUpdateEvent(body, old, currentAstro);
+                onAstroUpdateEvent?.Invoke(body, old, currentAstro);
             }
         }
 

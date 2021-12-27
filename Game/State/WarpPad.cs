@@ -497,7 +497,7 @@ namespace PacificEngine.OW_CommonResources.Game.State
                 var startIndex = findIndex(startPlatform, parentBody);
                 if (startIndex.HasValue)
                 {
-                    onPadWarp.Invoke(warpedBody, Tuple.Create(parentBody, startIndex.Value), find(targetPlatform));
+                    onPadWarp?.Invoke(warpedBody, Tuple.Create(parentBody, startIndex.Value), find(targetPlatform));
                 }
             }
             else
@@ -505,7 +505,7 @@ namespace PacificEngine.OW_CommonResources.Game.State
                 var targetIndex = findIndex(targetPlatform, parentBody);
                 if (targetIndex.HasValue)
                 {
-                    onPadWarp.Invoke(warpedBody, find(startPlatform), Tuple.Create(parentBody, targetIndex.Value));
+                    onPadWarp?.Invoke(warpedBody, find(startPlatform), Tuple.Create(parentBody, targetIndex.Value));
                 }
             }
 
