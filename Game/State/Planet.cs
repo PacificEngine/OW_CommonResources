@@ -88,6 +88,7 @@ namespace PacificEngine.OW_CommonResources.Game.State
         private static Dictionary<Position.HeavenlyBodies, Plantoid> _mapping = defaultMapping;
         private static bool update = false;
         private static bool fixUpdate = false;
+        private static bool isDefault = true;
 
 
         public static Dictionary<Position.HeavenlyBodies, Plantoid> mapping
@@ -124,6 +125,7 @@ namespace PacificEngine.OW_CommonResources.Game.State
                     mapping[map.Key] = map.Value;
                 }
                 _mapping = mapping;
+                isDefault = false;
                 update = true;
                 updateList();
             }
@@ -232,7 +234,7 @@ namespace PacificEngine.OW_CommonResources.Game.State
 
         private static void updateList()
         {
-            if (update && Time.timeSinceLevelLoad > 0.001f)
+            if (!isDefault && update && Time.timeSinceLevelLoad > 0.001f)
             {
                 update = false;
                 fixUpdate = true;
