@@ -86,10 +86,11 @@ namespace PacificEngine.OW_CommonResources.Game.State
 
         private static Dictionary<Position.HeavenlyBodies, Tuple<InitialMotion, Vector3, Vector3, Quaternion, Vector3, GravityVolume>> dict = new Dictionary<Position.HeavenlyBodies, Tuple<InitialMotion, Vector3, Vector3, Quaternion, Vector3, GravityVolume>>();
         private static Dictionary<Position.HeavenlyBodies, Plantoid> _mapping = defaultMapping;
+        private static bool firstCycle = false;
+        private static bool loadUpdate = false;
+        private static bool ignoreOrientation = false;
         private static bool update = false;
         private static bool fixUpdate = false;
-        private static bool isDefault = true;
-
 
         public static Dictionary<Position.HeavenlyBodies, Plantoid> mapping
         {
@@ -125,7 +126,6 @@ namespace PacificEngine.OW_CommonResources.Game.State
                     mapping[map.Key] = map.Value;
                 }
                 _mapping = mapping;
-                isDefault = false;
                 update = true;
                 updateList();
             }
@@ -176,6 +176,9 @@ namespace PacificEngine.OW_CommonResources.Game.State
 
         public static void Awake()
         {
+            firstCycle = false;
+            loadUpdate = false;
+            ignoreOrientation = false;
         }
 
         public static void Destroy()
@@ -221,20 +224,30 @@ namespace PacificEngine.OW_CommonResources.Game.State
             }
 
             updateList();
+
+            ignoreOrientation = false;
+            if (Time.timeSinceLevelLoad > 0.5f && !loadUpdate)
+            {
+                loadUpdate = true;
+                update = true;
+                ignoreOrientation = true;
+            }
         }
 
         public static void FixedUpdate()
         {
-            if (fixUpdate && Time.timeSinceLevelLoad > 0.001f)
+            if (fixUpdate && firstCycle)
             {
                 fixUpdate = false;
                 relocateMovingOrbs();
             }
+
+            firstCycle = true;
         }
 
         private static void updateList()
         {
-            if (!isDefault && update && Time.timeSinceLevelLoad > 0.001f)
+            if (update && firstCycle)
             {
                 update = false;
                 fixUpdate = true;
@@ -509,7 +522,19 @@ namespace PacificEngine.OW_CommonResources.Game.State
 
         private static AbsoluteState updatePlanetPosition(AbsoluteState parentState, Gravity gravity, RelativeState relativeState, OWRigidbody owBody)
         {
-            return relativeState.apply(owBody, parentState, gravity);
+            if (ignoreOrientation)
+            {
+                var currentState = OrientationState.fromCurrentState(owBody);
+                var absoluteState = relativeState.getAbsoluteState(owBody);
+                var newState = new AbsoluteState(absoluteState.scale, absoluteState.coordinates, currentState);
+                newState.apply(relativeState.parent, parentState, owBody);
+
+                return newState;
+            }
+            else
+            {
+                return relativeState.apply(owBody, parentState, gravity);
+            }
         }
 
         private static bool onOrbitLineUpdate(ref OrbitLine __instance)
