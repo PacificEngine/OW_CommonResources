@@ -10,7 +10,7 @@ namespace PacificEngine.OW_CommonResources.Game.Resource
         private static Dictionary<string, HeavenlyBody> _map = new Dictionary<string, HeavenlyBody>();
         private static int _nextValue = 0;
 
-        public static HeavenlyBody None = new HeavenlyBody("None");
+        public readonly static HeavenlyBody None = new HeavenlyBody("None");
 
         private int _value;
         private string _name;
@@ -68,15 +68,18 @@ namespace PacificEngine.OW_CommonResources.Game.Resource
 
         public static bool operator ==(HeavenlyBody x, HeavenlyBody y)
         {
-            if (x is null && (y is null || y._value == None._value))
+            if (x is null)
             {
-                return true;
+                return y is null || y._value == None._value;
             }
-            else if (y is null && (x is null || x._value == None._value))
+            else if (y is null)
             {
-                return true;
+                return x is null || x._value == None._value;
             }
-            return x._value == y._value;
+            else
+            {
+                return x._value == y._value;
+            }
         }
 
         public static bool operator !=(HeavenlyBody x, HeavenlyBody y)

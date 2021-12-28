@@ -46,12 +46,12 @@ namespace PacificEngine.OW_CommonResources.Geometry.Orbits
         {
             this.eccentricity = eccentricity;
             this.semiMajorRadius = semiMajorRadius;
-            inclinationAngle = Angle.normalizeDegrees(inclinationAngle);
+            inclinationAngle = Angle.normalizeDegrees(inclinationAngle + 90f);
             if (inclinationAngle >= 180f)
             {
                 inclinationAngle = 180f - (inclinationAngle - 180f);
             }
-            this.inclinationAngle = inclinationAngle;
+            this.inclinationAngle = inclinationAngle - 90f;
             this.periapseAngle = Angle.normalizeDegrees(periapseAngle);
             this.ascendingAngle = Angle.normalizeDegrees(ascendingAngle);
             if (!float.IsNaN(trueAnomaly))
@@ -157,7 +157,7 @@ namespace PacificEngine.OW_CommonResources.Geometry.Orbits
             return
                 !float.IsNaN(eccentricity) && !float.IsInfinity(eccentricity) && 0f <= eccentricity && eccentricity <= 1f
                     && !float.IsNaN(semiMajorRadius) && !float.IsInfinity(semiMajorRadius)
-                    && !float.IsNaN(inclinationAngle) && !float.IsInfinity(inclinationAngle) && 0f <= inclinationAngle && inclinationAngle <= 180f
+                    && !float.IsNaN(inclinationAngle) && !float.IsInfinity(inclinationAngle) && -90f <= inclinationAngle && inclinationAngle <= 90f
                     && !float.IsNaN(periapseAngle) && !float.IsInfinity(periapseAngle) && 0f <= periapseAngle && periapseAngle <= 360f
                     && !float.IsNaN(ascendingAngle) && !float.IsInfinity(ascendingAngle) && 0f <= ascendingAngle && ascendingAngle <= 360f
                     && (

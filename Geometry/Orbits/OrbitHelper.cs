@@ -54,9 +54,9 @@ namespace PacificEngine.OW_CommonResources.Geometry.Orbits
                 trueAnomaly = Angle.normalizeRadian(Math.Atan2(Math.Sqrt(semiAxisRectum / mu) * product, semiAxisRectum - radius));
             }
             var periapseAngle = Angle.normalizeRadian(latitudeAngle - trueAnomaly);
-            var kepler = KeplerCoordinates.fromTrueAnomaly((float)eccentricity, (float)semiMajorRadius, Angle.toDegrees((float)inclinationAngle), Angle.toDegrees((float)periapseAngle), Angle.toDegrees((float)ascendingAngle), Angle.toDegrees((float)trueAnomaly));
+            var kepler = KeplerCoordinates.fromTrueAnomaly((float)eccentricity, (float)semiMajorRadius, Angle.toDegrees((float)inclinationAngle) - 90f, Angle.toDegrees((float)periapseAngle), Angle.toDegrees((float)ascendingAngle), Angle.toDegrees((float)trueAnomaly));
 
-            return KeplerCoordinates.fromTimeSincePeriapsis(parent, (float)eccentricity, (float)semiMajorRadius, Angle.toDegrees((float)inclinationAngle), Angle.toDegrees((float)periapseAngle), Angle.toDegrees((float)ascendingAngle), kepler.getTimeSincePeriapsis(parent) - timeSinceStart);
+            return KeplerCoordinates.fromTimeSincePeriapsis(parent, (float)eccentricity, (float)semiMajorRadius, Angle.toDegrees((float)inclinationAngle) - 90f, Angle.toDegrees((float)periapseAngle), Angle.toDegrees((float)ascendingAngle), kepler.getTimeSincePeriapsis(parent) - timeSinceStart);
         }
 
         //https://space.stackexchange.com/questions/19322/converting-orbital-elements-to-cartesian-state-vectors
@@ -70,7 +70,7 @@ namespace PacificEngine.OW_CommonResources.Geometry.Orbits
 
         public static Tuple<Vector3, Vector3> toCartesianTrueAnomaly(Gravity parent, float eccentricity, float semiMajorRadius, float inclinationAngle, float periapseAngle, float ascendingAngle, float trueAnomaly)
         {
-            inclinationAngle = Angle.toRadian(inclinationAngle);
+            inclinationAngle = Angle.toRadian(inclinationAngle + 90f);
             periapseAngle = Angle.toRadian(periapseAngle);
             ascendingAngle = Angle.toRadian(ascendingAngle);
             trueAnomaly = Angle.toRadian(trueAnomaly);
