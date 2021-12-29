@@ -150,7 +150,7 @@ namespace PacificEngine.OW_CommonResources.Game.State
         {
             get
             {
-                var original = _defaultMapping;
+                var original = defaultMapping;
                 var mapping = new Dictionary<HeavenlyBody, Plantoid>();
                 foreach (HeavenlyBody body in _mapping.Keys)
                 {
@@ -174,7 +174,7 @@ namespace PacificEngine.OW_CommonResources.Game.State
             }
             set
             {
-                Dictionary<HeavenlyBody, Plantoid> mapping = _defaultMapping;
+                Dictionary<HeavenlyBody, Plantoid> mapping = defaultMapping;
                 foreach (var map in value)
                 {
                     mapping[map.Key] = map.Value;
