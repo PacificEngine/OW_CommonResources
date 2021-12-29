@@ -93,7 +93,7 @@ namespace PacificEngine.OW_CommonResources.Game.State
         private static bool update = false;
         private static bool fixUpdate = false;
 
-        private static Dictionary<HeavenlyBody, Plantoid> standardMapping
+        public static Dictionary<HeavenlyBody, Plantoid> standardMapping
         {
             get
             {

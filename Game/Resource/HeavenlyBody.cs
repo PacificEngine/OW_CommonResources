@@ -91,5 +91,15 @@ namespace PacificEngine.OW_CommonResources.Game.Resource
         {
             return _value;
         }
+
+        ~HeavenlyBody()
+        {
+            if (_name != null)
+            {
+                _map.Remove(_name);
+            }
+            _value = None._value;
+            _name = null;
+        }
     }
 }
