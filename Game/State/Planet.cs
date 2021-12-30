@@ -89,7 +89,6 @@ namespace PacificEngine.OW_CommonResources.Game.State
         private static Dictionary<HeavenlyBody, Plantoid> _defaultMapping = standardMapping;
         private static Dictionary<HeavenlyBody, Plantoid> _mapping = standardMapping;
         private static bool update = false;
-        private static bool firstUpdate = false;
         private static bool fixUpdate = false;
 
         public static Dictionary<HeavenlyBody, Plantoid> standardMapping
@@ -198,7 +197,6 @@ namespace PacificEngine.OW_CommonResources.Game.State
         public static void Awake()
         {
             update = true;
-            firstUpdate = false;
         }
 
         public static void Destroy()
