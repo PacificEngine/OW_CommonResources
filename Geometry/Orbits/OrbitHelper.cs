@@ -8,60 +8,6 @@ namespace PacificEngine.OW_CommonResources.Geometry.Orbits
 {
     public static class OrbitHelper
     {
-
-        //https://space.stackexchange.com/questions/19322/converting-orbital-elements-to-cartesian-state-vectors
-        //https://web.archive.org/web/20160418175843/https://ccar.colorado.edu/asen5070/handouts/cart2kep2002.pdf
-        //https://downloads.rene-schwarz.com/download/M002-Cartesian_State_Vectors_to_Keplerian_Orbit_Elements.pdf
-        /*public static KeplerCoordinates toKeplerCoordinates(Gravity parent, float timeSinceStart, Vector3 startPosition, Vector3 startVelocity)
-        {
-            startPosition = transform(startPosition);
-            startVelocity = transform(startVelocity);
-            var product = Vector3.Dot(startPosition, startVelocity);
-            var orbitalMomentum = Vector3.Cross(startPosition, startVelocity);
-            var angularMomemntum = (double)orbitalMomentum.magnitude;
-
-            var mu = parent.mu;
-            var radius = (double)startPosition.magnitude;
-            var speed = (double)startVelocity.magnitude;
-            double specificEnergy;
-            double semiMajorRadius;
-            double eccentricity;
-
-            if (parent.exponent < 1.5d)
-            {
-                specificEnergy = (speed * speed) / 2d - mu;
-                eccentricity = Math.Abs(Math.Sqrt(Math.Abs(((2d * specificEnergy) / mu) + 2d)) - 1d); // TODO: Incorrect for exponent 1
-                //semiMajorRadius = radius * Math.Abs(mu / (2d * specificEnergy));
-                semiMajorRadius = angularMomemntum / (Math.Sqrt(mu) * (1d - (eccentricity * eccentricity)));
-            }
-            else
-            {
-                //https://web.archive.org/web/20160418175843/https://ccar.colorado.edu/asen5070/handouts/cart2kep2002.pdf
-                specificEnergy = (speed * speed) / 2d - (mu / radius);
-                semiMajorRadius = Math.Abs(mu / (2d * specificEnergy));
-                //eccentricity = Math.Sqrt(Math.Abs(1 - ((angularMomemntum * angularMomemntum) / (semiMajorRadius * mu))));
-                eccentricity = Math.Sqrt(Math.Abs(1d + (2d * specificEnergy * angularMomemntum * angularMomemntum) / (mu * mu)));
-            }
-
-            // https://downloads.rene-schwarz.com/download/M002-Cartesian_State_Vectors_to_Keplerian_Orbit_Elements.pdf
-            var inclinationAngle = Math.Acos(orbitalMomentum.z / angularMomemntum);
-            var eccentricityVector = (float)eccentricity * ((Vector3.Cross(startVelocity, orbitalMomentum) / mu) - startPosition.normalized).normalized;
-            var pointingVector = Vector3.Cross(new Vector3(0, 0, 1), new Vector3(-1f * orbitalMomentum.y, orbitalMomentum.x, 0));
-            var trueAnomaly = product < 0f
-                ? ((2f * Math.PI) - Math.Acos(Vector3.Dot(eccentricityVector, startPosition) / (startPosition.magnitude * eccentricity)))
-                : Math.Acos(Vector3.Dot(eccentricityVector, startPosition) / (startPosition.magnitude * eccentricity));
-            var ascendingAngle = pointingVector.y < 0f
-                ? ((2f * Math.PI) - Math.Acos(pointingVector.x / pointingVector.magnitude))
-                : Math.Acos(pointingVector.x / pointingVector.magnitude);
-            var periapseAngle = eccentricityVector.z < 0f 
-                ? ((2f * Math.PI) - Math.Acos(Vector3.Dot(pointingVector, eccentricityVector) / (pointingVector.magnitude * eccentricity)))
-                : Math.Acos(Vector3.Dot(pointingVector, eccentricityVector) / (pointingVector.magnitude * eccentricity));
-
-            var kepler = KeplerCoordinates.fromTrueAnomaly((float)eccentricity, (float)semiMajorRadius, Angle.toDegrees((float)inclinationAngle), Angle.toDegrees((float)periapseAngle), Angle.toDegrees((float)ascendingAngle), Angle.toDegrees((float)trueAnomaly));
-
-            return KeplerCoordinates.fromTimeSincePeriapsis(parent, (float)eccentricity, (float)semiMajorRadius, Angle.toDegrees((float)inclinationAngle), Angle.toDegrees((float)periapseAngle), Angle.toDegrees((float)ascendingAngle), kepler.getTimeSincePeriapsis(parent) - timeSinceStart);
-        }*/
-
         //https://space.stackexchange.com/questions/19322/converting-orbital-elements-to-cartesian-state-vectors
         //https://web.archive.org/web/20160418175843/https://ccar.colorado.edu/asen5070/handouts/cart2kep2002.pdf
         //https://downloads.rene-schwarz.com/download/M002-Cartesian_State_Vectors_to_Keplerian_Orbit_Elements.pdf

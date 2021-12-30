@@ -518,12 +518,7 @@ namespace PacificEngine.OW_CommonResources.Game.State
                 parentState = newStates[planet.state.parent];
             };
 
-            var ignoreOrientation = body == HeavenlyBodies.DreamWorld
-                || body == HeavenlyBodies.Stranger
-                || body == HeavenlyBodies.QuantumMoon
-                || body == HeavenlyBodies.ProbeCannon;
-
-            return updatePlanetPosition(parentState, gravity, planet.state, owBody, ignoreOrientation);
+            return updatePlanetPosition(parentState, gravity, planet.state, owBody, false);
         }
 
         private static void updatePlanetGravity(Plantoid planet, OWRigidbody owBody)
@@ -548,19 +543,7 @@ namespace PacificEngine.OW_CommonResources.Game.State
 
         private static AbsoluteState updatePlanetPosition(AbsoluteState parentState, Gravity gravity, RelativeState relativeState, OWRigidbody owBody, bool ignoreOrientation)
         {
-            if (ignoreOrientation)
-            {
-                var currentState = OrientationState.fromCurrentState(owBody);
-                var absoluteState = relativeState.getAbsoluteState(owBody);
-                var newState = new AbsoluteState(absoluteState.scale, absoluteState.coordinates, currentState);
-                newState.apply(relativeState.parent, parentState, owBody);
-
-                return newState;
-            }
-            else
-            {
-                return relativeState.apply(owBody, parentState, gravity);
-            }
+            return relativeState.apply(owBody, parentState, gravity);
         }
 
         private static bool onOrbitLineUpdate(ref OrbitLine __instance)

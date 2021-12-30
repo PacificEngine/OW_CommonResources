@@ -940,7 +940,8 @@ namespace PacificEngine.OW_CommonResources.Game.State
         private OrientationState getAbsoluteOrientation(AbsoluteState parentState, Gravity gravity, Vector3 worldPosition, OWRigidbody target)
         {
             var alignment = target.GetComponent<AlignWithTargetBody>();
-            if (alignment != null)
+            if (alignment != null
+                && parentState != null)
             {
                 var alignmentAxis = alignment.GetValue<Vector3>("_localAlignmentAxis");
                 var targetDirection = parentState.position - worldPosition;
