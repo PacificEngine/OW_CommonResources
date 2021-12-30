@@ -245,6 +245,13 @@ namespace PacificEngine.OW_CommonResources.Game.State
                     }
                 }
             }
+
+            if (GameTimer.CyclesSinceAwake == 1)
+            {
+                update = true;
+                updateList();
+                update = true;
+            }
         }
 
         public static void FixedUpdate()
