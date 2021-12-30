@@ -162,14 +162,62 @@ namespace PacificEngine.OW_CommonResources.Game.State
             }
 
             var offset = PositionState.offset;
-            var position = target.GetPosition() - offset.position;//target.GetWorldCenterOfMass() - offset.position;
-            var velocity = target.GetVelocity() - offset.velocity;
+            var position = target.GetPosition() - offset.position;
+            var velocity = target.GetVelocity_Internal() - offset.velocity;
             var acceleration = target.GetAcceleration() - offset.acceleration;
             var jerk = target.GetJerk() - offset.jerk;
 
-            if (Time.timeSinceLevelLoad < 0.00001f)
+            if (GameTimer.FramesSinceAwake < 2)
             {
-                //velocity = getStartVelocity(target.gameObject);
+                velocity = getStartVelocity(target.gameObject);
+                acceleration = Vector3.zero;
+                jerk = Vector3.zero;
+            }
+
+            return new PositionState(position, velocity, acceleration, jerk);
+        }
+
+        private static PositionState fromCurrentState(KinematicRigidbody target)
+        {
+            if (target == null)
+            {
+                return null;
+            }
+
+            var offset = PositionState.offset;
+            var position = target.IntegratePosition() - offset.position;
+            var velocity = target.velocity - offset.velocity;
+            var acceleration = Vector3.zero;
+            var jerk = Vector3.zero;
+
+            if (GameTimer.FramesSinceAwake < 2)
+            {
+                velocity = getStartVelocity(target.gameObject);
+                acceleration = Vector3.zero;
+                jerk = Vector3.zero;
+            }
+
+            return new PositionState(position, velocity, acceleration, jerk);
+        }
+
+        private static PositionState fromCurrentState(Rigidbody target)
+        {
+            if (target == null)
+            {
+                return null;
+            }
+
+            var offset = PositionState.offset;
+            var position = target.position - offset.position;
+            var velocity = target.velocity - offset.velocity;
+            var acceleration = Vector3.zero;
+            var jerk = Vector3.zero;
+
+            if (GameTimer.FramesSinceAwake < 2)
+            {
+                velocity = getStartVelocity(target.gameObject);
+                acceleration = Vector3.zero;
+                jerk = Vector3.zero;
             }
 
             return new PositionState(position, velocity, acceleration, jerk);
@@ -188,9 +236,11 @@ namespace PacificEngine.OW_CommonResources.Game.State
             var acceleration = Vector3.zero;
             var jerk = Vector3.zero;
 
-            if (Time.timeSinceLevelLoad < 0.00001f)
+            if (GameTimer.FramesSinceAwake < 2)
             {
-                //velocity = getStartVelocity(target.gameObject);
+                velocity = getStartVelocity(target.gameObject);
+                acceleration = Vector3.zero;
+                jerk = Vector3.zero;
             }
 
             return new PositionState(position, velocity, acceleration, jerk);
@@ -203,10 +253,20 @@ namespace PacificEngine.OW_CommonResources.Game.State
                 return null;
             }
 
-            var rigidBody = target.GetComponent<OWRigidbody>();
+            var owRigidBody = target.GetComponent<OWRigidbody>();
+            var kRigidbody = target.GetComponent<KinematicRigidbody>();
+            var rigidbody = target.GetComponent<Rigidbody>();
             var transform = target.transform;
 
-            if (rigidBody != null)
+            if (owRigidBody != null)
+            {
+                return fromCurrentState(target);
+            }
+            else if (kRigidbody != null)
+            {
+                return fromCurrentState(target);
+            }
+            else if (rigidbody != null)
             {
                 return fromCurrentState(target);
             }
@@ -304,9 +364,50 @@ namespace PacificEngine.OW_CommonResources.Game.State
             var angularVelocity = target.GetAngularVelocity();
             var angularAcceleration = target.GetAngularAcceleration();
 
-            if (Time.timeSinceLevelLoad < 0.00001f)
+            if (GameTimer.FramesSinceAwake < 2)
             {
-                //angularVelocity = getStartVelocity(target.gameObject);
+                angularVelocity = getStartVelocity(target.gameObject);
+                angularAcceleration = Vector3.zero;
+            }
+
+            return new OrientationState(rotation, angularVelocity, angularAcceleration);
+        }
+
+        private static OrientationState fromCurrentState(KinematicRigidbody target)
+        {
+            if (target == null)
+            {
+                return null;
+            }
+
+            var rotation = target.IntegrateRotation();
+            var angularVelocity = target.angularVelocity;
+            var angularAcceleration = Vector3.zero;
+
+            if (GameTimer.FramesSinceAwake < 2)
+            {
+                angularVelocity = getStartVelocity(target.gameObject);
+                angularAcceleration = Vector3.zero;
+            }
+
+            return new OrientationState(rotation, angularVelocity, angularAcceleration);
+        }
+
+        private static OrientationState fromCurrentState(Rigidbody target)
+        {
+            if (target == null)
+            {
+                return null;
+            }
+
+            var rotation = target.rotation;
+            var angularVelocity = target.angularVelocity;
+            var angularAcceleration = Vector3.zero;
+
+            if (GameTimer.FramesSinceAwake < 2)
+            {
+                angularVelocity = getStartVelocity(target.gameObject);
+                angularAcceleration = Vector3.zero;
             }
 
             return new OrientationState(rotation, angularVelocity, angularAcceleration);
@@ -323,9 +424,10 @@ namespace PacificEngine.OW_CommonResources.Game.State
             var angularVelocity = Vector3.zero;
             var angularAcceleration = Vector3.zero;
 
-            if (Time.timeSinceLevelLoad < 0.00001f)
+            if (GameTimer.FramesSinceAwake < 2)
             {
-                //angularVelocity = getStartVelocity(target.gameObject);
+                angularVelocity = getStartVelocity(target.gameObject);
+                angularAcceleration = Vector3.zero;
             }
 
             return new OrientationState(rotation, angularVelocity, angularAcceleration);

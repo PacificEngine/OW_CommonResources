@@ -88,9 +88,6 @@ namespace PacificEngine.OW_CommonResources.Game.State
         private static Dictionary<HeavenlyBody, Tuple<InitialMotion, Vector3, Vector3, Quaternion, Vector3, GravityVolume>> dict = new Dictionary<HeavenlyBody, Tuple<InitialMotion, Vector3, Vector3, Quaternion, Vector3, GravityVolume>>();
         private static Dictionary<HeavenlyBody, Plantoid> _defaultMapping = standardMapping;
         private static Dictionary<HeavenlyBody, Plantoid> _mapping = standardMapping;
-        private static bool firstCycle = false;
-        private static bool loadUpdate = false;
-        private static bool ignoreOrientation = false;
         private static bool update = false;
         private static bool fixUpdate = false;
 
@@ -115,11 +112,11 @@ namespace PacificEngine.OW_CommonResources.Game.State
                 mapping.Add(HeavenlyBodies.WhiteHole, new Plantoid(new Position.Size(30, 200), Gravity.of(2, 1000000), new Quaternion(0, 0.7071068f, 0, 0.7071068f), 0f, HeavenlyBodies.None, new Vector3(-23000, 0, 0), Vector3.zero));
                 mapping.Add(HeavenlyBodies.WhiteHoleStation, new Plantoid(new Position.Size(30, 100), Gravity.of(2, 100000), new Quaternion(0, 0.04225808f, 0, -0.9991068f), 0f, HeavenlyBodies.None, new Vector3(-22538.19f, 0, 0), Vector3.zero));
                 mapping.Add(HeavenlyBodies.Interloper, new Plantoid(new Position.Size(110, 301.2f), Gravity.of(1, 550000), new Quaternion(0, 1, 0, 0), 0.0034f, HeavenlyBodies.Sun, KeplerCoordinates.fromTrueAnomaly(0.8194f, 13246.3076f, 180, 180, 180, 180)));
-                mapping.Add(HeavenlyBodies.Stranger, new Plantoid(new Position.Size(600, 1000), Gravity.of(2, 300000000), new Quaternion(-0.381f, -0.892f, 0.033f, -0.239f), -0.05f, HeavenlyBodies.None, new Vector3(8168.197f, 8399.9998f, 2049.528f), Vector3.zero));
+                mapping.Add(HeavenlyBodies.Stranger, new Plantoid(new Position.Size(600, 1000), Gravity.of(2, 300000000), new Quaternion(-0.381f, -0.892f, 0.033f, -0.239f), -0.05f, HeavenlyBodies.None, new Vector3(8168.197f, 8400, 2049.528f), Vector3.zero));
                 mapping.Add(HeavenlyBodies.DreamWorld, new Plantoid(new Position.Size(1000, 1000), Gravity.of(2, 300000000), new Quaternion(0, 0.087f, 0, -0.996f), 0f, HeavenlyBodies.None, new Vector3(7791.638f, 7000, 1881.588f), Vector3.zero));
                 mapping.Add(HeavenlyBodies.QuantumMoon, new Plantoid(new Position.Size(110, 301.2f), Gravity.of(1, 550000), Quaternion.identity, 0f, HeavenlyBodies.None, Vector3.zero, Vector3.zero));
                 mapping.Add(HeavenlyBodies.SatiliteBacker, new Plantoid(new Position.Size(5, 100), Gravity.of(2, 100), new Quaternion(0, 0, 0, 1), 0f, HeavenlyBodies.Sun, new Vector3(42000, 5000, -22500), new Vector3(-46.8846f, 28.13076f, 24.70819f)));
-                mapping.Add(HeavenlyBodies.SatiliteMapping, new Plantoid(new Position.Size(5, 100), Gravity.of(2, 500), new Quaternion(-0.084f, -0.76f, -0.1f, 0.637f), 0f, HeavenlyBodies.Sun, KeplerCoordinates.fromTrueAnomaly(0.0001f, 25999.9941f, 90, 252.9358f, 10, 92.0641f)));
+                mapping.Add(HeavenlyBodies.SatiliteMapping, new Plantoid(new Position.Size(5, 100), Gravity.of(2, 500), new Quaternion(-0.084f, -0.76f, -0.1f, 0.637f), 0f, HeavenlyBodies.Sun, KeplerCoordinates.fromTrueAnomaly(0, 25999.998f, 90, 254.9042f, 10, 90.0968f)));
 
                 return mapping;
             }
@@ -182,7 +179,6 @@ namespace PacificEngine.OW_CommonResources.Game.State
                 }
                 _mapping = mapping;
                 update = true;
-                updateList();
             }
         }
 
@@ -201,15 +197,7 @@ namespace PacificEngine.OW_CommonResources.Game.State
 
         public static void Awake()
         {
-            firstCycle = false;
-            loadUpdate = false;
-            ignoreOrientation = false;
-
-            Helper.helper.Console.WriteLine("Awake");
-            foreach (var map in mapping)
-            {
-                Helper.helper.Console.WriteLine($"{map.Key.ToString()}: {map.Value.size}, {map.Value.gravity}, {map.Value.state}");
-            }
+            update = true;
         }
 
         public static void Destroy()
@@ -218,11 +206,6 @@ namespace PacificEngine.OW_CommonResources.Game.State
 
         public static void SceneLoaded()
         {
-            Helper.helper.Console.WriteLine("Load Scene");
-            foreach (var map in mapping)
-            {
-                Helper.helper.Console.WriteLine($"{map.Key.ToString()}: {map.Value.size}, {map.Value.gravity}, {map.Value.state}");
-            }
         }
 
         public static void Update()
@@ -262,32 +245,29 @@ namespace PacificEngine.OW_CommonResources.Game.State
                     }
                 }
             }
-
-            updateList();
-
-            ignoreOrientation = false;
-            if (Time.timeSinceLevelLoad > 0.5f && !loadUpdate)
-            {
-                loadUpdate = true;
-                update = true;
-                ignoreOrientation = true;
-            }
         }
 
         public static void FixedUpdate()
         {
-            if (fixUpdate && firstCycle)
+            if (GameTimer.FramesSinceAwake > 2)
+            {
+                fixUpdateList();
+                updateList();
+            }
+        }
+
+        private static void fixUpdateList()
+        {
+            if (fixUpdate)
             {
                 fixUpdate = false;
                 relocateMovingOrbs();
             }
-
-            firstCycle = true;
         }
 
         private static void updateList()
         {
-            if (update && firstCycle)
+            if (update)
             {
                 update = false;
                 fixUpdate = true;
@@ -537,7 +517,13 @@ namespace PacificEngine.OW_CommonResources.Game.State
             {
                 parentState = newStates[planet.state.parent];
             };
-            return updatePlanetPosition(parentState, gravity, planet.state, owBody);
+
+            var ignoreOrientation = body == HeavenlyBodies.DreamWorld
+                || body == HeavenlyBodies.Stranger
+                || body == HeavenlyBodies.QuantumMoon
+                || body == HeavenlyBodies.ProbeCannon;
+
+            return updatePlanetPosition(parentState, gravity, planet.state, owBody, ignoreOrientation);
         }
 
         private static void updatePlanetGravity(Plantoid planet, OWRigidbody owBody)
@@ -560,7 +546,7 @@ namespace PacificEngine.OW_CommonResources.Game.State
             // TODO: Allow different gravity parent
         }
 
-        private static AbsoluteState updatePlanetPosition(AbsoluteState parentState, Gravity gravity, RelativeState relativeState, OWRigidbody owBody)
+        private static AbsoluteState updatePlanetPosition(AbsoluteState parentState, Gravity gravity, RelativeState relativeState, OWRigidbody owBody, bool ignoreOrientation)
         {
             if (ignoreOrientation)
             {

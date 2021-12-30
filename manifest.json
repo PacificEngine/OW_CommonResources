@@ -3,7 +3,7 @@
 	"author": "PacificEngine",
 	"name": "PacificEngine's Common Resources",
 	"uniqueName": "PacificEngine.OW_CommonResources",
-	"version": "0.5.3",
+	"version": "0.5.4",
 	"owmlVersion": "2.2.0",
 	"enabled": true
 }

@@ -22,6 +22,7 @@ namespace PacificEngine.OW_CommonResources
             ModHelper.Events.Player.OnPlayerAwake += onAwake;
             SceneManager.sceneLoaded += onSceneLoaded;
 
+            GameTimer.Start();
             Position.Start();
             Fog.Start();
             Anglerfish.Start();
@@ -43,6 +44,7 @@ namespace PacificEngine.OW_CommonResources
             ModHelper.Events.Player.OnPlayerAwake -= onAwake;
             SceneManager.sceneLoaded -= onSceneLoaded;
 
+            GameTimer.Destroy();
             Position.Destroy();
             Fog.Destroy();
             Anglerfish.Destroy();
@@ -59,12 +61,14 @@ namespace PacificEngine.OW_CommonResources
 
         void onSceneLoaded(Scene scene, LoadSceneMode mode)
         {
+            GameTimer.SceneLoaded();
             Planet.SceneLoaded();
         }
 
         void onAwake(PlayerBody player)
         {
             Helper.helper = (ModHelper)ModHelper;
+            GameTimer.Awake();
             Position.Awake();
             Fog.Awake();
             Anglerfish.Awake();
@@ -85,12 +89,14 @@ namespace PacificEngine.OW_CommonResources
 
         void OnGUI()
         {
+            GameTimer.OnGUI();
             DisplayConsole.OnGUI();
         }
 
         void Update()
         {
             Helper.helper = (ModHelper)ModHelper;
+            GameTimer.Update();
             Position.Update();
             Fog.Update();
             Player.Update();
@@ -104,8 +110,14 @@ namespace PacificEngine.OW_CommonResources
             Tracker.Update();
         }
 
+        void LateUpdate()
+        {
+            GameTimer.LateUpdate();
+        }
+
         void FixedUpdate()
         {
+            GameTimer.FixedUpdate();
             Position.FixedUpdate();
             Fog.FixedUpdate();
             Player.FixedUpdate();
