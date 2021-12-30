@@ -167,13 +167,6 @@ namespace PacificEngine.OW_CommonResources.Game.State
             var acceleration = target.GetAcceleration() - offset.acceleration;
             var jerk = target.GetJerk() - offset.jerk;
 
-            if (GameTimer.FramesSinceAwake < 2)
-            {
-                velocity = getStartVelocity(target.gameObject);
-                acceleration = Vector3.zero;
-                jerk = Vector3.zero;
-            }
-
             return new PositionState(position, velocity, acceleration, jerk);
         }
 
@@ -189,13 +182,6 @@ namespace PacificEngine.OW_CommonResources.Game.State
             var velocity = target.velocity - offset.velocity;
             var acceleration = Vector3.zero;
             var jerk = Vector3.zero;
-
-            if (GameTimer.FramesSinceAwake < 2)
-            {
-                velocity = getStartVelocity(target.gameObject);
-                acceleration = Vector3.zero;
-                jerk = Vector3.zero;
-            }
 
             return new PositionState(position, velocity, acceleration, jerk);
         }
@@ -213,13 +199,6 @@ namespace PacificEngine.OW_CommonResources.Game.State
             var acceleration = Vector3.zero;
             var jerk = Vector3.zero;
 
-            if (GameTimer.FramesSinceAwake < 2)
-            {
-                velocity = getStartVelocity(target.gameObject);
-                acceleration = Vector3.zero;
-                jerk = Vector3.zero;
-            }
-
             return new PositionState(position, velocity, acceleration, jerk);
         }
 
@@ -236,13 +215,6 @@ namespace PacificEngine.OW_CommonResources.Game.State
             var acceleration = Vector3.zero;
             var jerk = Vector3.zero;
 
-            if (GameTimer.FramesSinceAwake < 2)
-            {
-                velocity = getStartVelocity(target.gameObject);
-                acceleration = Vector3.zero;
-                jerk = Vector3.zero;
-            }
-
             return new PositionState(position, velocity, acceleration, jerk);
         }
 
@@ -253,22 +225,12 @@ namespace PacificEngine.OW_CommonResources.Game.State
                 return null;
             }
 
-            var owRigidBody = target.GetAttachedOWRigidbody();
-            var kRigidbody = target.GetComponent<KinematicRigidbody>();
-            var rigidbody = target.GetComponent<Rigidbody>();
+            var owRigidBody = target.GetComponent<OWRigidbody>();
             var transform = target.transform;
 
             if (owRigidBody != null)
             {
                 return fromCurrentState(owRigidBody);
-            }
-            else if (kRigidbody != null)
-            {
-                return fromCurrentState(kRigidbody);
-            }
-            else if (rigidbody != null)
-            {
-                return fromCurrentState(rigidbody);
             }
             else
             {
@@ -364,12 +326,6 @@ namespace PacificEngine.OW_CommonResources.Game.State
             var angularVelocity = target.GetAngularVelocity();
             var angularAcceleration = target.GetAngularAcceleration();
 
-            if (GameTimer.FramesSinceAwake < 2)
-            {
-                angularVelocity = getStartVelocity(target.gameObject);
-                angularAcceleration = Vector3.zero;
-            }
-
             return new OrientationState(rotation, angularVelocity, angularAcceleration);
         }
 
@@ -383,12 +339,6 @@ namespace PacificEngine.OW_CommonResources.Game.State
             var rotation = target.IntegrateRotation();
             var angularVelocity = target.angularVelocity;
             var angularAcceleration = Vector3.zero;
-
-            if (GameTimer.FramesSinceAwake < 2)
-            {
-                angularVelocity = getStartVelocity(target.gameObject);
-                angularAcceleration = Vector3.zero;
-            }
 
             return new OrientationState(rotation, angularVelocity, angularAcceleration);
         }
@@ -404,12 +354,6 @@ namespace PacificEngine.OW_CommonResources.Game.State
             var angularVelocity = target.angularVelocity;
             var angularAcceleration = Vector3.zero;
 
-            if (GameTimer.FramesSinceAwake < 2)
-            {
-                angularVelocity = getStartVelocity(target.gameObject);
-                angularAcceleration = Vector3.zero;
-            }
-
             return new OrientationState(rotation, angularVelocity, angularAcceleration);
         }
 
@@ -424,12 +368,6 @@ namespace PacificEngine.OW_CommonResources.Game.State
             var angularVelocity = Vector3.zero;
             var angularAcceleration = Vector3.zero;
 
-            if (GameTimer.FramesSinceAwake < 2)
-            {
-                angularVelocity = getStartVelocity(target.gameObject);
-                angularAcceleration = Vector3.zero;
-            }
-
             return new OrientationState(rotation, angularVelocity, angularAcceleration);
         }
 
@@ -439,22 +377,13 @@ namespace PacificEngine.OW_CommonResources.Game.State
             {
                 return null;
             }
-            var owRigidBody = target.GetAttachedOWRigidbody();
-            var kRigidbody = target.GetComponent<KinematicRigidbody>();
-            var rigidbody = target.GetComponent<Rigidbody>();
+
+            var owRigidBody = target.GetComponent<OWRigidbody>();
             var transform = target.transform;
 
             if (owRigidBody != null)
             {
                 return fromCurrentState(owRigidBody);
-            }
-            else if (kRigidbody != null)
-            {
-                return fromCurrentState(kRigidbody);
-            }
-            else if (rigidbody != null)
-            {
-                return fromCurrentState(rigidbody);
             }
             else
             {
@@ -723,7 +652,15 @@ namespace PacificEngine.OW_CommonResources.Game.State
             var j = jerk + offset.jerk;
 
             target.SetPosition(new Vector3(p.x, p.y, p.z));
-            target.SetVelocity(new Vector3(v.x, v.y, v.z));
+
+            if (target.RunningKinematicSimulation())
+            {
+                target.GetValue<KinematicRigidbody>("_kinematicRigidbody").velocity = new Vector3(v.x, v.y, v.z);
+            }
+            else
+            {
+                target.GetRigidbody().velocity = new Vector3(v.x, v.y, v.z);
+            }
 
             target.SetValue("_lastPosition", new Vector3(p.x, p.y, p.z));
             target.SetValue("_currentVelocity", new Vector3(v.x, v.y, v.z));

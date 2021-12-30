@@ -89,6 +89,7 @@ namespace PacificEngine.OW_CommonResources.Game.State
         private static Dictionary<HeavenlyBody, Plantoid> _defaultMapping = standardMapping;
         private static Dictionary<HeavenlyBody, Plantoid> _mapping = standardMapping;
         private static bool update = false;
+        private static bool firstUpdate = false;
         private static bool fixUpdate = false;
 
         public static Dictionary<HeavenlyBody, Plantoid> standardMapping
@@ -148,7 +149,6 @@ namespace PacificEngine.OW_CommonResources.Game.State
         {
             get
             {
-                var original = defaultMapping;
                 var mapping = new Dictionary<HeavenlyBody, Plantoid>();
                 foreach (HeavenlyBody body in _mapping.Keys)
                 {
@@ -198,6 +198,7 @@ namespace PacificEngine.OW_CommonResources.Game.State
         public static void Awake()
         {
             update = true;
+            firstUpdate = false;
         }
 
         public static void Destroy()
@@ -246,7 +247,14 @@ namespace PacificEngine.OW_CommonResources.Game.State
                 }
             }
 
-            if (GameTimer.FramesSinceAwake > 2)
+            if (!firstUpdate && Time.timeSinceLevelLoad > 0.001f)
+            {
+                firstUpdate = true;
+                updateList();
+                update = true;
+            }
+
+            if (GameTimer.FramesSinceAwake > 10)
             {
                 updateList();
             }
@@ -359,6 +367,12 @@ namespace PacificEngine.OW_CommonResources.Game.State
                         && (name.StartsWith("Debris_Body")
                             || name.StartsWith("FakeCannonMuzzle_Body")
                             || name.StartsWith("FakeCannonBarrel_Body")))
+                    {
+                        var surface = RelativeState.getSurfaceMovement(HeavenlyBodies.ProbeCannon, child);
+                        bodies.Add(Tuple.Create(child, RelativeState.fromSurface(HeavenlyBodies.ProbeCannon, surface)));
+                        continue;
+                    }
+                    if (name.StartsWith("CannonBarrel_Body"))
                     {
                         // CannonBarrel_Body has no parent
                         var surface = RelativeState.getSurfaceMovement(HeavenlyBodies.ProbeCannon, child);
