@@ -246,11 +246,9 @@ namespace PacificEngine.OW_CommonResources.Game.State
                 }
             }
 
-            if (GameTimer.CyclesSinceAwake == 1)
+            if (GameTimer.FramesSinceAwake > 2)
             {
-                update = true;
                 updateList();
-                update = true;
             }
         }
 
@@ -259,7 +257,6 @@ namespace PacificEngine.OW_CommonResources.Game.State
             if (GameTimer.FramesSinceAwake > 2)
             {
                 fixUpdateList();
-                updateList();
             }
         }
 

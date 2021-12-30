@@ -253,22 +253,22 @@ namespace PacificEngine.OW_CommonResources.Game.State
                 return null;
             }
 
-            var owRigidBody = target.GetComponent<OWRigidbody>();
+            var owRigidBody = target.GetAttachedOWRigidbody();
             var kRigidbody = target.GetComponent<KinematicRigidbody>();
             var rigidbody = target.GetComponent<Rigidbody>();
             var transform = target.transform;
 
             if (owRigidBody != null)
             {
-                return fromCurrentState(target);
+                return fromCurrentState(owRigidBody);
             }
             else if (kRigidbody != null)
             {
-                return fromCurrentState(target);
+                return fromCurrentState(kRigidbody);
             }
             else if (rigidbody != null)
             {
-                return fromCurrentState(target);
+                return fromCurrentState(rigidbody);
             }
             else
             {
@@ -439,13 +439,22 @@ namespace PacificEngine.OW_CommonResources.Game.State
             {
                 return null;
             }
-
-            var rigidBody = target.GetComponent<OWRigidbody>();
+            var owRigidBody = target.GetAttachedOWRigidbody();
+            var kRigidbody = target.GetComponent<KinematicRigidbody>();
+            var rigidbody = target.GetComponent<Rigidbody>();
             var transform = target.transform;
 
-            if (rigidBody != null)
+            if (owRigidBody != null)
             {
-                return fromCurrentState(target);
+                return fromCurrentState(owRigidBody);
+            }
+            else if (kRigidbody != null)
+            {
+                return fromCurrentState(kRigidbody);
+            }
+            else if (rigidbody != null)
+            {
+                return fromCurrentState(rigidbody);
             }
             else
             {
