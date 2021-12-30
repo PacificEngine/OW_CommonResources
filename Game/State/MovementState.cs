@@ -125,6 +125,30 @@ namespace PacificEngine.OW_CommonResources.Game.State
             this.jerk = jerk;
         }
 
+        private static Vector3 getStartVelocity(GameObject target)
+        {
+            var initialMotion = target.GetComponent<InitialMotion>();
+            var initialVelocity = target.GetComponent<InitialVelocity>();
+            var matchInitialMotion = target.GetComponent<MatchInitialMotion>();
+
+            if (initialMotion != null)
+            {
+                return initialMotion.GetInitVelocity();
+            }
+            else if (initialVelocity != null)
+            {
+                return initialVelocity.GetValue<Vector3>("initVelocityDirection").normalized * initialVelocity.GetValue<float>("initVelocityMagnitude");
+            }
+            else if (matchInitialMotion != null)
+            {
+                return matchInitialMotion.CalculateMatchVelocity();
+            }
+            else
+            {
+                return Vector3.zero;
+            }
+        }
+
         public static PositionState fromCurrentState(HeavenlyBody target)
         {
             return fromCurrentState(Position.getBody(target));
@@ -143,6 +167,11 @@ namespace PacificEngine.OW_CommonResources.Game.State
             var acceleration = target.GetAcceleration() - offset.acceleration;
             var jerk = target.GetJerk() - offset.jerk;
 
+            if (Time.timeSinceLevelLoad < 0.00001f)
+            {
+                //velocity = getStartVelocity(target.gameObject);
+            }
+
             return new PositionState(position, velocity, acceleration, jerk);
         }
 
@@ -158,6 +187,11 @@ namespace PacificEngine.OW_CommonResources.Game.State
             var velocity = Vector3.zero;
             var acceleration = Vector3.zero;
             var jerk = Vector3.zero;
+
+            if (Time.timeSinceLevelLoad < 0.00001f)
+            {
+                //velocity = getStartVelocity(target.gameObject);
+            }
 
             return new PositionState(position, velocity, acceleration, jerk);
         }
@@ -235,6 +269,25 @@ namespace PacificEngine.OW_CommonResources.Game.State
             this.angularAcceleration = angularAcceleration;
         }
 
+        private static Vector3 getStartVelocity(GameObject target)
+        {
+            var initialMotion = target.GetComponent<InitialMotion>();
+            var initialVelocity = target.GetComponent<InitialVelocity>();
+
+            if (initialMotion != null)
+            {
+                return initialMotion.GetInitAngularVelocity();
+            }
+            else if (initialVelocity != null)
+            {
+                return initialVelocity.GetValue<Vector3>("initAngularVelocityAxis").normalized * initialVelocity.GetValue<float>("initAngularVelocityMagnitude");
+            }
+            else
+            {
+                return Vector3.zero;
+            }
+        }
+
         public static OrientationState fromCurrentState(HeavenlyBody target)
         {
             return fromCurrentState(Position.getBody(target));
@@ -251,6 +304,11 @@ namespace PacificEngine.OW_CommonResources.Game.State
             var angularVelocity = target.GetAngularVelocity();
             var angularAcceleration = target.GetAngularAcceleration();
 
+            if (Time.timeSinceLevelLoad < 0.00001f)
+            {
+                //angularVelocity = getStartVelocity(target.gameObject);
+            }
+
             return new OrientationState(rotation, angularVelocity, angularAcceleration);
         }
 
@@ -264,6 +322,11 @@ namespace PacificEngine.OW_CommonResources.Game.State
             var rotation = target.rotation;
             var angularVelocity = Vector3.zero;
             var angularAcceleration = Vector3.zero;
+
+            if (Time.timeSinceLevelLoad < 0.00001f)
+            {
+                //angularVelocity = getStartVelocity(target.gameObject);
+            }
 
             return new OrientationState(rotation, angularVelocity, angularAcceleration);
         }

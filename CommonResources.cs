@@ -10,6 +10,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.SceneManagement;
 
 namespace PacificEngine.OW_CommonResources
 {
@@ -18,7 +19,9 @@ namespace PacificEngine.OW_CommonResources
         void Start()
         {
             Helper.helper = (ModHelper)ModHelper;
-            ModHelper.Events.Player.OnPlayerAwake += (player) => onAwake();
+            ModHelper.Events.Player.OnPlayerAwake += onAwake;
+            SceneManager.sceneLoaded += onSceneLoaded;
+
             Position.Start();
             Fog.Start();
             Anglerfish.Start();
@@ -30,12 +33,16 @@ namespace PacificEngine.OW_CommonResources
             Data.Start();
             Planet.Start();
             Tracker.Start();
+
             ModHelper.Console.WriteLine("Common Resources Mod: Started!");
         }
 
         void Destory()
         {
             Helper.helper = (ModHelper)ModHelper;
+            ModHelper.Events.Player.OnPlayerAwake -= onAwake;
+            SceneManager.sceneLoaded -= onSceneLoaded;
+
             Position.Destroy();
             Fog.Destroy();
             Anglerfish.Destroy();
@@ -46,10 +53,16 @@ namespace PacificEngine.OW_CommonResources
             WarpPad.Destroy();
             Planet.Destroy();
             Tracker.Destroy();
+
             ModHelper.Console.WriteLine("Common Resources Mod: Clean Up!");
         }
 
-        void onAwake()
+        void onSceneLoaded(Scene scene, LoadSceneMode mode)
+        {
+            Planet.SceneLoaded();
+        }
+
+        void onAwake(PlayerBody player)
         {
             Helper.helper = (ModHelper)ModHelper;
             Position.Awake();
