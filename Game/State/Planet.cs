@@ -247,13 +247,6 @@ namespace PacificEngine.OW_CommonResources.Game.State
                 }
             }
 
-            if (!firstUpdate && Time.timeSinceLevelLoad > 0.001f)
-            {
-                firstUpdate = true;
-                updateList();
-                update = true;
-            }
-
             if (GameTimer.FramesSinceAwake > 10)
             {
                 updateList();
@@ -352,8 +345,11 @@ namespace PacificEngine.OW_CommonResources.Game.State
                     if (parentName.StartsWith("SunStation_Body")
                         && (name.StartsWith("SS_Debris_Body")))
                     {
-                        var surface = RelativeState.getSurfaceMovement(HeavenlyBodies.SunStation, child);
-                        bodies.Add(Tuple.Create(child, RelativeState.fromSurface(HeavenlyBodies.SunStation, surface)));
+                        if (child != null && child.enabled)
+                        {
+                            var surface = RelativeState.getSurfaceMovement(HeavenlyBodies.SunStation, child);
+                            bodies.Add(Tuple.Create(child, RelativeState.fromSurface(HeavenlyBodies.SunStation, surface)));
+                        }
                         continue;
                     }
                     if (parentName.StartsWith("TowerTwin_Body")
@@ -368,15 +364,11 @@ namespace PacificEngine.OW_CommonResources.Game.State
                             || name.StartsWith("FakeCannonMuzzle_Body")
                             || name.StartsWith("FakeCannonBarrel_Body")))
                     {
-                        var surface = RelativeState.getSurfaceMovement(HeavenlyBodies.ProbeCannon, child);
-                        bodies.Add(Tuple.Create(child, RelativeState.fromSurface(HeavenlyBodies.ProbeCannon, surface)));
-                        continue;
-                    }
-                    if (name.StartsWith("CannonBarrel_Body"))
-                    {
-                        // CannonBarrel_Body has no parent
-                        var surface = RelativeState.getSurfaceMovement(HeavenlyBodies.ProbeCannon, child);
-                        bodies.Add(Tuple.Create(child, RelativeState.fromSurface(HeavenlyBodies.ProbeCannon, surface)));
+                        if (child != null && child.enabled)
+                        {
+                            var surface = RelativeState.getSurfaceMovement(HeavenlyBodies.ProbeCannon, child);
+                            bodies.Add(Tuple.Create(child, RelativeState.fromSurface(HeavenlyBodies.ProbeCannon, surface)));
+                        }
                         continue;
                     }
                     if (parentName.StartsWith("GiantsDeep_Body")
@@ -394,6 +386,20 @@ namespace PacificEngine.OW_CommonResources.Game.State
                         && (name.StartsWith("WhiteholeStationSuperstructure_Body")))
                     {
                         bodies.Add(captureState(child, HeavenlyBodies.WhiteHoleStation));
+                        continue;
+                    }
+                }
+                else
+                {
+                    if (name.StartsWith("CannonBarrel_Body")
+                         && child != null && child.enabled)
+                    {
+                        // CannonBarrel_Body has no parent
+                        if (child != null && child.enabled)
+                        {
+                            var surface = RelativeState.getSurfaceMovement(HeavenlyBodies.ProbeCannon, child);
+                            bodies.Add(Tuple.Create(child, RelativeState.fromSurface(HeavenlyBodies.ProbeCannon, surface)));
+                        }
                         continue;
                     }
                 }
