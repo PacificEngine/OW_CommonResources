@@ -83,6 +83,7 @@ namespace PacificEngine.OW_CommonResources.Game.State
 
         private static float lastUpdate = 0f;
         private static List<string> debugIds = new List<string>();
+        private static bool enabled = true;
         public static bool debugPlanetPosition { get; set; } = false;
 
         private static Dictionary<HeavenlyBody, Tuple<InitialMotion, Vector3, Vector3, Quaternion, Vector3, GravityVolume>> dict = new Dictionary<HeavenlyBody, Tuple<InitialMotion, Vector3, Vector3, Quaternion, Vector3, GravityVolume>>();
@@ -102,7 +103,7 @@ namespace PacificEngine.OW_CommonResources.Game.State
                 mapping.Add(HeavenlyBodies.AshTwin, new Plantoid(new Position.Size(200f, 692.8f), Gravity.of(1, 1600000), new Quaternion(0, 0.954f, 0, 0.298f), 0.07f, HeavenlyBodies.HourglassTwins, KeplerCoordinates.fromTrueAnomaly(0, 249.999985f, 180, 33.4767f, 180, 111.5233f)));
                 mapping.Add(HeavenlyBodies.EmberTwin, new Plantoid(new Position.Size(200f, 692.8f), Gravity.of(1, 1600000), new Quaternion(0, -0.886f, 0, 0.463f), 0.05f, HeavenlyBodies.HourglassTwins, KeplerCoordinates.fromTrueAnomaly(0, 250.000092f, 180, 292.6138f, 180, 32.3862f)));
                 mapping.Add(HeavenlyBodies.TimberHearth, new Plantoid(new Position.Size(250, 1061), Gravity.of(1, 3000000), new Quaternion(0, 0.996f, 0, 0.087f), -0.01f, HeavenlyBodies.Sun, KeplerCoordinates.fromTrueAnomaly(0.0002f, 8593.08594f, 0, 10, 0, 270)));
-                mapping.Add(HeavenlyBodies.TimberHearthProbe, new Plantoid(new Position.Size(0.5f, 0.5f), Gravity.of(2, 10), new Quaternion(0.704f, -0.704f, 0.064f, -0.064f), 0f, HeavenlyBodies.TimberHearth, KeplerCoordinates.fromTrueAnomaly(0, 350.100037f, 0, 226.229f, 0, 323.7709f)));
+                mapping.Add(HeavenlyBodies.TimberHearthProbe, new Plantoid(new Position.Size(0.5f, 0.5f), Gravity.of(2, 10), Quaternion.Euler(0.0002f, 344.9152f, 270), 0f, HeavenlyBodies.TimberHearth, KeplerCoordinates.fromTrueAnomaly(0, 350.100128f, 0, 101.0517f, 0, 89.0675f)));
                 mapping.Add(HeavenlyBodies.Attlerock, new Plantoid(new Position.Size(100, 223.6f), Gravity.of(2, 50000000), new Quaternion(0, -0.642f, 0, -0.767f), 0f, HeavenlyBodies.TimberHearth, KeplerCoordinates.fromTrueAnomaly(0, 900.000183f, 0, 36.193f, 0, 333.807f)));
                 mapping.Add(HeavenlyBodies.BrittleHollow, new Plantoid(new Position.Size(300, 1162), Gravity.of(1, 3000000), new Quaternion(0, 0.642f, 0, -0.766f), 0.02f, HeavenlyBodies.Sun, KeplerCoordinates.fromTrueAnomaly(0.0002f, 11690.8896f, 0, 174.1133f, 0, 175.8867f)));
                 mapping.Add(HeavenlyBodies.HollowLantern, new Plantoid(new Position.Size(130, 421.2f), Gravity.of(1, 910000), new Quaternion(-0.542f, 0.449f, -0.455f, -0.546f), -0.2f, HeavenlyBodies.BrittleHollow, KeplerCoordinates.fromTrueAnomaly(0, 999.999817f, 0, 161.3635f, 0, 188.6365f)));
@@ -261,7 +262,7 @@ namespace PacificEngine.OW_CommonResources.Game.State
 
         private static void fixUpdateList()
         {
-            if (fixUpdate)
+            if (enabled && fixUpdate)
             {
                 fixUpdate = false;
                 relocateMovingOrbs();
@@ -270,7 +271,7 @@ namespace PacificEngine.OW_CommonResources.Game.State
 
         private static void updateList()
         {
-            if (update)
+            if (enabled && update)
             {
                 update = false;
                 fixUpdate = true;
