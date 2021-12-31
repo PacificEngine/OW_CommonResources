@@ -8,25 +8,31 @@ namespace PacificEngine.OW_CommonResources.Game.Resource
     public class HeavenlyBody
     {
         private static Dictionary<string, HeavenlyBody> _map = new Dictionary<string, HeavenlyBody>();
-        private static int _nextValue = 0;
+        private static int _nextValue = 1;
 
-        public readonly static HeavenlyBody None = new HeavenlyBody("None");
+        public readonly static HeavenlyBody None = new HeavenlyBody("None", 0);
 
         private int _value;
         private string _name;
 
         public int value { get { return _value; } }
-        public string name { get { return name; } }
+        public string name { get { return _name; } }
 
-        public static HeavenlyBody FromString(string name)
+        public static HeavenlyBody FromString(string name, bool create = false)
         {
             HeavenlyBody value;
             if (_map.TryGetValue(name, out value))
             {
                 return value;
             }
-
-            return HeavenlyBody.None;
+            else if (create)
+            {
+                return new HeavenlyBody(name);
+            }
+            else
+            {
+                return HeavenlyBody.None;
+            }
         }
 
         public static HeavenlyBody[] GetValues()
@@ -34,9 +40,26 @@ namespace PacificEngine.OW_CommonResources.Game.Resource
             return _map.Values.ToArray();
         }
 
+        private HeavenlyBody(string name, int value)
+        {
+            this._value = value;
+            this._name = name;
+
+            _map.Add(_name, this);
+        }
+
+
         public HeavenlyBody(string name)
         {
-            if (_map.ContainsKey(name))
+            if (name == null)
+            {
+                throw new ArgumentException($"name cannot be null");
+            }
+            else if (name.Length == 0)
+            {
+                throw new ArgumentException($"name cannot be blank");
+            }
+            else if (_map.ContainsKey(name))
             {
                 throw new ArgumentException($"{name} already in use");
             }
