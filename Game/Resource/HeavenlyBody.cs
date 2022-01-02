@@ -10,13 +10,15 @@ namespace PacificEngine.OW_CommonResources.Game.Resource
         private static Dictionary<string, HeavenlyBody> _map = new Dictionary<string, HeavenlyBody>();
         private static int _nextValue = 1;
 
-        public readonly static HeavenlyBody None = new HeavenlyBody("None", 0);
+        public readonly static HeavenlyBody None = new HeavenlyBody("None", 0, true);
 
         private int _value;
         private string _name;
+        private bool _pseudoHeavenlyBody;
 
         public int value { get { return _value; } }
         public string name { get { return _name; } }
+        public bool pseudoHeavenlyBody { get { return _pseudoHeavenlyBody; } }
 
         public static HeavenlyBody FromString(string name, bool create = false)
         {
@@ -40,16 +42,16 @@ namespace PacificEngine.OW_CommonResources.Game.Resource
             return _map.Values.ToArray();
         }
 
-        private HeavenlyBody(string name, int value)
+        private HeavenlyBody(string name, int value, bool isPseudoHeavenlyBody = false)
         {
             this._value = value;
             this._name = name;
+            this._pseudoHeavenlyBody = isPseudoHeavenlyBody;
 
             _map.Add(_name, this);
         }
 
-
-        public HeavenlyBody(string name)
+        public HeavenlyBody(string name, bool isPseudoHeavenlyBody = false)
         {
             if (name == null)
             {
@@ -66,6 +68,7 @@ namespace PacificEngine.OW_CommonResources.Game.Resource
 
             this._value = _nextValue++;
             this._name = name;
+            this._pseudoHeavenlyBody = isPseudoHeavenlyBody;
 
             _map.Add(_name, this);
         }

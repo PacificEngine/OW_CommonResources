@@ -7,6 +7,8 @@ namespace PacificEngine.OW_CommonResources.Geometry.Orbits
 {
     public class Gravity
     {
+        public static float GRAVITATIONAL_CONSTANT { get; } = GravityVolume.GRAVITATIONAL_CONSTANT;
+
         private const float twoPi = (float)(2d * Math.PI);
 
         private float _mu = float.NaN;

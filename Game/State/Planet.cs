@@ -97,27 +97,27 @@ namespace PacificEngine.OW_CommonResources.Game.State
             get
             {
                 var mapping = new Dictionary<HeavenlyBody, Plantoid>();
-                mapping.Add(HeavenlyBodies.Sun, new Plantoid(new Position.Size(2000, 20000), Gravity.of(2, 400000000000), new Quaternion(0, 0, 0, 1), 0f, HeavenlyBodies.None, Vector3.zero, Vector3.zero));
-                mapping.Add(HeavenlyBodies.SunStation, new Plantoid(new Position.Size(200f, 550), Gravity.of(2, 300000000), new Quaternion(0.502f, 0.502f, -0.498f, -0.498f), 0f, HeavenlyBodies.Sun, KeplerCoordinates.fromTrueAnomaly(0.0002f, 2295.99976f, 0, 180, 0, 90)));
-                mapping.Add(HeavenlyBodies.HourglassTwins, new Plantoid(new Position.Size(0f, 692.8f), Gravity.of(1, 800000), new Quaternion(0, -0.887f, 0, 0.462f), 0f, HeavenlyBodies.Sun, KeplerCoordinates.fromTrueAnomaly(0.0003f, 5000.00098f, 0, 305.2567f, 0, 179.7433f)));
-                mapping.Add(HeavenlyBodies.AshTwin, new Plantoid(new Position.Size(200f, 692.8f), Gravity.of(1, 1600000), new Quaternion(0, 0.954f, 0, 0.298f), 0.07f, HeavenlyBodies.HourglassTwins, KeplerCoordinates.fromTrueAnomaly(0, 249.999985f, 180, 33.4767f, 180, 111.5233f)));
-                mapping.Add(HeavenlyBodies.EmberTwin, new Plantoid(new Position.Size(200f, 692.8f), Gravity.of(1, 1600000), new Quaternion(0, -0.886f, 0, 0.463f), 0.05f, HeavenlyBodies.HourglassTwins, KeplerCoordinates.fromTrueAnomaly(0, 250.000092f, 180, 292.6138f, 180, 32.3862f)));
-                mapping.Add(HeavenlyBodies.TimberHearth, new Plantoid(new Position.Size(250, 1061), Gravity.of(1, 3000000), new Quaternion(0, 0.996f, 0, 0.087f), -0.01f, HeavenlyBodies.Sun, KeplerCoordinates.fromTrueAnomaly(0.0002f, 8593.08594f, 0, 10, 0, 270)));
-                mapping.Add(HeavenlyBodies.TimberHearthProbe, new Plantoid(new Position.Size(0.5f, 0.5f), Gravity.of(2, 10), Quaternion.Euler(0.0002f, 344.9152f, 270), 0f, HeavenlyBodies.TimberHearth, KeplerCoordinates.fromTrueAnomaly(0, 350.100128f, 0, 101.0517f, 0, 89.0675f)));
-                mapping.Add(HeavenlyBodies.Attlerock, new Plantoid(new Position.Size(100, 223.6f), Gravity.of(2, 50000000), new Quaternion(0, -0.642f, 0, -0.767f), 0f, HeavenlyBodies.TimberHearth, KeplerCoordinates.fromTrueAnomaly(0, 900.000183f, 0, 36.193f, 0, 333.807f)));
-                mapping.Add(HeavenlyBodies.BrittleHollow, new Plantoid(new Position.Size(300, 1162), Gravity.of(1, 3000000), new Quaternion(0, 0.642f, 0, -0.766f), 0.02f, HeavenlyBodies.Sun, KeplerCoordinates.fromTrueAnomaly(0.0002f, 11690.8896f, 0, 174.1133f, 0, 175.8867f)));
-                mapping.Add(HeavenlyBodies.HollowLantern, new Plantoid(new Position.Size(130, 421.2f), Gravity.of(1, 910000), new Quaternion(-0.542f, 0.449f, -0.455f, -0.546f), -0.2f, HeavenlyBodies.BrittleHollow, KeplerCoordinates.fromTrueAnomaly(0, 999.999817f, 0, 161.3635f, 0, 188.6365f)));
-                mapping.Add(HeavenlyBodies.GiantsDeep, new Plantoid(new Position.Size(900, 5422), Gravity.of(1, 21780000), new Quaternion(0, 0.105f, 0, -0.995f), 0f, HeavenlyBodies.Sun, KeplerCoordinates.fromTrueAnomaly(0.0002f, 16457.5898f, 0, 284.0027f, 0, 357.9973f)));
+                mapping.Add(HeavenlyBodies.Sun, new Plantoid(new Position.Size(2000, 50000), Gravity.of(2, 400000000000), new Quaternion(0, 0, 0, 1), 0f, HeavenlyBodies.None, Vector3.zero, Vector3.zero));
+                mapping.Add(HeavenlyBodies.SunStation, new Plantoid(new Position.Size(200f, 550), Gravity.of(2, 300000000), new Quaternion(0, 0.707f, 0, -0.707f), 0f, HeavenlyBodies.Sun, KeplerCoordinates.fromTrueAnomaly(0.0002f, 2295.99976f, 0, 180, 0, 90)));
+                mapping.Add(HeavenlyBodies.HourglassTwins, new Plantoid(new Position.Size(0f, 692.8f), Gravity.of(1, 800000), new Quaternion(-0.5f, -0.5f, 0.5f, 0.5f), 0f, HeavenlyBodies.Sun, KeplerCoordinates.fromTrueAnomaly(0.0003f, 5000.00098f, 0, 305.2567f, 0, 179.7433f)));
+                mapping.Add(HeavenlyBodies.AshTwin, new Plantoid(new Position.Size(200f, 692.8f), Gravity.of(1, 1600000), new Quaternion(0.5f, -0.5f, -0.5f, 0.5f), 0.07f, HeavenlyBodies.HourglassTwins, KeplerCoordinates.fromTrueAnomaly(0, 249.999985f, 180, 33.4767f, 180, 111.5233f)));
+                mapping.Add(HeavenlyBodies.EmberTwin, new Plantoid(new Position.Size(200f, 692.8f), Gravity.of(1, 1600000), new Quaternion(0.707f, 0, 0, -0.707f), 0.05f, HeavenlyBodies.HourglassTwins, KeplerCoordinates.fromTrueAnomaly(0, 250.000092f, 180, 292.6138f, 180, 32.3862f)));
+                mapping.Add(HeavenlyBodies.TimberHearth, new Plantoid(new Position.Size(250, 1061), Gravity.of(1, 3000000), new Quaternion(0, 0.707f, 0.707f, 0), -0.01f, HeavenlyBodies.Sun, KeplerCoordinates.fromTrueAnomaly(0.0002f, 8593.08594f, 0, 10, 0, 270)));
+                mapping.Add(HeavenlyBodies.TimberHearthProbe, new Plantoid(new Position.Size(0.5f, 0.5f), Gravity.of(2, 10), new Quaternion(0, -0.707f, 0, -0.707f), 0f, HeavenlyBodies.TimberHearth, KeplerCoordinates.fromTrueAnomaly(0, 350.100128f, 0, 101.0517f, 0, 89.0675f)));
+                mapping.Add(HeavenlyBodies.Attlerock, new Plantoid(new Position.Size(100, 223.6f), Gravity.of(2, 50000000), new Quaternion(0.707f, 0, 0, -0.707f), 0f, HeavenlyBodies.TimberHearth, KeplerCoordinates.fromTrueAnomaly(0, 900.000183f, 0, 36.193f, 0, 333.807f)));
+                mapping.Add(HeavenlyBodies.BrittleHollow, new Plantoid(new Position.Size(300, 1162), Gravity.of(1, 3000000), new Quaternion(-0.707f, 0, 0, -0.707f), 0.02f, HeavenlyBodies.Sun, KeplerCoordinates.fromTrueAnomaly(0.0002f, 11690.8896f, 0, 174.1133f, 0, 175.8867f)));
+                mapping.Add(HeavenlyBodies.HollowLantern, new Plantoid(new Position.Size(130, 421.2f), Gravity.of(1, 910000), new Quaternion(-1, 0, 0, 0), -0.2f, HeavenlyBodies.BrittleHollow, KeplerCoordinates.fromTrueAnomaly(0, 999.999817f, 0, 161.3635f, 0, 188.6365f)));
+                mapping.Add(HeavenlyBodies.GiantsDeep, new Plantoid(new Position.Size(900, 5422), Gravity.of(1, 21780000), new Quaternion(-0.707f, 0, 0, -0.707f), 0f, HeavenlyBodies.Sun, KeplerCoordinates.fromTrueAnomaly(0.0002f, 16457.5898f, 0, 284.0027f, 0, 357.9973f)));
                 mapping.Add(HeavenlyBodies.ProbeCannon, new Plantoid(new Position.Size(200, 550), Gravity.of(2, 300000000), Quaternion.identity, 0f, HeavenlyBodies.GiantsDeep, KeplerCoordinates.fromTrueAnomaly(0, 1199.99878f, 180, 214.9022f, 180, 178.0978f)));
-                mapping.Add(HeavenlyBodies.DarkBramble, new Plantoid(new Position.Size(650, 1780), Gravity.of(1, 3250000), new Quaternion(0, 0.996f, 0, 0.087f), 0f, HeavenlyBodies.Sun, KeplerCoordinates.fromTrueAnomaly(0.0003f, 20000, 0, 283.2319f, 0, 176.7681f)));
-                mapping.Add(HeavenlyBodies.WhiteHole, new Plantoid(new Position.Size(30, 200), Gravity.of(2, 1000000), new Quaternion(0, 0.7071068f, 0, 0.7071068f), 0f, HeavenlyBodies.None, new Vector3(-23000, 0, 0), Vector3.zero));
+                mapping.Add(HeavenlyBodies.DarkBramble, new Plantoid(new Position.Size(650, 1780), Gravity.of(1, 3250000), new Quaternion(0, 0.707f, -0.707f, 0), 0f, HeavenlyBodies.Sun, KeplerCoordinates.fromTrueAnomaly(0.0003f, 20000, 0, 283.2319f, 0, 176.7681f)));
+                mapping.Add(HeavenlyBodies.WhiteHole, new Plantoid(new Position.Size(30, 200), Gravity.of(2, 1000000), new Quaternion(0, 0.707f, 0, 0.707f), 0f, HeavenlyBodies.None, new Vector3(-23000, 0, 0), Vector3.zero));
                 mapping.Add(HeavenlyBodies.WhiteHoleStation, new Plantoid(new Position.Size(30, 100), Gravity.of(2, 100000), new Quaternion(0, 0.04225808f, 0, -0.9991068f), 0f, HeavenlyBodies.None, new Vector3(-22538.19f, 0, 0), Vector3.zero));
                 mapping.Add(HeavenlyBodies.Interloper, new Plantoid(new Position.Size(110, 301.2f), Gravity.of(1, 550000), new Quaternion(0, 1, 0, 0), 0.0034f, HeavenlyBodies.Sun, KeplerCoordinates.fromTrueAnomaly(0.8194f, 13246.3076f, 180, 180, 180, 180)));
                 mapping.Add(HeavenlyBodies.Stranger, new Plantoid(new Position.Size(600, 1000), Gravity.of(2, 300000000), new Quaternion(-0.381f, -0.892f, 0.033f, -0.239f), -0.05f, HeavenlyBodies.None, new Vector3(8168.197f, 8400, 2049.528f), Vector3.zero));
                 mapping.Add(HeavenlyBodies.DreamWorld, new Plantoid(new Position.Size(1000, 1000), Gravity.of(2, 300000000), new Quaternion(0, 0.087f, 0, -0.996f), 0f, HeavenlyBodies.None, new Vector3(7791.638f, 7000, 1881.588f), Vector3.zero));
                 mapping.Add(HeavenlyBodies.QuantumMoon, new Plantoid(new Position.Size(110, 301.2f), Gravity.of(1, 550000), Quaternion.identity, 0f, HeavenlyBodies.None, Vector3.zero, Vector3.zero));
                 mapping.Add(HeavenlyBodies.SatiliteBacker, new Plantoid(new Position.Size(5, 100), Gravity.of(2, 100), new Quaternion(0, 0, 0, 1), 0f, HeavenlyBodies.Sun, new Vector3(42000, 5000, -22500), new Vector3(-46.8846f, 28.13076f, 24.70819f)));
-                mapping.Add(HeavenlyBodies.SatiliteMapping, new Plantoid(new Position.Size(5, 100), Gravity.of(2, 500), new Quaternion(-0.084f, -0.76f, -0.1f, 0.637f), 0f, HeavenlyBodies.Sun, KeplerCoordinates.fromTrueAnomaly(0, 25999.998f, 90, 254.9042f, 10, 90.0968f)));
+                mapping.Add(HeavenlyBodies.SatiliteMapping, new Plantoid(new Position.Size(5, 100), Gravity.of(2, 500), new Quaternion(-0.331f, -0.625f, 0.625f, -0.331f), 0f, HeavenlyBodies.Sun, KeplerCoordinates.fromTrueAnomaly(0, 25999.998f, 90, 254.9042f, 10, 90.0968f)));
 
                 return mapping;
             }
@@ -155,10 +155,10 @@ namespace PacificEngine.OW_CommonResources.Game.State
                     var owBody = Position.getBody(body);
                     if (owBody != null)
                     {
-                        var parent = _mapping[body].state.parent;
+                        var parent = _getParent(body, false);
 
-                        var gravity = Position.getGravity(body);
-                        var size = Position.getSize(body);
+                        var gravity = _getGravity(body, false);
+                        var size = _getSize(body, false);
 
                         mapping.Add(body, new Plantoid(size, gravity, parent, owBody));
                     }
@@ -458,7 +458,7 @@ namespace PacificEngine.OW_CommonResources.Game.State
                 var parentState = !newStates.ContainsKey(movingItem.Item2.parent)
                     ? AbsoluteState.fromCurrentState(movingItem.Item2.parent)
                     : newStates[movingItem.Item2.parent];
-                var parentGravity = Position.getGravity(movingItem.Item2.parent);
+                var parentGravity = _getGravity(movingItem.Item2.parent, true);
                 if (parentState == null || parentGravity == null)
                 {
                     continue;
@@ -497,22 +497,409 @@ namespace PacificEngine.OW_CommonResources.Game.State
                 HeavenlyBodies.EyeOfTheUniverse_Vessel));
         }
 
-        private static Gravity getGravity(HeavenlyBody parent)
+        public static List<HeavenlyBody> getChildren(HeavenlyBody parent)
         {
-            if (parent == HeavenlyBodies.HourglassTwins)
-            {
-                var emberTwin = _mapping[HeavenlyBodies.EmberTwin];
-                var ashTwin = _mapping[HeavenlyBodies.AshTwin];
-                var exponent = (emberTwin.gravity.exponent + ashTwin.gravity.exponent) / 2f;
-                var mass = (emberTwin.gravity.mass + ashTwin.gravity.mass) / 4f;
+            return _getChildren(parent, false);
+        }
 
-                return Gravity.of(exponent, mass);
+        private static List<HeavenlyBody> _getChildren(HeavenlyBody parent, bool stateOnly)
+        {
+            var children = new List<HeavenlyBody>();
+            foreach (var child in Position.getAstros())
+            {
+                if (_getParent(child, stateOnly) == parent)
+                {
+                    children.Add(child);
+                }
+            }
+
+            return children;
+        }
+
+        public static HeavenlyBody getParent(HeavenlyBody child)
+        {
+            return _getParent(child, false);
+        }
+
+        private static HeavenlyBody _getParent(HeavenlyBody child, bool stateOnly)
+        {
+            var parent = HeavenlyBody.None;
+            if (child == null)
+            {
+                return HeavenlyBody.None;
+            }
+
+            if (!stateOnly)
+            {
+                parent = _getParentCurrent(child);
+                if (parent != HeavenlyBody.None)
+                {
+                    return parent;
+                }
+            }
+
+            parent = _getParentState(child);
+            if (parent != HeavenlyBody.None)
+            {
+                return parent;
+            }
+
+            return HeavenlyBody.None;
+        }
+
+        private static HeavenlyBody _getParentCurrent(HeavenlyBody child)
+        {
+            var astroChild = Position.getAstro(child);
+            if (astroChild == null)
+            {
+                return HeavenlyBody.None;
+            }
+
+            var astroParent = astroChild.GetPrimaryBody();
+            var parent = Position.find(astroParent);
+            if (parent == null)
+            {
+                return HeavenlyBody.None;
+            }
+
+            return parent;
+        }
+
+        private static HeavenlyBody _getParentState(HeavenlyBody child)
+        {
+            if (child == null)
+            {
+                return HeavenlyBody.None;
+            }
+            else if (_mapping.ContainsKey(child))
+            {
+                var childMap = _mapping[child];
+                var parent = childMap?.state?.parent;
+                if (parent == null)
+                {
+                    return HeavenlyBody.None;
+                }
+                return parent;
+            }
+
+            return HeavenlyBody.None;
+        }
+
+        public static Gravity getParentGravity(HeavenlyBody child)
+        {
+            return _getParentGravity(child, false);
+        }
+
+        private static Gravity _getParentGravity(HeavenlyBody child, bool stateOnly)
+        {
+            var parent = _getParent(child, stateOnly);
+            if (parent == null)
+            {
+                return null;
+            }
+            else if (parent.pseudoHeavenlyBody)
+            {
+                float childDistance;
+                var parentState = stateOnly ? null : AbsoluteState.fromCurrentState(parent);
+                if (parentState != null)
+                {
+                    var childState = AbsoluteState.fromCurrentState(child);
+                    childDistance = (childState.position - parentState.position).magnitude;
+                }
+                else if (_mapping.ContainsKey(child))
+                {
+                    childDistance = _mapping[child]?.state?.orbit?.coordinates?.semiMajorRadius ?? 0f;
+                }
+                else
+                {
+                    childDistance = 0f;
+                }
+                var siblings = _getChildren(parent, stateOnly);
+                float mass = 0;
+                foreach (var sibling in siblings)
+                {
+                    if (sibling == child)
+                    {
+                        continue;
+                    }
+                    var siblingGravity = _getGravity(sibling, stateOnly);
+
+                    float siblingDistance;
+                    if (parentState != null)
+                    {
+                        var siblingState = AbsoluteState.fromCurrentState(sibling);
+                        siblingDistance = (siblingState.position - parentState.position).magnitude;
+                    }
+                    else if (_mapping.ContainsKey(sibling))
+                    {
+                        siblingDistance = _mapping[sibling]?.state?.orbit?.coordinates?.semiMajorRadius ?? 0f;
+                    }
+                    else
+                    {
+                        siblingDistance = 0f;
+                    }
+
+                    mass += (siblingGravity.mu * childDistance * childDistance) / (((float)Math.Pow(childDistance + siblingDistance, siblingGravity.exponent)) * Gravity.GRAVITATIONAL_CONSTANT);
+                }
+                return Gravity.of(2, mass);
+            }
+            
+            return _getGravity(parent, stateOnly);
+        }
+
+        public static Gravity getGravity(HeavenlyBody body)
+        {
+            return _getGravity(body, false);
+        }
+
+        private static Gravity _getGravity(HeavenlyBody parent, bool stateOnly)
+        {
+            var gravity = Gravity.of(2f, 0f);
+            if (parent == null || parent.pseudoHeavenlyBody)
+            {
+                return Gravity.of(2f, 0f);
+            }
+
+            if (!stateOnly)
+            {
+                gravity = _getGravityCurrent(parent);
+                if (gravity != null)
+                {
+                    return gravity;
+                }
+            }
+
+            gravity = _getGravityState(parent);
+            if (gravity != null)
+            {
+                return gravity;
+            }
+
+            if (!stateOnly)
+            {
+                var parentBody = Position.getBody(parent);
+                if (parentBody != null)
+                {
+                    return Gravity.of(2f, parentBody.GetMass());
+                }
+            }
+
+            return Gravity.of(2f, 0f);
+        }
+
+        private static Gravity _getGravityCurrent(HeavenlyBody parent)
+        {
+            if (parent == null || parent.pseudoHeavenlyBody)
+            {
+                return null;
+            }
+
+            var parentBody = Position.getBody(parent);
+            if (parentBody == null)
+            {
+                return null;
+            }
+
+            if (parentBody?.GetAttachedGravityVolume() == null)
+            {
+                return null;
+            }
+
+            var exponent = parentBody?.GetAttachedGravityVolume()?.GetValue<float>("_falloffExponent") ?? 2f;
+            var mass = parentBody?.GetAttachedGravityVolume()?.GetValue<float>("_gravitationalMass") ?? ((parentBody?.GetMass() ?? 0f) * 1000f);
+            return Gravity.of(exponent, mass);
+        }
+
+        private static Gravity _getGravityState(HeavenlyBody parent)
+        {
+            if (parent == null || parent.pseudoHeavenlyBody)
+            {
+                return null;
             }
             else if (_mapping.ContainsKey(parent))
             {
-
                 var parentMap = _mapping[parent];
                 return Gravity.of(parentMap.gravity.exponent, parentMap.gravity.mass);
+            }
+
+            return null;
+        }
+
+        public static Position.Size getSize(HeavenlyBody child)
+        {
+            return _getSize(child, false);
+        }
+
+        private static Position.Size _getSize(HeavenlyBody child, bool stateOnly)
+        {
+            if (child == null)
+            {
+                return new Position.Size(0, 0);
+            }
+
+            var size = _getSizeState(child);
+            if (size != null)
+            {
+                return size;
+            }
+
+            if (!stateOnly)
+            {
+                size = _getSizeCurrent(child);
+                if (size != null)
+                {
+                    return size;
+                }
+            }
+
+            return new Position.Size(0, 0);
+        }
+
+
+        private static Position.Size _getSizeCurrent(HeavenlyBody child)
+        {
+            if (child == null || child.pseudoHeavenlyBody)
+            {
+                return null;
+            }
+
+            float size;
+            float influence;
+            if (child == HeavenlyBodies.InnerDarkBramble_Hub
+                || child == HeavenlyBodies.InnerDarkBramble_Nest
+                || child == HeavenlyBodies.InnerDarkBramble_Feldspar
+                || child == HeavenlyBodies.InnerDarkBramble_Gutter
+                || child == HeavenlyBodies.InnerDarkBramble_Vessel
+                || child == HeavenlyBodies.InnerDarkBramble_Maze
+                || child == HeavenlyBodies.InnerDarkBramble_SmallNest
+                || child == HeavenlyBodies.InnerDarkBramble_Secret)
+            {
+                var outerPortal = BramblePortals.getOuterPortal(child, 0) ?? BramblePortals.getOuterPortal(child, -1);
+                if (outerPortal != null)
+                {
+                    size = Mathf.Max(outerPortal.GetWarpRadius(), outerPortal.GetExitRadius());
+                    influence = size;
+                }
+                else
+                {
+                    var gravity = _getGravity(child, false);
+                    size = 0f;
+                    influence = (float)Math.Sqrt(gravity.mu);
+                }
+            }
+            else if (child == HeavenlyBodies.Player)
+            {
+                size = 1f;
+                influence = 1f;
+            }
+            else if (child == HeavenlyBodies.Ship
+                || child == HeavenlyBodies.NomaiEmberTwinShuttle
+                || child == HeavenlyBodies.NomaiBrittleHollowShuttle)
+            {
+                size = 1f;
+                influence = 1f;
+            }
+            else if (child == HeavenlyBodies.Player)
+            {
+                size = 1f;
+                influence = 1f;
+            }
+            else if (child == HeavenlyBodies.Probe
+                || child == HeavenlyBodies.ModelShip
+                || child == HeavenlyBodies.TimberHearthProbe)
+            {
+                size = 0.5f;
+                influence = 0.5f;
+            }
+            else if (child == HeavenlyBodies.SunStation
+                || child == HeavenlyBodies.ProbeCannon)
+            {
+                size = 200f;
+                influence = 550f;
+            }
+            else if (child == HeavenlyBodies.NomaiProbe)
+            {
+                size = 35f;
+                influence = 100f;
+            }
+            else if (child == HeavenlyBodies.WhiteHole)
+            {
+                size = 30f;
+                influence = 200f;
+            }
+            else if (child == HeavenlyBodies.WhiteHoleStation)
+            {
+                size = 30f;
+                influence = 100f;
+            }
+            else if (child == HeavenlyBodies.Stranger)
+            {
+                size = 600f;
+                influence = 1000f;
+            }
+            else if (child == HeavenlyBodies.DreamWorld)
+            {
+                size = 1000f;
+                influence = 1000f;
+            }
+            else if (child == HeavenlyBodies.SatiliteBacker
+                || child == HeavenlyBodies.SatiliteMapping)
+            {
+                size = 5f;
+                influence = 100f;
+            }
+            else if (child == HeavenlyBodies.EyeOfTheUniverse_Vessel)
+            {
+                size = 250f;
+                influence = 250f;
+            }
+            else if (child == HeavenlyBodies.Sun)
+            {
+                size = 2000f;
+                influence = 45000f;
+            }
+            else
+            {
+                var gravity = _getGravity(child, false);
+                var childBody = Position.getBody(child);
+                size = Mathf.Max(childBody?.GetAttachedGravityVolume()?.GetValue<float>("_upperSurfaceRadius") ?? 0f,
+                                childBody?.GetAttachedGravityVolume()?.GetValue<float>("_lowerSurfaceRadius") ?? 0f,
+                                childBody?.GetAttachedGravityVolume()?.GetValue<float>("_cutoffRadius") ?? 0f);
+
+                if (size == 0)
+                {
+                    size = childBody?.GetAttachedGravityVolume()?.GetValue<float>("_alignmentRadius") ?? 0f;
+                }
+
+                if (gravity.exponent < 1.5f && size > 0.01f)
+                {
+                    influence = (float)Math.Sqrt(gravity.mu * size * 1.5f);
+                }
+                else
+                {
+                    influence = (float)Math.Sqrt(gravity.mu);
+                }
+
+                if (influence < size)
+                {
+                    influence = size;
+                }
+            }
+
+            return new Position.Size(size, influence);
+        }
+
+
+        private static Position.Size _getSizeState(HeavenlyBody child)
+        {
+            if (child == null || child.pseudoHeavenlyBody)
+            {
+                return null;
+            }
+            else if (_mapping.ContainsKey(child))
+            {
+                var childMap = _mapping[child];
+                return new Position.Size(childMap?.size?.size ?? 0f, childMap?.size?.influence ?? 0f);
             }
 
             return null;
@@ -534,7 +921,7 @@ namespace PacificEngine.OW_CommonResources.Game.State
             }
             updatePlanetParent(planet.state.parent, owBody);
 
-            var gravity = getGravity(planet.state.parent);
+            var gravity = _getParentGravity(body, true);
             AbsoluteState parentState = null;
             if (newStates.ContainsKey(planet.state.parent))
             {
@@ -571,36 +958,54 @@ namespace PacificEngine.OW_CommonResources.Game.State
 
         private static bool onOrbitLineUpdate(ref OrbitLine __instance)
         {
-            var _astroObject = __instance.GetValue<AstroObject>("_astroObject");
-            var _lineRenderer = __instance.GetValue<LineRenderer>("_lineRenderer");
+            var _astroObject = __instance?.GetValue<AstroObject>("_astroObject");
+            var _lineRenderer = __instance?.GetValue<LineRenderer>("_lineRenderer");
+            if (_astroObject == null || _lineRenderer == null)
+            {
+                return false;
+            }
             _lineRenderer.startColor = Color.clear;
             _lineRenderer.endColor = Color.clear;
 
-            AstroObject parentAstro = _astroObject != null ? _astroObject.GetPrimaryBody() : (AstroObject)null;
-            if (parentAstro == null)
+            AstroObject parentAstro = _astroObject?.GetPrimaryBody();
+            if (__instance == null
+                || __instance.transform == null
+                || parentAstro == null
+                || parentAstro.transform == null)
             {
                 return false;
             }
 
             var body = Position.find(_astroObject);
+            if (body == null)
+            {
+                return false;
+            }
+
             Plantoid planet;
             if (!_mapping.TryGetValue(body, out planet))
             {
                 return false;
             }
 
-            var parent = planet.state.parent;
-            var owBody = Position.getBody(body);
-            var kepler = Position.getKepler(parent, owBody);
+            var parent = planet?.state?.parent;
+            var targetState = PositionState.fromCurrentState(body);
+            var parentState = AbsoluteState.fromCurrentState(parent);
+            var parentGravity = _getParentGravity(body, false);
+            if (targetState == null || parentState == null || parentGravity == null)
+            {
+                return false;
+            }
+
+            var kepler = Position.getKepler(parentState, parentGravity, targetState.position, targetState.velocity);
             if (kepler == null && !kepler.isOrbit())
             {
                 return false;
             }
 
             var _numVerts = __instance.GetValue<int>("_numVerts");
-            var _verts = new Vector3[_numVerts];
+            var _verts = new Vector3[_numVerts];            
 
-            var parentGravity = Position.getGravity(parent);
             var semiAxis = new Vector2(kepler.semiMajorRadius, kepler.semiMinorRadius);
             var angle = KeplerCoordinates.shiftTimeSincePeriapsis(parentGravity, kepler, Time.timeSinceLevelLoad).esccentricAnomaly;
             var increment = Circle.getPercentageAngle(1f / (float)(_numVerts - 1));
@@ -633,7 +1038,10 @@ namespace PacificEngine.OW_CommonResources.Game.State
             float num1 = Mathf.Min(ellipticalOrbitLine * (_lineWidth / 1000f), _maxLineWidth);
             float num2 = _fade ? 1f - Mathf.Clamp01((ellipticalOrbitLine - _fadeStartDist) / (_fadeEndDist - _fadeStartDist)) : 1f;
             _lineRenderer.widthMultiplier = num1;
-            _lineRenderer.startColor = new Color(_color.r, _color.g, _color.b, num2 * num2);
+            if (_color != null)
+            {
+                _lineRenderer.startColor = new Color(_color.r, _color.g, _color.b, num2 * num2);
+            }
 
             return false;
         }

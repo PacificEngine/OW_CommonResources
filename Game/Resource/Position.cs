@@ -301,11 +301,6 @@ namespace PacificEngine.OW_CommonResources.Game.Resource
             return HeavenlyBody.None;
         }
 
-        public static HeavenlyBody getParent(HeavenlyBody body)
-        {
-            return find(getAstro(body)?.GetPrimaryBody());
-        }
-
         private static AstroObject lookupAstro(HeavenlyBody value)
         {
             if (value == null)
@@ -419,7 +414,7 @@ namespace PacificEngine.OW_CommonResources.Game.Resource
                 }
 
                 var parentState = PositionState.fromCurrentState(body);
-                var size = getSize(body);
+                var size = Planet.getSize(body);
                 if (parentState == null || size == null)
                 {
                     return true;
@@ -465,176 +460,6 @@ namespace PacificEngine.OW_CommonResources.Game.Resource
             return obj;
         }
 
-        public static Gravity getGravity(HeavenlyBody parent)
-        {
-            var parentBody = getBody(parent);
-            if (parentBody == null)
-            {
-                return null;
-            }
-
-            float exponent;
-            float mass;
-            if (parent == HeavenlyBodies.HourglassTwins)
-            {
-                var emberTwin = Position.getBody(HeavenlyBodies.EmberTwin);
-                var ashTwin = Position.getBody(HeavenlyBodies.AshTwin);
-                exponent = ((emberTwin?.GetAttachedGravityVolume()?.GetValue<float>("_falloffExponent") ?? 2f) + (ashTwin?.GetAttachedGravityVolume()?.GetValue<float>("_falloffExponent") ?? 2f)) / 2f;
-                mass = ((emberTwin?.GetAttachedGravityVolume()?.GetValue<float>("_gravitationalMass") ?? ((emberTwin?.GetMass() ?? 0f) * 1000f)) + (ashTwin?.GetAttachedGravityVolume()?.GetValue<float>("_gravitationalMass") ?? ((ashTwin?.GetMass() ?? 0f) * 1000f))) / 4f;
-            }
-            else
-            {
-                exponent = parentBody?.GetAttachedGravityVolume()?.GetValue<float>("_falloffExponent") ?? 2f;
-                mass = parentBody?.GetAttachedGravityVolume()?.GetValue<float>("_gravitationalMass") ?? ((parentBody?.GetMass() ?? 0f) * 1000f);
-            }
-
-            return Gravity.of(exponent, mass);
-        }
-
-        public static Size getSize(HeavenlyBody parent)
-        {
-            var parentBody = getBody(parent);
-            if (parentBody == null)
-            {
-                return null;
-            }
-            var gravity = getGravity(parent);
-
-            float size;
-            float influence;
-            if (parent == HeavenlyBodies.InnerDarkBramble_Hub
-                || parent == HeavenlyBodies.InnerDarkBramble_Nest
-                || parent == HeavenlyBodies.InnerDarkBramble_Feldspar
-                || parent == HeavenlyBodies.InnerDarkBramble_Gutter
-                || parent == HeavenlyBodies.InnerDarkBramble_Vessel
-                || parent == HeavenlyBodies.InnerDarkBramble_Maze
-                || parent == HeavenlyBodies.InnerDarkBramble_SmallNest
-                || parent == HeavenlyBodies.InnerDarkBramble_Secret)
-            {
-                var outerPortal = BramblePortals.getOuterPortal(parent, 0) ?? BramblePortals.getOuterPortal(parent, -1);
-                if (outerPortal != null)
-                {
-                    size = Mathf.Max(outerPortal.GetWarpRadius(), outerPortal.GetExitRadius());
-                    influence = size;
-                }
-                else
-                {
-                    size = 0f;
-                    influence = (float)Math.Sqrt(gravity.mu);
-                }
-            }
-            else if (parent == HeavenlyBodies.HourglassTwins)
-            {
-                size = 0f;
-                if (gravity.exponent < 1.5f)
-                {
-                    influence = (float)Math.Sqrt(gravity.mu * 400f * 1.5f);
-                }
-                else
-                {
-                    influence = (float)Math.Sqrt(gravity.mu);
-                }
-            }
-            else if (parent == HeavenlyBodies.Player)
-            {
-                size = 1f;
-                influence = 1f;
-            }
-            else if (parent == HeavenlyBodies.Ship
-                || parent == HeavenlyBodies.NomaiEmberTwinShuttle
-                || parent == HeavenlyBodies.NomaiBrittleHollowShuttle)
-            {
-                size = 1f;
-                influence = 1f;
-            }
-            else if (parent == HeavenlyBodies.Player)
-            {
-                size = 1f;
-                influence = 1f;
-            }
-            else if (parent == HeavenlyBodies.Probe
-                || parent == HeavenlyBodies.ModelShip
-                || parent == HeavenlyBodies.TimberHearthProbe)
-            {
-                size = 0.5f;
-                influence = 0.5f;
-            }
-            else if (parent == HeavenlyBodies.SunStation
-                || parent == HeavenlyBodies.ProbeCannon)
-            {
-                size = 200f;
-                influence = 550f;
-            }
-            else if (parent == HeavenlyBodies.NomaiProbe)
-            {
-                size = 35f;
-                influence = 100f;
-            }
-            else if (parent == HeavenlyBodies.WhiteHole)
-            {
-                size = 30f;
-                influence = 200f;
-            }
-            else if (parent == HeavenlyBodies.WhiteHoleStation)
-            {
-                size = 30f;
-                influence = 100f;
-            }
-            else if (parent == HeavenlyBodies.Stranger)
-            {
-                size = 600f;
-                influence = 1000f;
-            }
-            else if (parent == HeavenlyBodies.DreamWorld)
-            {
-                size = 1000f;
-                influence = 1000f;
-            }
-            else if (parent == HeavenlyBodies.SatiliteBacker
-                || parent == HeavenlyBodies.SatiliteMapping)
-            {
-                size = 5f;
-                influence = 100f;
-            }
-            else if (parent == HeavenlyBodies.EyeOfTheUniverse_Vessel)
-            {
-                size = 250f;
-                influence = 250f;
-            }
-            else if (parent == HeavenlyBodies.Sun)
-            {
-                size = 2000f;
-                influence = 45000f;
-            }
-            else
-            {
-                size = Mathf.Max(parentBody?.GetAttachedGravityVolume()?.GetValue<float>("_upperSurfaceRadius") ?? 0f,
-                                parentBody?.GetAttachedGravityVolume()?.GetValue<float>("_lowerSurfaceRadius") ?? 0f,
-                                parentBody?.GetAttachedGravityVolume()?.GetValue<float>("_cutoffRadius") ?? 0f);
-
-                if (size == 0)
-                {
-                    size = parentBody?.GetAttachedGravityVolume()?.GetValue<float>("_alignmentRadius") ?? 0f;
-                }
-
-                if (gravity.exponent < 1.5f && size > 0.01f)
-                {
-                    influence = (float)Math.Sqrt(gravity.mu * size * 1.5f);
-                }
-                else
-                {
-                    influence = (float)Math.Sqrt(gravity.mu);
-                }
-
-                if (influence < size)
-                {
-                    influence = size;
-                }
-            }
-
-            return new Size(size, influence);
-        }
-
         public static KeplerCoordinates getKepler(HeavenlyBody parent, OWRigidbody target)
         {
             var state = PositionState.fromCurrentState(target);
@@ -649,7 +474,7 @@ namespace PacificEngine.OW_CommonResources.Game.Resource
         public static KeplerCoordinates getKepler(HeavenlyBody parent, Vector3 worldPosition, Vector3 worldVelocity)
         {
             var state = AbsoluteState.fromCurrentState(parent);
-            var gravity = getGravity(parent);
+            var gravity = Planet.getGravity(parent);
 
             return getKepler(state, gravity, worldPosition, worldVelocity);
         }

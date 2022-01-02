@@ -16,7 +16,7 @@ namespace PacificEngine.OW_CommonResources.Game.Resource
         public static HeavenlyBody ModelShip = new HeavenlyBody($"{prefix}Model_Ship");
         public static HeavenlyBody Sun = new HeavenlyBody($"{prefix}Sun");
         public static HeavenlyBody SunStation = new HeavenlyBody($"{prefix}Sun_Station");
-        public static HeavenlyBody HourglassTwins = new HeavenlyBody($"{prefix}Hourglass_Twins");
+        public static HeavenlyBody HourglassTwins = new HeavenlyBody($"{prefix}Hourglass_Twins", true);
         public static HeavenlyBody AshTwin = new HeavenlyBody($"{prefix}Ash_Twin");
         public static HeavenlyBody EmberTwin = new HeavenlyBody($"{prefix}Ember_Twin");
         public static HeavenlyBody TimberHearth = new HeavenlyBody($"{prefix}Timber_Hearth");
