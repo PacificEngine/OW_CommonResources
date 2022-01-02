@@ -1026,7 +1026,7 @@ namespace PacificEngine.OW_CommonResources.Game.State
             var parent = planet?.state?.parent;
             var targetState = PositionState.fromCurrentState(body);
             var parentState = AbsoluteState.fromCurrentState(parent);
-            var parentGravity = _getParentGravity(body, false);
+            var parentGravity = _getParentGravity(body, true);
             if (targetState == null || parentState == null || parentGravity == null)
             {
                 return false;
