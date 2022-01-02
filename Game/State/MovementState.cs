@@ -937,44 +937,44 @@ namespace PacificEngine.OW_CommonResources.Game.State
 
         private OrientationState getAbsoluteOrientation(AbsoluteState parentState, Gravity gravity, Vector3 worldPosition, OWRigidbody target)
         {
+            Quaternion rotation = Quaternion.identity;
+            Vector3 angularVelocity = Vector3.zero;
+            Vector3 angularAcceleration = Vector3.zero;
+
             var alignment = target.GetComponent<AlignWithTargetBody>();
-            if (alignment != null
+            if (parentState != null && orbit != null && orbit.coordinates != null && orbit.coordinates.isOrbit() && gravity != null)
+            {
+                var pointRotation = parentState.PointRotation(worldPosition);
+                rotation = pointRotation * orbit.rotation;
+                angularVelocity = pointRotation * orbit.angularVelocity;
+                angularAcceleration = Vector3.zero;
+            }
+            else if (parentState != null && surface != null)
+            {
+                var pointRotation = parentState.PointRotation(worldPosition);
+                rotation = pointRotation * surface.rotation;
+                angularVelocity = pointRotation * surface.angularVelocity;
+                angularAcceleration = Vector3.zero;
+            }
+            else if (alignment != null
                 && parentState != null)
             {
                 var alignmentAxis = alignment.GetValue<Vector3>("_localAlignmentAxis");
                 var targetDirection = parentState.position - worldPosition;
+                var pointRotation = Quaternion.FromToRotation(alignmentAxis, targetDirection);
 
-                var rotation = Quaternion.FromToRotation(alignmentAxis, targetDirection);
-                var velocity = Vector3.zero;
-
-                return new OrientationState(rotation, velocity, Vector3.zero);
-            }
-
-            if (parentState != null && orbit != null && orbit.coordinates != null && orbit.coordinates.isOrbit() && gravity != null)
-            {
-                var pointRotation = parentState.PointRotation(worldPosition);
-                var rotation = pointRotation * orbit.rotation;
-                var velocity = pointRotation * orbit.angularVelocity;
-
-                return new OrientationState(rotation, velocity, Vector3.zero);
-            }
-            if (parentState != null && surface != null)
-            {
-                var pointRotation = parentState.PointRotation(worldPosition);
-                var rotation = pointRotation * surface.rotation;
-                var velocity = pointRotation * surface.angularVelocity;
-
-                return new OrientationState(rotation, velocity, Vector3.zero);
+                rotation = pointRotation * relative.rotation;
+                angularVelocity = Vector3.zero;
+                angularAcceleration = Vector3.zero;
             }
             else if (relative != null)
             {
-                var rotation = relative.rotation;
-                var velocity = relative.angularVelocity;
+                rotation = relative.rotation;
+                angularVelocity = relative.angularVelocity;
+                angularAcceleration = Vector3.zero;
+            }            
 
-                return new OrientationState(rotation, velocity, Vector3.zero);
-            }
-
-            return new OrientationState(Quaternion.identity, Vector3.zero, Vector3.zero);
+            return new OrientationState(rotation, angularVelocity, angularAcceleration);
         }
 
         public static RelativeState fromGlobal(HeavenlyBody parent, OWRigidbody target, bool useInitialVelocity = false)
@@ -1021,8 +1021,16 @@ namespace PacificEngine.OW_CommonResources.Game.State
 
         public static MovementState getRelativeMovement(HeavenlyBody parent, OWRigidbody target)
         {
+            var parentState = AbsoluteState.fromCurrentState(Position.getBody(parent));
+            var targetState = AbsoluteState.fromCurrentState(target);
             var parentGravity = parent.pseudoHeavenlyBody ? Planet.getParentGravity(Position.find(target)) : Planet.getGravity(parent);
-            return getRelativeMovement(AbsoluteState.fromCurrentState(Position.getBody(parent)), parentGravity, ScaleState.fromCurrentState(target), AbsoluteState.fromCurrentState(target));
+            var alignment = target.GetComponent<AlignWithTargetBody>();
+            if (alignment != null)
+            {
+                var newOrientation = getAlignWithTargetBodyOrientation(parentState, targetState, target);
+                targetState = new AbsoluteState(targetState.scale, targetState.coordinates, newOrientation);
+            }
+            return getRelativeMovement(parentState, parentGravity, ScaleState.fromCurrentState(target), targetState);
         }
 
         public static MovementState getRelativeMovement(AbsoluteState parentState, Gravity parentGravity, ScaleState targetScale, AbsoluteState target)

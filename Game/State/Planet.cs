@@ -83,8 +83,8 @@ namespace PacificEngine.OW_CommonResources.Game.State
 
         private static float lastUpdate = 0f;
         private static List<string> debugIds = new List<string>();
-        public static bool enabledManagement { get; set; } = true;
-        public static int logPlanetPositionFrequency { get; set; } = 1000;
+        public static bool enabledManagement { get; set; } = false;
+        public static int logPlanetPositionFrequency { get; set; } = -1;
         public static bool debugPlanetPosition { get; set; } = false;
 
         private static Dictionary<HeavenlyBody, Tuple<InitialMotion, Vector3, Vector3, Quaternion, Vector3, GravityVolume>> dict = new Dictionary<HeavenlyBody, Tuple<InitialMotion, Vector3, Vector3, Quaternion, Vector3, GravityVolume>>();
@@ -276,7 +276,7 @@ namespace PacificEngine.OW_CommonResources.Game.State
 
             if (logPlanetPositionFrequency > 0)
             {
-                if ((GameTimer.FramesSinceAwake - 10) % logPlanetPositionFrequency == 0)
+                if (GameTimer.FramesSinceAwake % logPlanetPositionFrequency == 0)
                 {
                     Helper.helper.Console.WriteLine($"Frame {GameTimer.FramesSinceAwake} Planet State");
                     foreach (var map in mapping)
