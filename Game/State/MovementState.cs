@@ -149,12 +149,12 @@ namespace PacificEngine.OW_CommonResources.Game.State
             }
         }
 
-        public static PositionState fromCurrentState(HeavenlyBody target)
+        public static PositionState fromCurrentState(HeavenlyBody target, bool useInitialVelocity = false)
         {
-            return fromCurrentState(Position.getBody(target));
+            return fromCurrentState(Position.getBody(target), useInitialVelocity);
         }
 
-        public static PositionState fromCurrentState(OWRigidbody target)
+        public static PositionState fromCurrentState(OWRigidbody target, bool useInitialVelocity = false)
         {
             if (target == null || target.GetRigidbody() == null)
             {
@@ -167,10 +167,17 @@ namespace PacificEngine.OW_CommonResources.Game.State
             var acceleration = target.GetAcceleration() - offset.acceleration;
             var jerk = target.GetJerk() - offset.jerk;
 
+            if (useInitialVelocity)
+            {
+                velocity = getStartVelocity(target.gameObject);
+                acceleration = Vector3.zero;
+                jerk = Vector3.zero;
+            }
+
             return new PositionState(position, velocity, acceleration, jerk);
         }
 
-        private static PositionState fromCurrentState(KinematicRigidbody target)
+        private static PositionState fromCurrentState(KinematicRigidbody target, bool useInitialVelocity = false)
         {
             if (target == null)
             {
@@ -183,10 +190,17 @@ namespace PacificEngine.OW_CommonResources.Game.State
             var acceleration = Vector3.zero;
             var jerk = Vector3.zero;
 
+            if (useInitialVelocity)
+            {
+                velocity = getStartVelocity(target.gameObject);
+                acceleration = Vector3.zero;
+                jerk = Vector3.zero;
+            }
+
             return new PositionState(position, velocity, acceleration, jerk);
         }
 
-        private static PositionState fromCurrentState(Rigidbody target)
+        private static PositionState fromCurrentState(Rigidbody target, bool useInitialVelocity = false)
         {
             if (target == null)
             {
@@ -199,10 +213,17 @@ namespace PacificEngine.OW_CommonResources.Game.State
             var acceleration = Vector3.zero;
             var jerk = Vector3.zero;
 
+            if (useInitialVelocity)
+            {
+                velocity = getStartVelocity(target.gameObject);
+                acceleration = Vector3.zero;
+                jerk = Vector3.zero;
+            }
+
             return new PositionState(position, velocity, acceleration, jerk);
         }
 
-        public static PositionState fromCurrentState(Transform target)
+        public static PositionState fromCurrentState(Transform target, bool useInitialVelocity = false)
         {
             if (target == null)
             {
@@ -215,10 +236,17 @@ namespace PacificEngine.OW_CommonResources.Game.State
             var acceleration = Vector3.zero;
             var jerk = Vector3.zero;
 
+            if (useInitialVelocity)
+            {
+                velocity = getStartVelocity(target.gameObject);
+                acceleration = Vector3.zero;
+                jerk = Vector3.zero;
+            }
+
             return new PositionState(position, velocity, acceleration, jerk);
         }
 
-        public static PositionState fromCurrentState(GameObject target)
+        public static PositionState fromCurrentState(GameObject target, bool useInitialVelocity = false)
         {
             if (target == null)
             {
@@ -230,11 +258,11 @@ namespace PacificEngine.OW_CommonResources.Game.State
 
             if (owRigidBody != null)
             {
-                return fromCurrentState(owRigidBody);
+                return fromCurrentState(owRigidBody, useInitialVelocity);
             }
             else
             {
-                return fromCurrentState(transform);
+                return fromCurrentState(transform, useInitialVelocity);
             }
         }
 
@@ -310,12 +338,12 @@ namespace PacificEngine.OW_CommonResources.Game.State
             }
         }
 
-        public static OrientationState fromCurrentState(HeavenlyBody target)
+        public static OrientationState fromCurrentState(HeavenlyBody target, bool useInitialVelocity = false)
         {
-            return fromCurrentState(Position.getBody(target));
+            return fromCurrentState(Position.getBody(target), useInitialVelocity);
         }
 
-        public static OrientationState fromCurrentState(OWRigidbody target)
+        public static OrientationState fromCurrentState(OWRigidbody target, bool useInitialVelocity = false)
         {
             if (target == null || target.GetRigidbody() == null)
             {
@@ -326,10 +354,16 @@ namespace PacificEngine.OW_CommonResources.Game.State
             var angularVelocity = target.GetAngularVelocity();
             var angularAcceleration = target.GetAngularAcceleration();
 
+            if (useInitialVelocity)
+            {
+                angularVelocity = getStartVelocity(target.gameObject);
+                angularAcceleration = Vector3.zero;
+            }
+
             return new OrientationState(rotation, angularVelocity, angularAcceleration);
         }
 
-        private static OrientationState fromCurrentState(KinematicRigidbody target)
+        private static OrientationState fromCurrentState(KinematicRigidbody target, bool useInitialVelocity = false)
         {
             if (target == null)
             {
@@ -340,10 +374,16 @@ namespace PacificEngine.OW_CommonResources.Game.State
             var angularVelocity = target.angularVelocity;
             var angularAcceleration = Vector3.zero;
 
+            if (useInitialVelocity)
+            {
+                angularVelocity = getStartVelocity(target.gameObject);
+                angularAcceleration = Vector3.zero;
+            }
+
             return new OrientationState(rotation, angularVelocity, angularAcceleration);
         }
 
-        private static OrientationState fromCurrentState(Rigidbody target)
+        private static OrientationState fromCurrentState(Rigidbody target, bool useInitialVelocity = false)
         {
             if (target == null)
             {
@@ -354,10 +394,16 @@ namespace PacificEngine.OW_CommonResources.Game.State
             var angularVelocity = target.angularVelocity;
             var angularAcceleration = Vector3.zero;
 
+            if (useInitialVelocity)
+            {
+                angularVelocity = getStartVelocity(target.gameObject);
+                angularAcceleration = Vector3.zero;
+            }
+
             return new OrientationState(rotation, angularVelocity, angularAcceleration);
         }
 
-        public static OrientationState fromCurrentState(Transform target)
+        public static OrientationState fromCurrentState(Transform target, bool useInitialVelocity = false)
         {
             if (target == null)
             {
@@ -368,10 +414,16 @@ namespace PacificEngine.OW_CommonResources.Game.State
             var angularVelocity = Vector3.zero;
             var angularAcceleration = Vector3.zero;
 
+            if (useInitialVelocity)
+            {
+                angularVelocity = getStartVelocity(target.gameObject);
+                angularAcceleration = Vector3.zero;
+            }
+
             return new OrientationState(rotation, angularVelocity, angularAcceleration);
         }
 
-        public static OrientationState fromCurrentState(GameObject target)
+        public static OrientationState fromCurrentState(GameObject target, bool useInitialVelocity = false)
         {
             if (target == null)
             {
@@ -383,11 +435,11 @@ namespace PacificEngine.OW_CommonResources.Game.State
 
             if (owRigidBody != null)
             {
-                return fromCurrentState(owRigidBody);
+                return fromCurrentState(owRigidBody, useInitialVelocity);
             }
             else
             {
-                return fromCurrentState(transform);
+                return fromCurrentState(transform, useInitialVelocity);
             }
         }
 
@@ -520,30 +572,30 @@ namespace PacificEngine.OW_CommonResources.Game.State
         {
         }
 
-        public static AbsoluteState fromCurrentState(HeavenlyBody target)
+        public static AbsoluteState fromCurrentState(HeavenlyBody target, bool useInitialVelocity = false)
         {
-            return fromCurrentState(Position.getBody(target));
+            return fromCurrentState(Position.getBody(target), useInitialVelocity);
         }
 
-        public static AbsoluteState fromCurrentState(OWRigidbody target)
+        public static AbsoluteState fromCurrentState(OWRigidbody target, bool useInitialVelocity = false)
         {
             if (target == null || target.GetRigidbody() == null)
             {
                 return null;
             }
-            return new AbsoluteState(ScaleState.fromCurrentState(target), PositionState.fromCurrentState(target), OrientationState.fromCurrentState(target));
+            return new AbsoluteState(ScaleState.fromCurrentState(target), PositionState.fromCurrentState(target, useInitialVelocity), OrientationState.fromCurrentState(target, useInitialVelocity));
         }
 
-        public static AbsoluteState fromCurrentState(Transform target)
+        public static AbsoluteState fromCurrentState(Transform target, bool useInitialVelocity = false)
         {
             if (target == null)
             {
                 return null;
             }
-            return new AbsoluteState(ScaleState.fromCurrentState(target), PositionState.fromCurrentState(target), OrientationState.fromCurrentState(target));
+            return new AbsoluteState(ScaleState.fromCurrentState(target), PositionState.fromCurrentState(target, useInitialVelocity), OrientationState.fromCurrentState(target, useInitialVelocity));
         }
 
-        public static AbsoluteState fromCurrentState(GameObject target)
+        public static AbsoluteState fromCurrentState(GameObject target, bool useInitialVelocity = false)
         {
             if (target == null)
             {
@@ -555,11 +607,11 @@ namespace PacificEngine.OW_CommonResources.Game.State
 
             if (rigidBody != null)
             {
-                return fromCurrentState(target);
+                return fromCurrentState(target, useInitialVelocity);
             }
             else
             {
-                return fromCurrentState(transform);
+                return fromCurrentState(transform, useInitialVelocity);
             }
         }
 
@@ -925,11 +977,11 @@ namespace PacificEngine.OW_CommonResources.Game.State
             return new OrientationState(Quaternion.identity, Vector3.zero, Vector3.zero);
         }
 
-        public static RelativeState fromGlobal(HeavenlyBody parent, OWRigidbody target)
+        public static RelativeState fromGlobal(HeavenlyBody parent, OWRigidbody target, bool useInitialVelocity = false)
         {
             var parentGravity = parent.pseudoHeavenlyBody ? Planet.getParentGravity(Position.find(target)) : Planet.getGravity(parent);
             var parentSize = parent.pseudoHeavenlyBody ? new Position.Size(0, 45000) : Planet.getSize(parent);
-            return fromGlobal(parent, AbsoluteState.fromCurrentState(Position.getBody(parent)), parentGravity, parentSize, ScaleState.fromCurrentState(target), AbsoluteState.fromCurrentState(target));
+            return fromGlobal(parent, AbsoluteState.fromCurrentState(Position.getBody(parent), useInitialVelocity), parentGravity, parentSize, ScaleState.fromCurrentState(target), AbsoluteState.fromCurrentState(target, useInitialVelocity));
         }
 
         public static RelativeState fromGlobal(HeavenlyBody parent, AbsoluteState parentState, Gravity parentGravity, Position.Size parentSize, ScaleState targetScale, AbsoluteState target)

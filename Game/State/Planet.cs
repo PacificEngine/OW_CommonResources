@@ -83,7 +83,8 @@ namespace PacificEngine.OW_CommonResources.Game.State
 
         private static float lastUpdate = 0f;
         private static List<string> debugIds = new List<string>();
-        private static bool enabled = true;
+        public static bool enabled { get; set; } = true;
+        public static int logFrequency { get; set; } = 1000;
         public static bool debugPlanetPosition { get; set; } = false;
 
         private static Dictionary<HeavenlyBody, Tuple<InitialMotion, Vector3, Vector3, Quaternion, Vector3, GravityVolume>> dict = new Dictionary<HeavenlyBody, Tuple<InitialMotion, Vector3, Vector3, Quaternion, Vector3, GravityVolume>>();
@@ -206,6 +207,28 @@ namespace PacificEngine.OW_CommonResources.Game.State
 
         public static void SceneLoaded()
         {
+            if (logFrequency > 0)
+            {
+                Helper.helper.Console.WriteLine($"Scene Loaded Planet State");
+                foreach (var body in mapping)
+                {
+                    var owBody = Position.getBody(body.Key);
+                    if (owBody != null)
+                    {
+                        var parent = _getParent(body.Key, false);
+
+                        var gravity = _getGravity(body.Key, false);
+                        var size = _getSize(body.Key, false);
+                        var state = RelativeState.fromGlobal(parent, owBody, true);
+
+                        Helper.helper.Console.WriteLine($"{body.Key}: Initial -> {new Plantoid(size, gravity, state)}");
+                    }
+                    else
+                    {
+                        Helper.helper.Console.WriteLine($"{body.Key}: Current -> {body.Value}");
+                    }
+                }
+            }
         }
 
         public static void Update()
@@ -249,6 +272,18 @@ namespace PacificEngine.OW_CommonResources.Game.State
             if (GameTimer.FramesSinceAwake > 10)
             {
                 updateList();
+            }
+
+            if (logFrequency > 0)
+            {
+                if ((GameTimer.FramesSinceAwake - 10) % logFrequency == 0)
+                {
+                    Helper.helper.Console.WriteLine($"Frame {GameTimer.FramesSinceAwake} Planet State");
+                    foreach (var map in mapping)
+                    {
+                        Helper.helper.Console.WriteLine($"{map.Key}: {map.Value}");
+                    }
+                }
             }
         }
 
@@ -608,7 +643,7 @@ namespace PacificEngine.OW_CommonResources.Game.State
                 }
                 else if (_mapping.ContainsKey(child))
                 {
-                    childDistance = _mapping[child]?.state?.orbit?.coordinates?.semiMajorRadius ?? 0f;
+                    childDistance = _mapping[child]?.state?.orbit?.coordinates?.perigee ?? 0f;
                 }
                 else
                 {
@@ -632,7 +667,7 @@ namespace PacificEngine.OW_CommonResources.Game.State
                     }
                     else if (_mapping.ContainsKey(sibling))
                     {
-                        siblingDistance = _mapping[sibling]?.state?.orbit?.coordinates?.semiMajorRadius ?? 0f;
+                        siblingDistance = _mapping[sibling]?.state?.orbit?.coordinates?.perigee ?? 0f;
                     }
                     else
                     {

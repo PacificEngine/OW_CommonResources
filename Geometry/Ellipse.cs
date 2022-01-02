@@ -53,6 +53,11 @@ namespace PacificEngine.OW_CommonResources.Geometry
             return (float)Math.Sqrt(Math.Abs((minorRadius * minorRadius) + (focus * focus)));
         }
 
+        public static float getMajorRadiusFromFocusAndEccentricity(float focus, float eccentricity)
+        {
+            return focus / eccentricity;
+        }
+
         public static float getAxisRectum(float majorRadius, float eccentricity)
         {
             return majorRadius * (1f - (eccentricity * eccentricity));
@@ -83,6 +88,11 @@ namespace PacificEngine.OW_CommonResources.Geometry
             if (radius.y > radius.x)
                 return (float)Math.Sqrt(1f - (radius.x * radius.x) / (radius.y * radius.y));
             return (float)Math.Sqrt(1f - (radius.y * radius.y) / (radius.x * radius.x));
+        }
+
+        public static float getEccentricity(float majorRadius, float focus)
+        {
+            return focus / majorRadius;
         }
     }
 }
