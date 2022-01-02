@@ -83,8 +83,8 @@ namespace PacificEngine.OW_CommonResources.Game.State
 
         private static float lastUpdate = 0f;
         private static List<string> debugIds = new List<string>();
-        public static bool enabled { get; set; } = true;
-        public static int logFrequency { get; set; } = 1000;
+        public static bool enabledManagement { get; set; } = true;
+        public static int logPlanetPositionFrequency { get; set; } = 1000;
         public static bool debugPlanetPosition { get; set; } = false;
 
         private static Dictionary<HeavenlyBody, Tuple<InitialMotion, Vector3, Vector3, Quaternion, Vector3, GravityVolume>> dict = new Dictionary<HeavenlyBody, Tuple<InitialMotion, Vector3, Vector3, Quaternion, Vector3, GravityVolume>>();
@@ -207,7 +207,7 @@ namespace PacificEngine.OW_CommonResources.Game.State
 
         public static void SceneLoaded()
         {
-            if (logFrequency > 0)
+            if (logPlanetPositionFrequency > 0)
             {
                 Helper.helper.Console.WriteLine($"Scene Loaded Planet State");
                 foreach (var body in mapping)
@@ -274,9 +274,9 @@ namespace PacificEngine.OW_CommonResources.Game.State
                 updateList();
             }
 
-            if (logFrequency > 0)
+            if (logPlanetPositionFrequency > 0)
             {
-                if ((GameTimer.FramesSinceAwake - 10) % logFrequency == 0)
+                if ((GameTimer.FramesSinceAwake - 10) % logPlanetPositionFrequency == 0)
                 {
                     Helper.helper.Console.WriteLine($"Frame {GameTimer.FramesSinceAwake} Planet State");
                     foreach (var map in mapping)
@@ -297,7 +297,7 @@ namespace PacificEngine.OW_CommonResources.Game.State
 
         private static void fixUpdateList()
         {
-            if (enabled && fixUpdate)
+            if (enabledManagement && fixUpdate)
             {
                 fixUpdate = false;
                 relocateMovingOrbs();
@@ -306,7 +306,7 @@ namespace PacificEngine.OW_CommonResources.Game.State
 
         private static void updateList()
         {
-            if (enabled && update)
+            if (enabledManagement && update)
             {
                 update = false;
                 fixUpdate = true;
