@@ -32,28 +32,12 @@ namespace PacificEngine.OW_CommonResources.Geometry.Orbits
 
         public float getPeriod(float semiMajorRadius)
         {
-            var mu = this.mu;
-            if (exponent < 1.5f)
-            {
-                return twoPi / (float)Math.Sqrt(Math.Abs(mu / (semiMajorRadius * semiMajorRadius)));
-            }
-            else
-            {
-                return twoPi / (float)Math.Sqrt(Math.Abs(mu / (semiMajorRadius * semiMajorRadius * semiMajorRadius)));
-            }
+            return twoPi / (float)Math.Sqrt(Math.Abs(mu / ((float)Math.Pow(semiMajorRadius, exponent + 1f))));
         }
 
         public float getAngularMomentum(float semiAxisRectum)
         {
-            var mu = this.mu;
-            if (exponent < 1.5f)
-            {
-                return (float)Math.Sqrt(Math.Abs(mu * semiAxisRectum * semiAxisRectum));
-            }
-            else
-            {
-                return (float)Math.Sqrt(Math.Abs(mu * semiAxisRectum));
-            }
+            return (float)Math.Sqrt(Math.Abs(mu * ((float)Math.Pow(semiAxisRectum, 3f - exponent))));
         }
 
         public override string ToString()

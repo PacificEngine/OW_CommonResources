@@ -83,7 +83,7 @@ namespace PacificEngine.OW_CommonResources.Game.State
 
         private static float lastUpdate = 0f;
         private static List<string> debugIds = new List<string>();
-        public static bool enabledManagement { get; set; } = false;
+        public static bool enabledManagement { get; set; } = true;
         public static int logPlanetPositionFrequency { get; set; } = -1;
         public static bool debugPlanetPosition { get; set; } = false;
 
