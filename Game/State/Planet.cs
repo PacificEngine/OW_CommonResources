@@ -1041,12 +1041,12 @@ namespace PacificEngine.OW_CommonResources.Game.State
             var _numVerts = __instance.GetValue<int>("_numVerts");
             var _verts = new Vector3[_numVerts];            
 
-            var semiAxis = new Vector2(kepler.semiMajorRadius, kepler.semiMinorRadius);
+            var semiAxis = Ellipse.fromSemiMajorRadiusAndSemiMinorRadius(kepler.semiMajorRadius, kepler.semiMinorRadius);
             var angle = KeplerCoordinates.shiftTimeSincePeriapsis(parentGravity, kepler, Time.timeSinceLevelLoad).esccentricAnomaly;
             var increment = Circle.getPercentageAngle(1f / (float)(_numVerts - 1));
             for (int index = 0; index < _numVerts; ++index)
             {
-                var vert = Ellipse.fromPolar((angle + 180) - (index * increment), semiAxis);
+                var vert = semiAxis.getCoordinatesFromCenterAngle((angle + 180) - (index * increment));
                 _verts[index] = new Vector3(vert.y, 0, vert.x);
             }
             _lineRenderer.SetPositions(_verts);

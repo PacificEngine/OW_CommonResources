@@ -28,7 +28,20 @@ namespace PacificEngine.OW_CommonResources.Geometry.Orbits
 
             if (parent.exponent < 1.5d)
             {
+                var semiAxisRadius = angularMomemntum / mu; // Radius at trueAnomaly = 90 | 270
+                var semiAxisSpeed = mu;
+
                 specificEnergy = (speed * speed) / 2d - mu;
+                //eccentricity = 1 / Math.Sqrt((angularMomemntum * angularMomemntum) / mu);
+                //eccentricity = Math.Sqrt(2d * (specificEnergy + mu) / (mu * mu)) - 1d;
+                //var yes = (-1d * (specificEnergy + mu)) / mu - 0.5d;
+                //eccentricity = (1d / yes) + 1d;
+                //eccentricity = (2d * (specificEnergy + mu) / angularMomemntum) - 1d;
+                //eccentricity = Math.Sqrt(Math.Abs((2d * (specificEnergy + mu)) / (angularMomemntum * mu))) - 1d;
+                //eccentricity = Math.Sqrt(Math.Abs((((specificEnergy * angularMomemntum) / (mu * mu)) + (angularMomemntum / mu) + 2d) / 2d));
+        //bEST aLT        //eccentricity = Math.Abs(((2d * specificEnergy) / mu) + 1d); 
+                //eccentricity = Math.Abs((-1d / ((specificEnergy / mu) + 1.5d)) + 1d);
+                //eccentricity = Math.Sqrt(Math.Abs(1d + (2d * specificEnergy * angularMomemntum * angularMomemntum) / (mu * mu)));
                 eccentricity = Math.Abs(Math.Sqrt(Math.Abs(((2d * specificEnergy) / mu) + 2d)) - 1d); // TODO: Incorrect for exponent 1
                 //semiMajorRadius = radius * Math.Abs(mu / (2d * specificEnergy));
                 semiMajorRadius = angularMomemntum / (Math.Sqrt(mu) * (1d - (eccentricity * eccentricity)));
@@ -41,6 +54,7 @@ namespace PacificEngine.OW_CommonResources.Geometry.Orbits
                 //eccentricity = Math.Sqrt(Math.Abs(1 - ((angularMomemntum * angularMomemntum) / (semiMajorRadius * mu))));
                 eccentricity = Math.Sqrt(Math.Abs(1d + (2d * specificEnergy * angularMomemntum * angularMomemntum) / (mu * mu)));
             }
+            var ellipse = Ellipse.fromSemiMajorRadiusAndEccentricity((float)semiMajorRadius, (float)eccentricity);
             var inclinationAngle = Angle.normalizeRadian(Math.Acos(orbitalMomentum.z / angularMomemntum));
 
             float adjustment = 0f;
@@ -56,7 +70,7 @@ namespace PacificEngine.OW_CommonResources.Geometry.Orbits
 
             var ascendingAngle = Angle.normalizeRadian(Math.Atan2(orbitalMomentum.x, -1f * orbitalMomentum.y));
             var latitudeAngle = Angle.normalizeRadian(Math.Atan2(startPosition.z / Math.Sin(inclinationAngle), (startPosition.x * Math.Cos(ascendingAngle)) + (startPosition.y * Math.Sin(ascendingAngle))));
-            var semiAxisRectum = Ellipse.getAxisRectum((float)semiMajorRadius, (float)eccentricity);
+            var semiAxisRectum = ellipse.semiLatusRectum;
             double trueAnomaly;
             if (parent.exponent < 1.5d)
             {
@@ -68,8 +82,8 @@ namespace PacificEngine.OW_CommonResources.Geometry.Orbits
             }
 
             var periapseAngle = Angle.normalizeRadian(latitudeAngle - trueAnomaly);
-            var kepler = KeplerCoordinates.fromTrueAnomaly((float)eccentricity, (float)semiMajorRadius, Angle.toDegrees((float)inclinationAngle), Angle.toDegrees((float)periapseAngle), Angle.toDegrees((float)ascendingAngle), Angle.toDegrees((float)trueAnomaly));
-            return KeplerCoordinates.fromTimeSincePeriapsis(parent, (float)eccentricity, (float)semiMajorRadius, Angle.toDegrees((float)inclinationAngle) + adjustment, Angle.toDegrees((float)periapseAngle), Angle.toDegrees((float)ascendingAngle), kepler.getTimeSincePeriapsis(parent) - timeSinceStart);
+            var kepler = KeplerCoordinates.fromTrueAnomaly(ellipse, Angle.toDegrees((float)inclinationAngle), Angle.toDegrees((float)periapseAngle), Angle.toDegrees((float)ascendingAngle), Angle.toDegrees((float)trueAnomaly));
+            return KeplerCoordinates.fromTimeSincePeriapsis(parent, ellipse, Angle.toDegrees((float)inclinationAngle) + adjustment, Angle.toDegrees((float)periapseAngle), Angle.toDegrees((float)ascendingAngle), kepler.getTimeSincePeriapsis(parent) - timeSinceStart);
         }
 
         //https://space.stackexchange.com/questions/19322/converting-orbital-elements-to-cartesian-state-vectors
@@ -78,18 +92,18 @@ namespace PacificEngine.OW_CommonResources.Geometry.Orbits
         public static Tuple<Vector3, Vector3> toCartesian(Gravity parent, float timeSinceStart, KeplerCoordinates keplerCoordinates)
         {
             keplerCoordinates = KeplerCoordinates.fromTimeSincePeriapsis(parent, keplerCoordinates.eccentricity, keplerCoordinates.semiMajorRadius, keplerCoordinates.inclinationAngle, keplerCoordinates.periapseAngle, keplerCoordinates.ascendingAngle, keplerCoordinates.getTimeSincePeriapsis(parent) + timeSinceStart);
-            return toCartesianTrueAnomaly(parent, keplerCoordinates.eccentricity, keplerCoordinates.semiMajorRadius, keplerCoordinates.inclinationAngle, keplerCoordinates.periapseAngle, keplerCoordinates.ascendingAngle, keplerCoordinates.trueAnomaly); 
+            return toCartesianTrueAnomaly(parent, keplerCoordinates.ellipse, keplerCoordinates.inclinationAngle, keplerCoordinates.periapseAngle, keplerCoordinates.ascendingAngle, keplerCoordinates.trueAnomaly); 
         }
 
-        public static Tuple<Vector3, Vector3> toCartesianTrueAnomaly(Gravity parent, float eccentricity, float semiMajorRadius, float inclinationAngle, float periapseAngle, float ascendingAngle, float trueAnomaly)
+        public static Tuple<Vector3, Vector3> toCartesianTrueAnomaly(Gravity parent, Ellipse ellipse, float inclinationAngle, float periapseAngle, float ascendingAngle, float trueAnomaly)
         {
             inclinationAngle = Angle.toRadian(inclinationAngle);
             periapseAngle = Angle.toRadian(periapseAngle);
             ascendingAngle = Angle.toRadian(ascendingAngle);
             trueAnomaly = Angle.toRadian(trueAnomaly);
 
-            var semiAxisRectum = Ellipse.getAxisRectum(semiMajorRadius, eccentricity);
-            var radius = semiAxisRectum / (1.0 + eccentricity * Math.Cos(trueAnomaly));
+            var semiAxisRectum = ellipse.semiLatusRectum;
+            var radius = semiAxisRectum / (1.0 + ellipse.eccentricity * Math.Cos(trueAnomaly));
 
             var sinsAscend = Math.Sin(ascendingAngle); // sun O
             var cosAscend = Math.Cos(ascendingAngle); // cos O
@@ -111,7 +125,7 @@ namespace PacificEngine.OW_CommonResources.Geometry.Orbits
                 od = Math.Sqrt(parent.mu / (semiAxisRectum));
             }
             var odX = od * -1d * Math.Sin(trueAnomaly);
-            var odY = od * (eccentricity + Math.Cos(trueAnomaly));
+            var odY = od * (ellipse.eccentricity + Math.Cos(trueAnomaly));
 
             var X = (oX * ((cosPeriapse * cosAscend) - (sinPeriapse * cosInclination * sinsAscend)) - oY * ((sinPeriapse * cosAscend) + (cosPeriapse * cosInclination * sinsAscend)));
             var Y = (oX * ((cosPeriapse * sinsAscend) + (sinPeriapse * cosInclination * cosAscend)) - oY * ((sinPeriapse * sinsAscend) - (cosPeriapse * cosInclination * cosAscend)));

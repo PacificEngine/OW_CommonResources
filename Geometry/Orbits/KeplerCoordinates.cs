@@ -9,24 +9,24 @@ namespace PacificEngine.OW_CommonResources.Geometry.Orbits
     {
         private const float twoPi = (float)(2d * Math.PI);
 
-        public static KeplerCoordinates zero { get; } = new KeplerCoordinates(0f, 0f, 0f, 0f, 0f, 0f, 0f, 0f);
+        public static KeplerCoordinates zero { get; } = new KeplerCoordinates(Ellipse.fromSemiMajorRadiusAndEccentricity(0, 0), 0f, 0f, 0f, 0f, 0f, 0f);
 
-        private float _semiMinorRadius = float.NaN;
-        private float _foci = float.NaN;
         private float _trueAnomaly = float.NaN;
         private float _esccentricAnomaly = float.NaN;
         private float _meanAnomaly = float.NaN;
 
-        public float eccentricity { get; }
-        public float semiMajorRadius { get; }
+        public Ellipse ellipse { get; }
         public float inclinationAngle { get; }
         public float periapseAngle { get; }
         public float ascendingAngle { get; }
 
-        public float semiMinorRadius { get { if (float.IsNaN(_semiMinorRadius)) _semiMinorRadius = Ellipse.getMinorRadius(semiMajorRadius, foci); return _semiMinorRadius; } }
-        public float foci { get { if (float.IsNaN(_foci)) _foci = Ellipse.getFocus(semiMajorRadius, eccentricity); return _foci; } }
-        public float apogee { get { return semiMajorRadius + foci; } }
-        public float perigee { get { return semiMajorRadius - foci; } }
+        public float semiMajorRadius { get { return ellipse.semiMajorRadius; } }
+        public float semiMinorRadius { get { return ellipse.semiMinorRadius; } }
+        public float semiLatusRectum { get { return ellipse.semiLatusRectum; } }
+        public float eccentricity { get { return ellipse.eccentricity; } }
+        public float foci { get { return ellipse.foci; } }
+        public float apogee { get { return ellipse.apogee; } }
+        public float perigee { get { return ellipse.perigee; } }
         public float trueAnomaly { get { 
                 if (float.IsNaN(_trueAnomaly)) 
                     _trueAnomaly = Angle.toDegrees(getTrueAnomalyFromEsscentricAnomaly(eccentricity, Angle.toRadian(esccentricAnomaly)));
@@ -42,10 +42,9 @@ namespace PacificEngine.OW_CommonResources.Geometry.Orbits
                     _meanAnomaly = Angle.toDegrees(getMeanAnomalyFromEsscentricAnomaly(eccentricity, Angle.toRadian(esccentricAnomaly))); 
                 return _meanAnomaly; } }
 
-        private KeplerCoordinates(float eccentricity, float semiMajorRadius, float inclinationAngle, float periapseAngle, float ascendingAngle, float trueAnomaly, float esccentricAnomaly, float meanAnomaly)
+        private KeplerCoordinates(Ellipse ellipse, float inclinationAngle, float periapseAngle, float ascendingAngle, float trueAnomaly, float esccentricAnomaly, float meanAnomaly)
         {
-            this.eccentricity = eccentricity;
-            this.semiMajorRadius = semiMajorRadius;
+            this.ellipse = ellipse;
             inclinationAngle = Angle.normalizeDegrees(inclinationAngle);
             if (inclinationAngle >= 180f)
             {
@@ -68,41 +67,63 @@ namespace PacificEngine.OW_CommonResources.Geometry.Orbits
             }
         }
 
+        public static KeplerCoordinates fromTrueAnomaly(Ellipse ellipse, float inclinationAngle, float periapseAngle, float ascendingAngle, float trueAnomaly)
+        {
+            return new KeplerCoordinates(ellipse, inclinationAngle, periapseAngle, ascendingAngle, trueAnomaly, float.NaN, float.NaN);
+        }
+
         public static KeplerCoordinates fromTrueAnomaly(float eccentricity, float semiMajorRadius, float inclinationAngle, float periapseAngle, float ascendingAngle, float trueAnomaly)
         {
-            return new KeplerCoordinates(eccentricity, semiMajorRadius, inclinationAngle, periapseAngle, ascendingAngle, trueAnomaly, float.NaN, float.NaN);
+            return fromTrueAnomaly(Ellipse.fromSemiMajorRadiusAndEccentricity(semiMajorRadius, eccentricity), inclinationAngle, periapseAngle, ascendingAngle, trueAnomaly);
         }
 
         public static KeplerCoordinates setTrueAnomaly(KeplerCoordinates coordinates, float trueAnomaly)
         {
-            return fromMeanAnomaly(coordinates.eccentricity, coordinates.semiMajorRadius, coordinates.inclinationAngle, coordinates.periapseAngle, coordinates.ascendingAngle, trueAnomaly);
+            return fromTrueAnomaly(coordinates.ellipse, coordinates.inclinationAngle, coordinates.periapseAngle, coordinates.ascendingAngle, trueAnomaly);
+        }
+
+        public static KeplerCoordinates fromEccentricAnomaly(Ellipse ellipse, float inclinationAngle, float periapseAngle, float ascendingAngle, float eccentricAnomaly)
+        {
+            return new KeplerCoordinates(ellipse, inclinationAngle, periapseAngle, ascendingAngle, float.NaN, eccentricAnomaly, float.NaN);
         }
 
         public static KeplerCoordinates fromEccentricAnomaly(float eccentricity, float semiMajorRadius, float inclinationAngle, float periapseAngle, float ascendingAngle, float eccentricAnomaly)
         {
-            return new KeplerCoordinates(eccentricity, semiMajorRadius, inclinationAngle, periapseAngle, ascendingAngle, float.NaN, eccentricAnomaly, float.NaN);
+            return fromEccentricAnomaly(Ellipse.fromSemiMajorRadiusAndEccentricity(semiMajorRadius, eccentricity), inclinationAngle, periapseAngle, ascendingAngle, eccentricAnomaly);
         }
 
         public static KeplerCoordinates setEccentricAnomaly(KeplerCoordinates coordinates, float eccentricAnomaly)
         {
-            return fromMeanAnomaly(coordinates.eccentricity, coordinates.semiMajorRadius, coordinates.inclinationAngle, coordinates.periapseAngle, coordinates.ascendingAngle, eccentricAnomaly);
+            return fromEccentricAnomaly(coordinates.ellipse, coordinates.inclinationAngle, coordinates.periapseAngle, coordinates.ascendingAngle, eccentricAnomaly);
+        }
+
+        public static KeplerCoordinates fromMeanAnomaly(Ellipse ellipse, float inclinationAngle, float periapseAngle, float ascendingAngle, float meanAnomaly)
+        {
+            return new KeplerCoordinates(ellipse, inclinationAngle, periapseAngle, ascendingAngle, float.NaN, float.NaN, meanAnomaly);
         }
 
         public static KeplerCoordinates fromMeanAnomaly(float eccentricity, float semiMajorRadius, float inclinationAngle, float periapseAngle, float ascendingAngle, float meanAnomaly)
         {
-            return new KeplerCoordinates(eccentricity, semiMajorRadius, inclinationAngle, periapseAngle, ascendingAngle, float.NaN, float.NaN, meanAnomaly);
+            return fromMeanAnomaly(Ellipse.fromSemiMajorRadiusAndEccentricity(semiMajorRadius, eccentricity), inclinationAngle, periapseAngle, ascendingAngle, meanAnomaly);
         }
 
         public static KeplerCoordinates setMeanAnomaly(KeplerCoordinates coordinates, float meanAnomaly)
         {
-            return fromMeanAnomaly(coordinates.eccentricity, coordinates.semiMajorRadius, coordinates.inclinationAngle, coordinates.periapseAngle, coordinates.ascendingAngle, meanAnomaly);
+            return fromMeanAnomaly(coordinates.ellipse, coordinates.inclinationAngle, coordinates.periapseAngle, coordinates.ascendingAngle, meanAnomaly);
+        }
+
+        public static KeplerCoordinates fromTimeSincePeriapsis(Gravity gravity, Ellipse ellipse, float inclinationAngle, float periapseAngle, float ascendingAngle, float timeSincePeriapsis)
+        {
+            var meanAnomaly = Angle.toDegrees((twoPi * timeSincePeriapsis) / gravity.getPeriod(ellipse.semiMajorRadius));
+
+            return fromMeanAnomaly(ellipse, inclinationAngle, periapseAngle, ascendingAngle, meanAnomaly);
         }
 
         public static KeplerCoordinates fromTimeSincePeriapsis(Gravity gravity, float eccentricity, float semiMajorRadius, float inclinationAngle, float periapseAngle, float ascendingAngle, float timeSincePeriapsis)
         {
             var meanAnomaly = Angle.toDegrees((twoPi * timeSincePeriapsis) / gravity.getPeriod(semiMajorRadius));
 
-            return fromMeanAnomaly(eccentricity, semiMajorRadius, inclinationAngle, periapseAngle, ascendingAngle, meanAnomaly);
+            return fromTimeSincePeriapsis(gravity, Ellipse.fromSemiMajorRadiusAndEccentricity(semiMajorRadius, eccentricity), inclinationAngle, periapseAngle, ascendingAngle, timeSincePeriapsis);
         }
 
         public static KeplerCoordinates setTimeSincePeriapsis(Gravity gravity, KeplerCoordinates coordinates, float time)
