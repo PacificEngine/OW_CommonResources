@@ -92,18 +92,17 @@ namespace PacificEngine.OW_CommonResources.Geometry.Orbits
         public static Tuple<Vector3, Vector3> toCartesian(Gravity parent, float timeSinceStart, KeplerCoordinates keplerCoordinates)
         {
             keplerCoordinates = KeplerCoordinates.fromTimeSincePeriapsis(parent, keplerCoordinates.ellipse, keplerCoordinates.inclinationAngle, keplerCoordinates.periapseAngle, keplerCoordinates.ascendingAngle, keplerCoordinates.getTimeSincePeriapsis(parent) + timeSinceStart);
-            return toCartesianTrueAnomaly(parent, keplerCoordinates.ellipse, keplerCoordinates.inclinationAngle, keplerCoordinates.periapseAngle, keplerCoordinates.ascendingAngle, keplerCoordinates.trueAnomaly); 
+            return toCartesianTrueAnomaly(parent, keplerCoordinates); 
         }
 
-        public static Tuple<Vector3, Vector3> toCartesianTrueAnomaly(Gravity parent, Ellipse ellipse, float inclinationAngle, float periapseAngle, float ascendingAngle, float trueAnomaly)
+        public static Tuple<Vector3, Vector3> toCartesianTrueAnomaly(Gravity parent, KeplerCoordinates keplerCoordinates)
         {
-            inclinationAngle = Angle.toRadian(inclinationAngle);
-            periapseAngle = Angle.toRadian(periapseAngle);
-            ascendingAngle = Angle.toRadian(ascendingAngle);
-            trueAnomaly = Angle.toRadian(trueAnomaly);
+            var ellipse = keplerCoordinates.ellipse;
+            var inclinationAngle = Angle.toRadian(keplerCoordinates.inclinationAngle);
+            var periapseAngle = Angle.toRadian(keplerCoordinates.periapseAngle);
+            var ascendingAngle = Angle.toRadian(keplerCoordinates.ascendingAngle);
+            var trueAnomaly = Angle.toRadian(keplerCoordinates.trueAnomaly);
 
-            var semiAxisRectum = ellipse.semiLatusRectum;
-            var radius = semiAxisRectum / (1.0 + ellipse.eccentricity * Math.Cos(trueAnomaly));
 
             var sinsAscend = Math.Sin(ascendingAngle); // sun O
             var cosAscend = Math.Cos(ascendingAngle); // cos O
@@ -112,24 +111,56 @@ namespace PacificEngine.OW_CommonResources.Geometry.Orbits
             var sinInclination = Math.Sin(inclinationAngle); // sin i
             var cosInclination = Math.Cos(inclinationAngle); // cos i
 
-            var oX = radius * Math.Cos(trueAnomaly);
-            var oY = radius * Math.Sin(trueAnomaly);
 
-            double od;
+            var originalCoordinates = ellipse.getCoordinatesFromFociAngle(keplerCoordinates.trueAnomaly);
+
+            double speed;
             if (parent.exponent < 1.5f)
             {
-                od = Math.Sqrt(parent.mu);
+                speed = Math.Sqrt(parent.mu);
             }
             else
             {
-                od = Math.Sqrt(parent.mu / (semiAxisRectum));
+                speed = Math.Sqrt(parent.mu / (ellipse.semiLatusRectum));
             }
-            var odX = od * -1d * Math.Sin(trueAnomaly);
-            var odY = od * (ellipse.eccentricity + Math.Cos(trueAnomaly));
+            var odX = speed * -1d * Math.Sin(trueAnomaly);
+            var odY = speed * (ellipse.eccentricity + Math.Cos(trueAnomaly));
 
-            var X = (oX * ((cosPeriapse * cosAscend) - (sinPeriapse * cosInclination * sinsAscend)) - oY * ((sinPeriapse * cosAscend) + (cosPeriapse * cosInclination * sinsAscend)));
-            var Y = (oX * ((cosPeriapse * sinsAscend) + (sinPeriapse * cosInclination * cosAscend)) - oY * ((sinPeriapse * sinsAscend) - (cosPeriapse * cosInclination * cosAscend)));
-            var Z = ((oX * sinPeriapse * sinInclination) + (oY * cosPeriapse * sinInclination));
+            /* From: https://github.com/xen-42/outer-wilds-new-horizons/blob/master/NewHorizons/OrbitalPhysics/OrbitalHelper.cs
+            double speed;
+            var radius = originalCoordinates.magnitude;
+            if (parent.exponent < 1.5f)
+            {
+                var term1 = 0f;
+                var term2 = parent.mu * Mathf.Log(ellipse.apogee / radius);
+                if (ellipse.eccentricity < 1f)
+                {
+                    var rp2 = ellipse.perigee * ellipse.perigee;
+                    var ra2 = ellipse.apogee * ellipse.apogee;
+                    if (rp2 == ra2)
+                    {
+                        term1 = parent.mu / 2;
+                    }
+                    else
+                    {
+                        term1 = parent.mu * Mathf.Log(ellipse.perigee / ellipse.apogee) * rp2 / (rp2 - ra2);
+                    }
+                }
+                speed = Mathf.Sqrt(2 * (term1 + term2));
+            }
+            else
+            {
+                speed = Mathf.Sqrt(Math.Abs(parent.mu * (2f / radius - 1f / ellipse.semiMajorRadius)));
+            }
+
+            var slope = ellipse.getSlopeFromCenterAngle(keplerCoordinates.esccentricAnomaly).normalized;
+            var odX = speed * slope.x;
+            var odY = speed * slope.y;
+            */
+
+            var X = (originalCoordinates.x * ((cosPeriapse * cosAscend) - (sinPeriapse * cosInclination * sinsAscend)) - originalCoordinates.y * ((sinPeriapse * cosAscend) + (cosPeriapse * cosInclination * sinsAscend)));
+            var Y = (originalCoordinates.x * ((cosPeriapse * sinsAscend) + (sinPeriapse * cosInclination * cosAscend)) - originalCoordinates.y * ((sinPeriapse * sinsAscend) - (cosPeriapse * cosInclination * cosAscend)));
+            var Z = ((originalCoordinates.x * sinPeriapse * sinInclination) + (originalCoordinates.y * cosPeriapse * sinInclination));
 
             var dX = (odX * ((cosPeriapse * cosAscend) - (sinPeriapse * cosInclination * sinsAscend)) - odY * ((sinPeriapse * cosAscend) + (cosPeriapse * cosInclination * sinsAscend)));
             var dY = (odX * ((cosPeriapse * sinsAscend) + (sinPeriapse * cosInclination * cosAscend)) - odY * ((sinPeriapse * sinsAscend) - (cosPeriapse * cosInclination * cosAscend)));

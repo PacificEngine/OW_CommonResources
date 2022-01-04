@@ -672,7 +672,16 @@ namespace PacificEngine.OW_CommonResources.Geometry
         // True Anomaly
         public float getRadiusFromFociAngle(float fociAngleFromPerigee)
         {
-            return semiLatusRectum / (1f + eccentricity * (float)Math.Cos(Angle.toRadian(fociAngleFromPerigee)));
+            fociAngleFromPerigee = Angle.toRadian(fociAngleFromPerigee);
+            return semiLatusRectum / (1f + eccentricity * (float)Math.Cos(fociAngleFromPerigee));
+        }
+
+        // True Anomaly
+        public Vector2 getCoordinatesFromFociAngle(float fociAngleFromPerigee)
+        {
+            var radius = getRadiusFromFociAngle(fociAngleFromPerigee);
+            fociAngleFromPerigee = Angle.toRadian(fociAngleFromPerigee);
+            return new Vector2(radius * (float)Math.Cos(fociAngleFromPerigee), radius * (float)Math.Sin(fociAngleFromPerigee));
         }
 
         // Eccentric Anomaly
