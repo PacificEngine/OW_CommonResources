@@ -9,7 +9,7 @@ namespace PacificEngine.OW_CommonResources.Geometry.Orbits
     {
         private const float twoPi = (float)(2d * Math.PI);
 
-        public static KeplerCoordinates zero { get; } = new KeplerCoordinates(Ellipse.fromSemiMajorRadiusAndEccentricity(0, 0), 0f, 0f, 0f, 0f, 0f, 0f);
+        public static KeplerCoordinates zero { get; } = new KeplerCoordinates(Ellipse.fromMajorRadiusAndEccentricity(0, 0), 0f, 0f, 0f, 0f, 0f, 0f);
 
         private float _trueAnomaly = float.NaN;
         private float _esccentricAnomaly = float.NaN;
@@ -74,7 +74,7 @@ namespace PacificEngine.OW_CommonResources.Geometry.Orbits
 
         public static KeplerCoordinates fromTrueAnomaly(float eccentricity, float semiMajorRadius, float inclinationAngle, float periapseAngle, float ascendingAngle, float trueAnomaly)
         {
-            return fromTrueAnomaly(Ellipse.fromSemiMajorRadiusAndEccentricity(semiMajorRadius, eccentricity), inclinationAngle, periapseAngle, ascendingAngle, trueAnomaly);
+            return fromTrueAnomaly(Ellipse.fromMajorRadiusAndEccentricity(semiMajorRadius, eccentricity), inclinationAngle, periapseAngle, ascendingAngle, trueAnomaly);
         }
 
         public static KeplerCoordinates setTrueAnomaly(KeplerCoordinates coordinates, float trueAnomaly)
@@ -89,7 +89,7 @@ namespace PacificEngine.OW_CommonResources.Geometry.Orbits
 
         public static KeplerCoordinates fromEccentricAnomaly(float eccentricity, float semiMajorRadius, float inclinationAngle, float periapseAngle, float ascendingAngle, float eccentricAnomaly)
         {
-            return fromEccentricAnomaly(Ellipse.fromSemiMajorRadiusAndEccentricity(semiMajorRadius, eccentricity), inclinationAngle, periapseAngle, ascendingAngle, eccentricAnomaly);
+            return fromEccentricAnomaly(Ellipse.fromMajorRadiusAndEccentricity(semiMajorRadius, eccentricity), inclinationAngle, periapseAngle, ascendingAngle, eccentricAnomaly);
         }
 
         public static KeplerCoordinates setEccentricAnomaly(KeplerCoordinates coordinates, float eccentricAnomaly)
@@ -104,7 +104,7 @@ namespace PacificEngine.OW_CommonResources.Geometry.Orbits
 
         public static KeplerCoordinates fromMeanAnomaly(float eccentricity, float semiMajorRadius, float inclinationAngle, float periapseAngle, float ascendingAngle, float meanAnomaly)
         {
-            return fromMeanAnomaly(Ellipse.fromSemiMajorRadiusAndEccentricity(semiMajorRadius, eccentricity), inclinationAngle, periapseAngle, ascendingAngle, meanAnomaly);
+            return fromMeanAnomaly(Ellipse.fromMajorRadiusAndEccentricity(semiMajorRadius, eccentricity), inclinationAngle, periapseAngle, ascendingAngle, meanAnomaly);
         }
 
         public static KeplerCoordinates setMeanAnomaly(KeplerCoordinates coordinates, float meanAnomaly)
@@ -123,7 +123,7 @@ namespace PacificEngine.OW_CommonResources.Geometry.Orbits
         {
             var meanAnomaly = Angle.toDegrees((twoPi * timeSincePeriapsis) / gravity.getPeriod(semiMajorRadius));
 
-            return fromTimeSincePeriapsis(gravity, Ellipse.fromSemiMajorRadiusAndEccentricity(semiMajorRadius, eccentricity), inclinationAngle, periapseAngle, ascendingAngle, timeSincePeriapsis);
+            return fromTimeSincePeriapsis(gravity, Ellipse.fromMajorRadiusAndEccentricity(semiMajorRadius, eccentricity), inclinationAngle, periapseAngle, ascendingAngle, timeSincePeriapsis);
         }
 
         public static KeplerCoordinates setTimeSincePeriapsis(Gravity gravity, KeplerCoordinates coordinates, float time)

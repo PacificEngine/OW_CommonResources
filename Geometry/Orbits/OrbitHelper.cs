@@ -54,7 +54,7 @@ namespace PacificEngine.OW_CommonResources.Geometry.Orbits
                 //eccentricity = Math.Sqrt(Math.Abs(1 - ((angularMomemntum * angularMomemntum) / (semiMajorRadius * mu))));
                 eccentricity = Math.Sqrt(Math.Abs(1d + (2d * specificEnergy * angularMomemntum * angularMomemntum) / (mu * mu)));
             }
-            var ellipse = Ellipse.fromSemiMajorRadiusAndEccentricity((float)semiMajorRadius, (float)eccentricity);
+            var ellipse = Ellipse.fromMajorRadiusAndEccentricity((float)semiMajorRadius, (float)eccentricity);
             var inclinationAngle = Angle.normalizeRadian(Math.Acos(orbitalMomentum.z / angularMomemntum));
 
             float adjustment = 0f;
@@ -91,7 +91,7 @@ namespace PacificEngine.OW_CommonResources.Geometry.Orbits
         //https://downloads.rene-schwarz.com/download/M001-Keplerian_Orbit_Elements_to_Cartesian_State_Vectors.pdf
         public static Tuple<Vector3, Vector3> toCartesian(Gravity parent, float timeSinceStart, KeplerCoordinates keplerCoordinates)
         {
-            keplerCoordinates = KeplerCoordinates.fromTimeSincePeriapsis(parent, keplerCoordinates.eccentricity, keplerCoordinates.semiMajorRadius, keplerCoordinates.inclinationAngle, keplerCoordinates.periapseAngle, keplerCoordinates.ascendingAngle, keplerCoordinates.getTimeSincePeriapsis(parent) + timeSinceStart);
+            keplerCoordinates = KeplerCoordinates.fromTimeSincePeriapsis(parent, keplerCoordinates.ellipse, keplerCoordinates.inclinationAngle, keplerCoordinates.periapseAngle, keplerCoordinates.ascendingAngle, keplerCoordinates.getTimeSincePeriapsis(parent) + timeSinceStart);
             return toCartesianTrueAnomaly(parent, keplerCoordinates.ellipse, keplerCoordinates.inclinationAngle, keplerCoordinates.periapseAngle, keplerCoordinates.ascendingAngle, keplerCoordinates.trueAnomaly); 
         }
 
