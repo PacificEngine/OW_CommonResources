@@ -18,7 +18,7 @@ namespace PacificEngine.OW_CommonResources.Geometry
         private float _apogee = float.NaN; // r_max
         private float _perigee = float.NaN; // r_min
 
-        private float eccentricityRoot { get { if (float.IsNaN(_eccentricityRoot)) _eccentricityRoot = (float)Math.Abs(Math.Sqrt(Math.Abs(1 - (_eccentricity * _eccentricity)))); return _eccentricityRoot; } }
+        private float eccentricityRoot { get { if (float.IsNaN(_eccentricityRoot)) _eccentricityRoot = (float)Math.Abs(Math.Sqrt(Math.Abs(1 - (eccentricity * eccentricity)))); return _eccentricityRoot; } }
 
         public float semiMajorRadius { get { if (float.IsNaN(_semiMajorRadius)) _semiMajorRadius = Math.Abs(getSemiMajorRadius()); return _semiMajorRadius; } }
         public float semiMinorRadius { get { if (float.IsNaN(_semiMinorRadius)) _semiMinorRadius = Math.Abs(getSemiMinorRadius()); return _semiMinorRadius; } }
@@ -30,18 +30,34 @@ namespace PacificEngine.OW_CommonResources.Geometry
 
         private Ellipse(float semiMajorRadius, float semiMinorRadius, float semiLatusRectum, float eccentricity, float foci, float apogee, float perigee)
         {
-            this._semiMajorRadius = semiMajorRadius;
-            this._semiMinorRadius = semiMinorRadius;
-            this._semiLatusRectum = semiLatusRectum;
-            this._eccentricity = eccentricity;
-            this._foci = foci;
-            this._apogee = apogee;
-            this._perigee = perigee;
+            this._semiMajorRadius = float.IsNaN(semiMajorRadius) ? float.NaN : Math.Abs(semiMajorRadius);
+            this._semiMinorRadius = float.IsNaN(semiMinorRadius) ? float.NaN : Math.Abs(semiMinorRadius);
+            this._semiLatusRectum = float.IsNaN(semiLatusRectum) ? float.NaN : Math.Abs(semiLatusRectum);
+            this._eccentricity = float.IsNaN(eccentricity) ? float.NaN : Math.Abs(eccentricity);
+            this._foci = float.IsNaN(foci) ? float.NaN : Math.Abs(foci);
+            this._apogee = float.IsNaN(apogee) ? float.NaN : Math.Abs(apogee);
+            this._perigee = float.IsNaN(perigee) ? float.NaN : Math.Abs(perigee);
+
+            if (!float.IsNaN(_semiMajorRadius) 
+                && !float.IsNaN(_semiMinorRadius)
+                && _semiMajorRadius < _semiMinorRadius)
+            {
+                _semiMajorRadius = Math.Abs(semiMinorRadius);
+                _semiMinorRadius = Math.Abs(semiMajorRadius);
+            }
+
+            if (!float.IsNaN(_apogee)
+                && !float.IsNaN(_perigee)
+                && _apogee < _perigee)
+            {
+                _apogee = Math.Abs(apogee);
+                _perigee = Math.Abs(perigee);
+            }
         }
 
         public static Ellipse fromMajorRadiusAndMinorRadius(float semiMajorRadius, float semiMinorRadius)
         {
-            return new Ellipse(semiMajorRadius > semiMinorRadius ? semiMajorRadius : semiMinorRadius, semiMajorRadius > semiMinorRadius ? semiMinorRadius : semiMajorRadius, float.NaN, float.NaN, float.NaN, float.NaN, float.NaN);
+            return new Ellipse(semiMajorRadius, semiMinorRadius, float.NaN, float.NaN, float.NaN, float.NaN, float.NaN);
         }
 
         public static Ellipse fromMajorRadiusAndLatusRectum(float semiMajorRadius, float semiLatusRectum)
@@ -124,7 +140,7 @@ namespace PacificEngine.OW_CommonResources.Geometry
             if (eccentricity <= 0f && foci <= 0f)
             {
                 throw new ArgumentException("No valid ellipse with both eccentricity and foci set as zero");
-            }    
+            }
 
             return new Ellipse(float.NaN, float.NaN, float.NaN, eccentricity, foci, float.NaN, float.NaN);
         }
@@ -151,7 +167,7 @@ namespace PacificEngine.OW_CommonResources.Geometry
 
         public static Ellipse fromApogeeAndPerigee(float apogee, float perigee)
         {
-            return new Ellipse(float.NaN, float.NaN, float.NaN, float.NaN, float.NaN, apogee > perigee ? apogee : perigee, apogee > perigee ? perigee : apogee);
+            return new Ellipse(float.NaN, float.NaN, float.NaN, float.NaN, float.NaN, apogee, perigee);
         }
 
         private float getSemiMajorRadius()
@@ -279,7 +295,6 @@ namespace PacificEngine.OW_CommonResources.Geometry
                 return (float)Math.Sqrt(Math.Abs(_perigee * _apogee));
             }
 
-            _eccentricityRoot = (float)Math.Sqrt(Math.Abs(1 - (eccentricity * eccentricity)));
             return semiMajorRadius * eccentricityRoot;
         }
 
@@ -496,8 +511,6 @@ namespace PacificEngine.OW_CommonResources.Geometry
 
         private float getApogee()
         {
-            // TODO
-            // _foci & _semiLatusRectum
             if (!float.IsNaN(_eccentricity) && !float.IsNaN(_semiMajorRadius))
             {
                 // r_max = a(1 + e)
@@ -567,14 +580,17 @@ namespace PacificEngine.OW_CommonResources.Geometry
             {
                 return semiMajorRadius + _foci;
             }
+            else if (!float.IsNaN(_foci) && !float.IsNaN(_semiLatusRectum))
+            {
+                return _semiLatusRectum / (1 - eccentricity);
+            }
 
-            return _semiLatusRectum / (1 - eccentricity);
+            Helper.helper.Console.WriteLine($"Unable to Apogee Foci for Ellipse {this.ToString()}", OWML.Common.MessageType.Warning);
+            return 0f;
         }
 
         private float getPerigee()
         {
-            // TODO
-            // _foci & _semiLatusRectum
             if (!float.IsNaN(_eccentricity) && !float.IsNaN(_semiMajorRadius))
             {
                 // r_min = a(1 - e)
@@ -644,8 +660,13 @@ namespace PacificEngine.OW_CommonResources.Geometry
             {
                 return semiMajorRadius - _foci;
             }
+            else if (!float.IsNaN(_foci) && !float.IsNaN(_semiLatusRectum))
+            {
+                return _semiLatusRectum / (1 + eccentricity);
+            }
 
-            return _semiLatusRectum / (1 + eccentricity);
+            Helper.helper.Console.WriteLine($"Unable to Perigee Foci for Ellipse {this.ToString()}", OWML.Common.MessageType.Warning);
+            return 0f;
         }
 
         // True Anomaly
