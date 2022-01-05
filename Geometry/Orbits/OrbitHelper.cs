@@ -112,7 +112,9 @@ namespace PacificEngine.OW_CommonResources.Geometry.Orbits
             var cosInclination = Math.Cos(inclinationAngle); // cos i
 
 
-            var originalCoordinates = ellipse.getCoordinatesFromFociAngle(keplerCoordinates.trueAnomaly);
+            var originalCoordinates = ellipse.getCoordinatesFromFoci(keplerCoordinates.trueAnomaly);
+            var oX = originalCoordinates.x;
+            var oY = originalCoordinates.y;
 
             double speed;
             if (parent.exponent < 1.5f)
@@ -158,9 +160,9 @@ namespace PacificEngine.OW_CommonResources.Geometry.Orbits
             var odY = speed * slope.y;
             */
 
-            var X = (originalCoordinates.x * ((cosPeriapse * cosAscend) - (sinPeriapse * cosInclination * sinsAscend)) - originalCoordinates.y * ((sinPeriapse * cosAscend) + (cosPeriapse * cosInclination * sinsAscend)));
-            var Y = (originalCoordinates.x * ((cosPeriapse * sinsAscend) + (sinPeriapse * cosInclination * cosAscend)) - originalCoordinates.y * ((sinPeriapse * sinsAscend) - (cosPeriapse * cosInclination * cosAscend)));
-            var Z = ((originalCoordinates.x * sinPeriapse * sinInclination) + (originalCoordinates.y * cosPeriapse * sinInclination));
+            var X = (oX * ((cosPeriapse * cosAscend) - (sinPeriapse * cosInclination * sinsAscend)) - oY * ((sinPeriapse * cosAscend) + (cosPeriapse * cosInclination * sinsAscend)));
+            var Y = (oX * ((cosPeriapse * sinsAscend) + (sinPeriapse * cosInclination * cosAscend)) - oY * ((sinPeriapse * sinsAscend) - (cosPeriapse * cosInclination * cosAscend)));
+            var Z = ((oX * sinPeriapse * sinInclination) + (oY * cosPeriapse * sinInclination));
 
             var dX = (odX * ((cosPeriapse * cosAscend) - (sinPeriapse * cosInclination * sinsAscend)) - odY * ((sinPeriapse * cosAscend) + (cosPeriapse * cosInclination * sinsAscend)));
             var dY = (odX * ((cosPeriapse * sinsAscend) + (sinPeriapse * cosInclination * cosAscend)) - odY * ((sinPeriapse * sinsAscend) - (cosPeriapse * cosInclination * cosAscend)));

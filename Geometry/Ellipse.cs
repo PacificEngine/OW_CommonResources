@@ -502,7 +502,7 @@ namespace PacificEngine.OW_CommonResources.Geometry
             else if (!float.IsNaN(_semiLatusRectum) && !float.IsNaN(_semiMinorRadius))
             {
                 // f = (bb/ll - 1)^(1/2)
-                return _semiMinorRadius * (float)Math.Sqrt(Math.Abs(((_semiMinorRadius * _semiMinorRadius) / (_semiLatusRectum * _semiLatusRectum)) - 1f));
+                return (float)(_semiMinorRadius * Math.Sqrt(Math.Abs(((_semiMinorRadius * _semiMinorRadius) / (_semiLatusRectum * _semiLatusRectum)) - 1f)));
             }
 
             Helper.helper.Console.WriteLine($"Unable to Solve Foci for Ellipse {this.ToString()}", OWML.Common.MessageType.Warning);
@@ -670,22 +670,22 @@ namespace PacificEngine.OW_CommonResources.Geometry
         }
 
         // True Anomaly
-        public float getRadiusFromFociAngle(float fociAngleFromPerigee)
+        public float getRadiusFromFoci(float fociAngleFromPerigee)
         {
             fociAngleFromPerigee = Angle.toRadian(fociAngleFromPerigee);
             return semiLatusRectum / (1f + eccentricity * (float)Math.Cos(fociAngleFromPerigee));
         }
 
         // True Anomaly
-        public Vector2 getCoordinatesFromFociAngle(float fociAngleFromPerigee)
+        public Vector2 getCoordinatesFromFoci(float fociAngleFromPerigee)
         {
-            var radius = getRadiusFromFociAngle(fociAngleFromPerigee);
+            var radius = getRadiusFromFoci(fociAngleFromPerigee);
             fociAngleFromPerigee = Angle.toRadian(fociAngleFromPerigee);
-            return new Vector2(radius * (float)Math.Cos(fociAngleFromPerigee), radius * (float)Math.Sin(fociAngleFromPerigee));
+            return new Vector2((radius * (float)Math.Cos(fociAngleFromPerigee)), radius * (float)Math.Sin(fociAngleFromPerigee));
         }
 
         // Eccentric Anomaly
-        public float getRadiusFromCenterAngle(float centerAngleFromPerigee)
+        public float getRadiusFromCenter(float centerAngleFromPerigee)
         {
             return (semiMajorRadius * (1f - Math.Abs(eccentricity * (float)Math.Sin(Angle.toRadian(centerAngleFromPerigee)))));
         }
@@ -711,14 +711,14 @@ namespace PacificEngine.OW_CommonResources.Geometry
         }
 
         // Eccentric Anomaly
-        public Vector2 getCoordinatesFromCenterAngle(float centerAngleFromPerigee)
+        public Vector2 getCoordinatesFromCenter(float centerAngleFromPerigee)
         {
             centerAngleFromPerigee = Angle.toRadian(centerAngleFromPerigee);
             return new Vector2(semiMajorRadius * (float)Math.Cos(centerAngleFromPerigee), semiMinorRadius * (float)Math.Sin(centerAngleFromPerigee));
         }
 
         // Eccentric Anomaly
-        public Vector2 getSlopeFromCenterAngle(float centerAngleFromPerigee)
+        public Vector2 getSlopeFromCenter(float centerAngleFromPerigee)
         {
             centerAngleFromPerigee = Angle.toRadian(centerAngleFromPerigee);
             return new Vector2(-1f * semiMajorRadius * (float)Math.Sin(centerAngleFromPerigee), semiMinorRadius * (float)Math.Cos(centerAngleFromPerigee));

@@ -1039,13 +1039,14 @@ namespace PacificEngine.OW_CommonResources.Game.State
             }
 
             var _numVerts = __instance.GetValue<int>("_numVerts");
-            var _verts = new Vector3[_numVerts];            
+            var _verts = new Vector3[_numVerts];
 
+            var ellipse = kepler.ellipse;
             var angle = KeplerCoordinates.shiftTimeSincePeriapsis(parentGravity, kepler, Time.timeSinceLevelLoad).esccentricAnomaly;
             var increment = Circle.getPercentageAngle(1f / (float)(_numVerts - 1));
             for (int index = 0; index < _numVerts; ++index)
             {
-                var vert = kepler.ellipse.getCoordinatesFromCenterAngle((angle + 180) - (index * increment));
+                var vert = ellipse.getCoordinatesFromCenter((angle + 180) - (index * increment));
                 _verts[index] = new Vector3(vert.y, 0, vert.x);
             }
             _lineRenderer.SetPositions(_verts);
