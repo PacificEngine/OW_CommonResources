@@ -18,7 +18,7 @@ namespace PacificEngine.OW_CommonResources
     {
         void Start()
         {
-            Helper.helper = (ModHelper)ModHelper;
+            Helper.helper = ModHelper;
             ModHelper.Events.Player.OnPlayerAwake += onAwake;
             SceneManager.sceneLoaded += onSceneLoaded;
 
@@ -40,7 +40,7 @@ namespace PacificEngine.OW_CommonResources
 
         void Destory()
         {
-            Helper.helper = (ModHelper)ModHelper;
+            Helper.helper = ModHelper;
             ModHelper.Events.Player.OnPlayerAwake -= onAwake;
             SceneManager.sceneLoaded -= onSceneLoaded;
 
@@ -61,13 +61,14 @@ namespace PacificEngine.OW_CommonResources
 
         void onSceneLoaded(Scene scene, LoadSceneMode mode)
         {
+            Helper.helper = ModHelper;
             GameTimer.SceneLoaded();
             Planet.SceneLoaded();
         }
 
         void onAwake(PlayerBody player)
         {
-            Helper.helper = (ModHelper)ModHelper;
+            Helper.helper = ModHelper;
             GameTimer.Awake();
             Position.Awake();
             Fog.Awake();
@@ -84,18 +85,19 @@ namespace PacificEngine.OW_CommonResources
 
         public override void Configure(IModConfig config)
         {
-            Helper.helper = (ModHelper)ModHelper;
+            Helper.helper = ModHelper;
         }
 
         void OnGUI()
         {
+            Helper.helper = ModHelper;
             GameTimer.OnGUI();
             DisplayConsole.OnGUI();
         }
 
         void Update()
         {
-            Helper.helper = (ModHelper)ModHelper;
+            Helper.helper = ModHelper;
             GameTimer.Update();
             Position.Update();
             Fog.Update();
@@ -112,11 +114,13 @@ namespace PacificEngine.OW_CommonResources
 
         void LateUpdate()
         {
+            Helper.helper = ModHelper;
             GameTimer.LateUpdate();
         }
 
         void FixedUpdate()
         {
+            Helper.helper = ModHelper;
             GameTimer.FixedUpdate();
             Position.FixedUpdate();
             Fog.FixedUpdate();

@@ -157,6 +157,46 @@ namespace PacificEngine.OW_CommonResources.Game.Player
                 }
             }
         }
+        public static bool gravity
+        {
+            get
+            {
+                if (Locator.GetPlayerBody())
+                {
+                    var applier = Locator.GetPlayerBody().GetComponentInChildren<ForceApplier>();
+                    return applier?.GetApplyForces() ?? true;
+                }
+                return true;
+            }
+            set
+            {
+                if (Locator.GetPlayerBody())
+                {
+                    var applier = Locator.GetPlayerBody().GetComponentInChildren<ForceApplier>();
+                    applier?.SetApplyForces(value);
+                }
+            }
+        }
+        public static bool fluidCollision
+        {
+            get
+            {
+                if (Locator.GetPlayerBody())
+                {
+                    var applier = Locator.GetPlayerBody().GetComponentInChildren<ForceApplier>();
+                    return applier?.GetApplyFluids() ?? true;
+                }
+                return true;
+            }
+            set
+            {
+                if (Locator.GetPlayerBody())
+                {
+                    var applier = Locator.GetPlayerBody().GetComponentInChildren<ForceApplier>();
+                    applier?.SetApplyFluids(value);
+                }
+            }
+        }
         public static bool collision
         {
             get

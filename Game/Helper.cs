@@ -1,4 +1,4 @@
-﻿using OWML.ModHelper;
+﻿using OWML.Common;
 using System;
 using System.Collections.Generic;
 
@@ -6,7 +6,7 @@ namespace PacificEngine.OW_CommonResources.Game
 {
     public static class Helper
     {
-        public static ModHelper helper;
+        public static IModHelper helper;
 
         public static List<Sector> getSector(Sector.Name name)
         {

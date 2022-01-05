@@ -684,6 +684,7 @@ namespace PacificEngine.OW_CommonResources.Game.State
         public Quaternion PointRotation(Vector3 worldPoint)
         {
             var groundNormal = worldPoint - position;
+
             var forwardDirection = -Vector3.Cross(groundNormal, orientation.right);
             return Quaternion.LookRotation(forwardDirection, groundNormal);
         }
