@@ -17,17 +17,19 @@ namespace PacificEngine.OW_CommonResources.Geometry.Orbits
         public float exponent { get; }
         public float mass { get; }
         public float mu { get { if (float.IsNaN(_mu)) _mu = Math.Abs(gravityConstant * mass); return _mu; } }
+        public bool isStatic { get; }
 
-        public Gravity(float gravityConstant, float exponent, float mass)
+        public Gravity(float gravityConstant, float exponent, float mass, bool isStatic = false)
         {
             this.gravityConstant = gravityConstant;
             this.exponent = exponent;
             this.mass = mass;
+            this.isStatic = isStatic;
         }
 
-        public static Gravity of(float exponent, float mass)
+        public static Gravity of(float exponent, float mass, bool isStatic = false)
         {
-            return new Gravity(GravityVolume.GRAVITATIONAL_CONSTANT, exponent, mass);
+            return new Gravity(GravityVolume.GRAVITATIONAL_CONSTANT, exponent, mass, isStatic);
         }
 
         public float getPeriod(float semiMajorRadius)

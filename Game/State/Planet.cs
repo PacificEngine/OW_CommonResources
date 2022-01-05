@@ -98,7 +98,7 @@ namespace PacificEngine.OW_CommonResources.Game.State
             get
             {
                 var mapping = new Dictionary<HeavenlyBody, Plantoid>();
-                mapping.Add(HeavenlyBodies.Sun, new Plantoid(new Position.Size(2000, 50000), Gravity.of(2, 400000000000), new Quaternion(0, 0, 0, 1), 0f, HeavenlyBodies.None, Vector3.zero, Vector3.zero));
+                mapping.Add(HeavenlyBodies.Sun, new Plantoid(new Position.Size(2000, 50000), Gravity.of(2, 400000000000, true), new Quaternion(0, 0, 0, 1), 0f, HeavenlyBodies.None, Vector3.zero, Vector3.zero));
                 mapping.Add(HeavenlyBodies.SunStation, new Plantoid(new Position.Size(200f, 550), Gravity.of(2, 300000000), new Quaternion(0, 0.707f, 0, -0.707f), 0f, HeavenlyBodies.Sun, KeplerCoordinates.fromTrueAnomaly(0.0002f, 2295.99976f, 0, 180, 0, 90)));
                 mapping.Add(HeavenlyBodies.HourglassTwins, new Plantoid(new Position.Size(0f, 692.8f), Gravity.of(1, 800000), new Quaternion(-0.5f, -0.5f, 0.5f, 0.5f), 0f, HeavenlyBodies.Sun, KeplerCoordinates.fromTrueAnomaly(0.0003f, 5000.00098f, 0, 305.2567f, 0, 179.7433f)));
                 mapping.Add(HeavenlyBodies.AshTwin, new Plantoid(new Position.Size(200f, 692.8f), Gravity.of(1, 1600000), new Quaternion(0.5f, -0.5f, -0.5f, 0.5f), 0.07f, HeavenlyBodies.HourglassTwins, KeplerCoordinates.fromTrueAnomaly(0, 249.999985f, 180, 33.4767f, 180, 111.5233f)));
@@ -111,11 +111,11 @@ namespace PacificEngine.OW_CommonResources.Game.State
                 mapping.Add(HeavenlyBodies.GiantsDeep, new Plantoid(new Position.Size(900, 5422), Gravity.of(1, 21780000), new Quaternion(-0.707f, 0, 0, -0.707f), 0f, HeavenlyBodies.Sun, KeplerCoordinates.fromTrueAnomaly(0.0002f, 16457.5898f, 0, 284.0027f, 0, 357.9973f)));
                 mapping.Add(HeavenlyBodies.ProbeCannon, new Plantoid(new Position.Size(200, 550), Gravity.of(2, 300000000), Quaternion.identity, 0f, HeavenlyBodies.GiantsDeep, KeplerCoordinates.fromTrueAnomaly(0, 1199.99878f, 180, 214.9022f, 180, 178.0978f)));
                 mapping.Add(HeavenlyBodies.DarkBramble, new Plantoid(new Position.Size(650, 1780), Gravity.of(1, 3250000), new Quaternion(0, 0.707f, -0.707f, 0), 0f, HeavenlyBodies.Sun, KeplerCoordinates.fromTrueAnomaly(0.0003f, 20000, 0, 283.2319f, 0, 176.7681f)));
-                mapping.Add(HeavenlyBodies.WhiteHole, new Plantoid(new Position.Size(30, 200), Gravity.of(2, 1000000), new Quaternion(0, 0.707f, 0, 0.707f), 0f, HeavenlyBodies.None, new Vector3(-23000, 0, 0), Vector3.zero));
-                mapping.Add(HeavenlyBodies.WhiteHoleStation, new Plantoid(new Position.Size(30, 100), Gravity.of(2, 100000), new Quaternion(0, 0.04225808f, 0, -0.9991068f), 0f, HeavenlyBodies.None, new Vector3(-22538.19f, 0, 0), Vector3.zero));
+                mapping.Add(HeavenlyBodies.WhiteHole, new Plantoid(new Position.Size(30, 200), Gravity.of(2, 1000000, true), new Quaternion(0, 0.707f, 0, 0.707f), 0f, HeavenlyBodies.None, new Vector3(-23000, 0, 0), Vector3.zero));
+                mapping.Add(HeavenlyBodies.WhiteHoleStation, new Plantoid(new Position.Size(30, 100), Gravity.of(2, 100000, true), new Quaternion(0, 0.04225808f, 0, -0.9991068f), 0f, HeavenlyBodies.None, new Vector3(-22538.19f, 0, 0), Vector3.zero));
                 mapping.Add(HeavenlyBodies.Interloper, new Plantoid(new Position.Size(110, 301.2f), Gravity.of(1, 550000), new Quaternion(0, 1, 0, 0), 0.0034f, HeavenlyBodies.Sun, KeplerCoordinates.fromTrueAnomaly(0.8194f, 13246.3076f, 180, 180, 180, 180)));
-                mapping.Add(HeavenlyBodies.Stranger, new Plantoid(new Position.Size(600, 1000), Gravity.of(2, 300000000), new Quaternion(-0.381f, -0.892f, 0.033f, -0.239f), -0.05f, HeavenlyBodies.None, new Vector3(8168.197f, 8400, 2049.528f), Vector3.zero));
-                mapping.Add(HeavenlyBodies.DreamWorld, new Plantoid(new Position.Size(1000, 1000), Gravity.of(2, 300000000), new Quaternion(0, 0.087f, 0, -0.996f), 0f, HeavenlyBodies.None, new Vector3(7791.638f, 7000, 1881.588f), Vector3.zero));
+                mapping.Add(HeavenlyBodies.Stranger, new Plantoid(new Position.Size(600, 1000), Gravity.of(2, 300000000, true), new Quaternion(-0.381f, -0.892f, 0.033f, -0.239f), -0.05f, HeavenlyBodies.None, new Vector3(8168.197f, 8400, 2049.528f), Vector3.zero));
+                mapping.Add(HeavenlyBodies.DreamWorld, new Plantoid(new Position.Size(1000, 1000), Gravity.of(2, 300000000, true), new Quaternion(0, 0.087f, 0, -0.996f), 0f, HeavenlyBodies.None, new Vector3(7791.638f, 7000, 1881.588f), Vector3.zero));
                 mapping.Add(HeavenlyBodies.QuantumMoon, new Plantoid(new Position.Size(110, 301.2f), Gravity.of(1, 550000), Quaternion.identity, 0f, HeavenlyBodies.None, Vector3.zero, Vector3.zero));
                 mapping.Add(HeavenlyBodies.SatiliteBacker, new Plantoid(new Position.Size(5, 100), Gravity.of(2, 100), new Quaternion(0, 0, 0, 1), 0f, HeavenlyBodies.Sun, new Vector3(42000, 5000, -22500), new Vector3(-46.8846f, 28.13076f, 24.70819f)));
                 mapping.Add(HeavenlyBodies.SatiliteMapping, new Plantoid(new Position.Size(5, 100), Gravity.of(2, 500), new Quaternion(-0.331f, -0.625f, 0.625f, -0.331f), 0f, HeavenlyBodies.Sun, KeplerCoordinates.fromTrueAnomaly(0, 25999.998f, 90, 254.9042f, 10, 90.0968f)));
@@ -389,8 +389,11 @@ namespace PacificEngine.OW_CommonResources.Game.State
                     if (parentName.StartsWith("TowerTwin_Body")
                         && (name.StartsWith("TimeLoopRing_Body")))
                     {
-                        var relative = RelativeState.getRelativeMovement(HeavenlyBodies.AshTwin, child);
-                        bodies.Add(Tuple.Create(child, RelativeState.fromSurface(HeavenlyBodies.AshTwin, relative)));
+                        if (child != null && child.enabled)
+                        {
+                            var relative = RelativeState.getRelativeMovement(HeavenlyBodies.AshTwin, child);
+                            bodies.Add(Tuple.Create(child, RelativeState.fromSurface(HeavenlyBodies.AshTwin, relative)));
+                        }
                         continue;
                     }
                     if (parentName.StartsWith("OrbitalProbeCannon_Body")
@@ -413,13 +416,20 @@ namespace PacificEngine.OW_CommonResources.Game.State
                             || name.StartsWith("QuantumIsland_Body")
                             || name.StartsWith("BrambleIsland_Body")))
                     {
-                        bodies.Add(captureState(child, HeavenlyBodies.GiantsDeep));
+                        if (child != null && child.enabled)
+                        {
+                            bodies.Add(captureState(child, HeavenlyBodies.GiantsDeep));
+                        }
                         continue;
                     }
                     if (parentName.StartsWith("WhiteholeStation_Body")
                         && (name.StartsWith("WhiteholeStationSuperstructure_Body")))
                     {
-                        bodies.Add(captureState(child, HeavenlyBodies.WhiteHoleStation));
+
+                        if (child != null && child.enabled)
+                        {
+                            bodies.Add(captureState(child, HeavenlyBodies.WhiteHoleStation));
+                        }
                         continue;
                     }
                 }
@@ -438,13 +448,13 @@ namespace PacificEngine.OW_CommonResources.Game.State
                     }
                 }
 
-                if (child.GetComponentInChildren<NomaiInterfaceOrb>(true) != null)
+                if (child?.GetComponentInChildren<NomaiInterfaceOrb>(true) != null)
                 {
                     // Handle Orbs Afterwards
                     continue;
                 }
 
-                if (!ignorables.Contains(child) && child != null && child.enabled)
+                if (child != null && !ignorables.Contains(child) && child.enabled)
                 {
                     bodies.Add(captureState(child));
                 }
