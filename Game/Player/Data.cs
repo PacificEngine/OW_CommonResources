@@ -226,13 +226,14 @@ namespace PacificEngine.OW_CommonResources.Game.Player
             PlayerData.SaveCurrentGame();
         }
 
-        public static EntryData? getFactEntry(string factId)
+        public static Tuple<EntryData?, ShipLogEntry> getFactEntry(string factId)
         {
             if (!Locator.GetShipLogManager())
             {
                 return null;
             }
 
+            EntryData? data = null;
             var library = Locator.GetShipLogManager().GetValue<ShipLogLibrary>("_shipLogLibrary");
             if (library != null && library.entryData != null)
             {
@@ -241,15 +242,34 @@ namespace PacificEngine.OW_CommonResources.Game.Player
                     var libraryEntry = library.entryData[i];
                     if (factId.Equals(libraryEntry.id))
                     {
-                        return libraryEntry;
+                        data = libraryEntry;
+                        break;
                     }
                 }
             }
 
+            ShipLogEntry log = null;
+            var entryList = Locator.GetShipLogManager()?.GetEntryList();
+            if (entryList != null)
+            {
+                foreach (var shipEntry in Locator.GetShipLogManager().GetEntryList())
+                {
+                    if (factId.Equals(shipEntry.GetID()))
+                    {
+                        log = shipEntry;
+                        break;
+                    }
+                }
+            }
+
+            if (data.HasValue || log != null)
+            {
+                return Tuple.Create(data, log);
+            }
             return null;
         }
 
-        public static void setFactCardImage(string factId, Sprite sprite, Sprite altSprite)
+        public static void putFactEntry(EntryData data, ShipLogEntry entry)
         {
             if (!Locator.GetShipLogManager())
             {
@@ -259,41 +279,47 @@ namespace PacificEngine.OW_CommonResources.Game.Player
             var library = Locator.GetShipLogManager()?.GetValue<ShipLogLibrary>("_shipLogLibrary");
             if (library != null && library.entryData != null)
             {
+                var foundEntry = false;
                 for (int i = 0; i < library.entryData.Length; i++)
                 {
                     var libraryEntry = library.entryData[i];
-                    if (factId.Equals(libraryEntry.id))
+                    if (data.id.Equals(libraryEntry.id))
                     {
-                        libraryEntry.sprite = sprite;
-                        libraryEntry.altSprite = altSprite;
-                        library.entryData[i] = libraryEntry;
+                        foundEntry = true;
+                        library.entryData[i] = data;
+                        break;
                     }
+                }
+
+                if (!foundEntry)
+                {
+                    var newEntries = new EntryData[library.entryData.Length + 1];
+                    library.entryData.CopyTo(newEntries, 0);
+                    newEntries[library.entryData.Length] = data;
+                    library.entryData = newEntries;
                 }
             }
 
             var dictionary = Locator.GetShipLogManager()?.GetValue<Dictionary<string, EntryData>>("_entryDataDict");
             if (dictionary != null)
             {
-                EntryData dictionaryEntry;
-                if (dictionary.TryGetValue(factId, out dictionaryEntry))
-                {
-                    dictionaryEntry.sprite = sprite;
-                    dictionaryEntry.altSprite = altSprite;
-                    dictionary[factId] = dictionaryEntry;
-                }
+                dictionary[data.id] = data;
             }
 
             var entryList = Locator.GetShipLogManager()?.GetEntryList();
             if (entryList != null)
             {
-                foreach (var shipEntry in Locator.GetShipLogManager().GetEntryList())
+                for (int i = 0; i < entryList.Count; i++)
                 {
-                    if (factId.Equals(shipEntry.GetID()))
+                    var currentEntry = entryList[i];
+                    if (data.id.Equals(currentEntry.GetID()))
                     {
-                        shipEntry.SetSprite(sprite);
-                        shipEntry.SetAltSprite(altSprite);
+                        entryList[i] = entry;
+                        return;
                     }
                 }
+
+                entryList.Add(entry);
             }
         }
 

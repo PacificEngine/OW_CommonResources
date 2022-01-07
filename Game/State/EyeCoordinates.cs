@@ -18,6 +18,7 @@ namespace PacificEngine.OW_CommonResources.Game.State
         private static ScreenPromptElement eyePromptElement = null;
         private static Hologram eyeHologram = null;
         private static EntryData? shipEntry = null;
+        private static ShipLogEntry shipLogEntry = null;
         private static System.Random random = new System.Random();
 
         private static int[] _x = new int[] { 1, 5, 4 };
@@ -105,9 +106,10 @@ namespace PacificEngine.OW_CommonResources.Game.State
         public static void Update()
         {
             var card = Data.getFactEntry("OPC_SUNKEN_MODULE");
-            if (!shipEntry.HasValue && card.HasValue)
+            if (!shipEntry.HasValue && card != null && card.Item1.HasValue && card.Item2 != null)
             {
-                shipEntry = card;
+                shipEntry = card.Item1;
+                shipLogEntry = card.Item2;
                 updateCoordinates();
             }
         }
@@ -155,12 +157,19 @@ namespace PacificEngine.OW_CommonResources.Game.State
             }
 
             var oldCard = Data.getFactEntry("OPC_SUNKEN_MODULE");
-            if (oldCard.HasValue)
+            if (oldCard != null && oldCard.Item1.HasValue && oldCard.Item2 != null)
             {
-                var sprite = createSprite(texture, oldCard.Value.sprite);
-                var altSprite = createSprite(texture, oldCard.Value.altSprite);
+                var newEntry = new EntryData();
+                newEntry.id = oldCard.Item1.Value.id;
+                newEntry.sprite = createSprite(texture, oldCard.Item1.Value.sprite);
+                newEntry.altSprite = createSprite(texture, oldCard.Item1.Value.altSprite);
+                newEntry.cardPosition = oldCard.Item1.Value.cardPosition;
 
-                Data.setFactCardImage("OPC_SUNKEN_MODULE", sprite, altSprite);
+
+                oldCard.Item2.SetSprite(newEntry.sprite);
+                oldCard.Item2.SetAltSprite(newEntry.altSprite);
+
+                Data.putFactEntry(newEntry, oldCard.Item2);
             }
         }
 
