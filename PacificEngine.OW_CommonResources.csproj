@@ -2,138 +2,30 @@
 <Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <FileAlignment>512</FileAlignment>
-    <Deterministic>true</Deterministic>
-    <TargetFrameworkProfile />
-    <ProjectGuid>{CD1574EB-9E39-4E8B-881E-E5ACAAB0CEEB}</ProjectGuid>
+    <AssemblyName>$(ProjectName)</AssemblyName>
+    <TargetFramework>net48</TargetFramework>
+    <OuterWildsModsDirectory>$(AppData)\OuterWildsModManager\OWML\Mods</OuterWildsModsDirectory>
+    <ProjectGuid>{1111A276-AA8D-4082-9812-B120EBF6BCB7}</ProjectGuid>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-  </PropertyGroup>
-  <PropertyGroup>
-    <AssemblyName>$(ProjectName)</AssemblyName>
-    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
-    <!--<OuterWildsRootDirectory>%OuterWilds%\Outer Wilds</OuterWildsRootDirectory>-->
-    <!--<OuterWildsModsDirectory>%AppData%\OuterWildsModManager\OWML\Mods</OuterWildsModsDirectory>-->
+    <DebugType>none</DebugType>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="OWML" Version="2.1.0" />
-  </ItemGroup>
-  <ItemGroup>
-    <Reference Include="Assembly-CSharp">
-      <HintPath>$(OuterWildsRootDirectory)\OuterWilds_Data\Managed\Assembly-CSharp.dll</HintPath>
-    </Reference>
-    <Reference Include="netstandard">
-      <HintPath>$(OuterWildsRootDirectory)\OuterWilds_Data\Managed\netstandard.dll</HintPath>
-    </Reference>
-    <Reference Include="Unity.InputSystem">
-      <HintPath>$(OuterWildsRootDirectory)\OuterWilds_Data\Managed\Unity.InputSystem.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine">
-      <HintPath>$(OuterWildsRootDirectory)\OuterWilds_Data\Managed\UnityEngine.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.AudioModule">
-      <HintPath>$(OuterWildsRootDirectory)\OuterWilds_Data\Managed\UnityEngine.AudioModule.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.CoreModule">
-      <HintPath>$(OuterWildsRootDirectory)\OuterWilds_Data\Managed\UnityEngine.CoreModule.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.IMGUIModule">
-      <HintPath>$(OuterWildsRootDirectory)\OuterWilds_Data\Managed\UnityEngine.IMGUIModule.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.ParticleSystemModule">
-      <HintPath>$(OuterWildsRootDirectory)\OuterWilds_Data\Managed\UnityEngine.ParticleSystemModule.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.PhysicsModule">
-      <HintPath>$(OuterWildsRootDirectory)\OuterWilds_Data\Managed\UnityEngine.PhysicsModule.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.TextCoreModule">
-      <HintPath>$(OuterWildsRootDirectory)\OuterWilds_Data\Managed\UnityEngine.TextCoreModule.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.TextRenderingModule">
-      <HintPath>$(OuterWildsRootDirectory)\OuterWilds_Data\Managed\UnityEngine.TextRenderingModule.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.UI">
-      <HintPath>$(OuterWildsRootDirectory)\OuterWilds_Data\Managed\UnityEngine.UI.dll</HintPath>
-    </Reference>
-    <Reference Include="System" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Xml" />
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="Game\Config\InputMapping.cs" />
-    <Compile Include="Game\Display\DisplayConsole.cs" />
-    <Compile Include="Game\Component\Detector\GravityDetector.cs" />
-    <Compile Include="Game\Player\Possession.cs" />
-    <Compile Include="Game\Resource\HeavenlyBody.cs" />
-    <Compile Include="Game\Resource\Standard.cs" />
-    <Compile Include="Game\Resource\Tracker.cs" />
-    <Compile Include="Game\State\Anglerfish.cs" />
-    <Compile Include="CommonResources.cs" />
-    <Compile Include="Game\Config\Config.cs" />
-    <Compile Include="Game\Player\Data.cs" />
-    <Compile Include="Game\State\MovementState.cs" />
-    <Compile Include="Game\State\BramblePortals.cs" />
-    <Compile Include="Game\State\EyeCoordinates.cs" />
-    <Compile Include="Game\State\Fog.cs" />
-    <Compile Include="Game\State\Planet.cs" />
-    <Compile Include="Game\State\Timer.cs" />
-    <Compile Include="Game\State\WarpPad.cs" />
-    <Compile Include="Geometry\Angle.cs" />
-    <Compile Include="Geometry\Circle.cs" />
-    <Compile Include="Geometry\Coordinates.cs" />
-    <Compile Include="Geometry\Ellipse.cs" />
-    <Compile Include="Geometry\Orbits\OrbitHelper.cs" />
-    <Compile Include="Geometry\Orbits\Gravity.cs" />
-    <Compile Include="Geometry\Orbits\KeplerCoordinates.cs" />
-    <Compile Include="Geometry\Sphere.cs" />
-    <Compile Include="Game\Helper.cs" />
-    <Compile Include="Game\State\Inhabitants.cs" />
-    <Compile Include="Game\Config\Inputs.cs" />
-    <Compile Include="Game\Resource\Items.cs" />
-    <Compile Include="Game\Player\Player.cs" />
-    <Compile Include="Game\Resource\Position.cs" />
-    <Compile Include="Game\Resource\QuantumMoonHelper.cs" />
-    <Compile Include="Geometry\Shapes2D.cs" />
-    <Compile Include="Geometry\Shapes3D.cs" />
-    <Compile Include="Game\Player\Ship.cs" />
-    <Compile Include="Game\State\SuperNova.cs" />
-    <Compile Include="Game\Player\Teleportation.cs" />
-    <Compile Include="Game\Config\RandomizerSeeds.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <WCFMetadata Include="Connected Services\" />
+    <PackageReference Include="OuterWildsGameLibs" Version="1.1.12.125" />
   </ItemGroup>
   <ItemGroup>
     <None Include="default-config.json" />
     <None Include="manifest.json" />
     <None Include="README.md" />
   </ItemGroup>
-  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>
+      rmdir /Q /S "$(OuterWildsModsDirectory)\PacificEngine.CheatsMod"
       rmdir /Q /S "$(OuterWildsModsDirectory)\$(ProjectName)"
       md "$(OuterWildsModsDirectory)\$(ProjectName)"
       copy /y "$(ProjectDir)default-config.json" "$(OuterWildsModsDirectory)\$(ProjectName)"
@@ -150,9 +42,4 @@
       rmdir /Q /S "$(ProjectDir)$(ProjectName)"
     </PostBuildEvent>
   </PropertyGroup>
-  <ProjectExtensions>
-    <VisualStudio>
-      <UserProperties manifest_1json__JsonSchema="https://json.schemastore.org/circleciconfig.json" />
-    </VisualStudio>
-  </ProjectExtensions>
 </Project>

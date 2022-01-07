@@ -1,0 +1,88 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <ProjectGuid>{8A39F9E7-1A89-430C-9C3E-BDFB3B7E17DF}</ProjectGuid>
+    <TargetFramework>net48</TargetFramework>
+    <OutputPath>Build</OutputPath>
+    <AssemblyName>$(ProjectName)</AssemblyName>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <CopyLocalLockFileAssemblies>false</CopyLocalLockFileAssemblies>
+    <OuterWildsModsDirectory>$(AppData)\OuterWildsModManager\OWML\Mods</OuterWildsModsDirectory>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugType>full</DebugType>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>none</DebugType>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="OWML" Version="2.1.0" />
+    <PackageReference Include="OuterWildsGameLibs" Version="1.1.12.125" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Game\Config\InputMapping.cs" />
+    <Compile Include="Game\Display\DisplayConsole.cs" />
+    <Compile Include="Game\Component\Detector\GravityDetector.cs" />
+    <Compile Include="Game\Player\Possession.cs" />
+    <Compile Include="Game\Resource\HeavenlyBody.cs" />
+    <Compile Include="Game\Resource\Standard.cs" />
+    <Compile Include="Game\Resource\Tracker.cs" />
+    <Compile Include="Game\State\Anglerfish.cs" />
+    <Compile Include="CommonResources.cs" />
+    <Compile Include="Game\Config\Config.cs" />
+    <Compile Include="Game\Player\Data.cs" />
+    <Compile Include="Game\State\MovementState.cs" />
+    <Compile Include="Game\State\BramblePortals.cs" />
+    <Compile Include="Game\State\EyeCoordinates.cs" />
+    <Compile Include="Game\State\Fog.cs" />
+    <Compile Include="Game\State\Planet.cs" />
+    <Compile Include="Game\State\Timer.cs" />
+    <Compile Include="Game\State\WarpPad.cs" />
+    <Compile Include="Geometry\Angle.cs" />
+    <Compile Include="Geometry\Circle.cs" />
+    <Compile Include="Geometry\Coordinates.cs" />
+    <Compile Include="Geometry\Ellipse.cs" />
+    <Compile Include="Geometry\Orbits\OrbitHelper.cs" />
+    <Compile Include="Geometry\Orbits\Gravity.cs" />
+    <Compile Include="Geometry\Orbits\KeplerCoordinates.cs" />
+    <Compile Include="Geometry\Sphere.cs" />
+    <Compile Include="Game\Helper.cs" />
+    <Compile Include="Game\State\Inhabitants.cs" />
+    <Compile Include="Game\Config\Inputs.cs" />
+    <Compile Include="Game\Resource\Items.cs" />
+    <Compile Include="Game\Player\Player.cs" />
+    <Compile Include="Game\Resource\Position.cs" />
+    <Compile Include="Game\Resource\QuantumMoonHelper.cs" />
+    <Compile Include="Geometry\Shapes2D.cs" />
+    <Compile Include="Geometry\Shapes3D.cs" />
+    <Compile Include="Game\Player\Ship.cs" />
+    <Compile Include="Game\State\SuperNova.cs" />
+    <Compile Include="Game\Player\Teleportation.cs" />
+    <Compile Include="Game\Config\RandomizerSeeds.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="default-config.json" />
+    <None Include="manifest.json" />
+    <None Include="README.md" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PostBuildEvent>
+      rmdir /Q /S "$(OuterWildsModsDirectory)\PacificEngine.CheatsMod"
+      rmdir /Q /S "$(OuterWildsModsDirectory)\$(ProjectName)"
+      md "$(OuterWildsModsDirectory)\$(ProjectName)"
+      copy /y "$(ProjectDir)default-config.json" "$(OuterWildsModsDirectory)\$(ProjectName)"
+      copy /y "$(ProjectDir)manifest.json" "$(OuterWildsModsDirectory)\$(ProjectName)"
+      copy /y "$(TargetPath)" "$(OuterWildsModsDirectory)\$(ProjectName)"
+
+      rmdir /Q /S "$(ProjectDir)$(ProjectName)"
+      md "$(ProjectDir)$(ProjectName)"
+      copy /y "$(ProjectDir)default-config.json" "$(ProjectDir)$(ProjectName)"
+      copy /y "$(ProjectDir)manifest.json" "$(ProjectDir)$(ProjectName)"
+      copy /y "$(TargetPath)" "$(ProjectDir)$(ProjectName)"
+      del /q "$(ProjectDir)..\$(ProjectName).zip"
+      powershell Compress-Archive "$(ProjectDir)$(ProjectName)" "$(ProjectDir)..\$(ProjectName).zip"
+      rmdir /Q /S "$(ProjectDir)$(ProjectName)"
+    </PostBuildEvent>
+  </PropertyGroup>
+</Project>
