@@ -19,7 +19,11 @@ namespace PacificEngine.OW_CommonResources.Geometry.Orbits
         public float mu { get { if (float.IsNaN(_mu)) _mu = Math.Abs(gravityConstant * mass); return _mu; } }
         public bool isStatic { get; }
 
-        public Gravity(float gravityConstant, float exponent, float mass, bool isStatic = false)
+        public Gravity(float gravityConstant, float exponent, float mass) : this(gravityConstant, exponent, mass, false)
+        {
+        }
+
+        private Gravity(float gravityConstant, float exponent, float mass, bool isStatic)
         {
             this.gravityConstant = gravityConstant;
             this.exponent = exponent;
@@ -27,9 +31,19 @@ namespace PacificEngine.OW_CommonResources.Geometry.Orbits
             this.isStatic = isStatic;
         }
 
-        public static Gravity of(float exponent, float mass, bool isStatic = false)
+        public static Gravity of(float exponent, float mass)
         {
-            return new Gravity(GravityVolume.GRAVITATIONAL_CONSTANT, exponent, mass, isStatic);
+            return of(exponent, mass, false);
+        }
+
+        public static Gravity of(float exponent, float mass, bool isStatic)
+        {
+            return of(GravityVolume.GRAVITATIONAL_CONSTANT, exponent, mass, false);
+        }
+
+        public static Gravity of(float gravityConstant, float exponent, float mass, bool isStatic)
+        {
+            return new Gravity(gravityConstant, exponent, mass, isStatic);
         }
 
         public float getPeriod(float semiMajorRadius)

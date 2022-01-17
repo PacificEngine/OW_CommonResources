@@ -18,6 +18,7 @@ namespace PacificEngine.OW_CommonResources.Game.State
         private static ScreenPromptElement eyePromptElement = null;
         private static Hologram eyeHologram = null;
         private static EntryData? shipEntry = null;
+        private static ShipLogEntry shipLogEntry = null;
         private static System.Random random = new System.Random();
 
         private static int[] _x = new int[] { 1, 5, 4 };
@@ -105,9 +106,10 @@ namespace PacificEngine.OW_CommonResources.Game.State
         public static void Update()
         {
             var card = Data.getFactEntry("OPC_SUNKEN_MODULE");
-            if (!shipEntry.HasValue && card.HasValue)
+            if (!shipEntry.HasValue && card != null && card.Item1.HasValue && card.Item2 != null)
             {
-                shipEntry = card;
+                shipEntry = card.Item1;
+                shipLogEntry = card.Item2;
                 updateCoordinates();
             }
         }
@@ -121,7 +123,7 @@ namespace PacificEngine.OW_CommonResources.Game.State
             var x = getCoordinate2D(EyeCoordinates.x);
             var y = getCoordinate2D(EyeCoordinates.y);
             var z = getCoordinate2D(EyeCoordinates.z);
-            return drawCoordinate(ref x, ref y, ref z);
+            return drawCoordinate2D(ref x, ref y, ref z);
         }
 
         public static Shapes3D getCoordinatesModel()
@@ -129,7 +131,7 @@ namespace PacificEngine.OW_CommonResources.Game.State
             var x = getCoordinate3D(EyeCoordinates.x);
             var y = getCoordinate3D(EyeCoordinates.y);
             var z = getCoordinate3D(EyeCoordinates.z);
-            return drawCoordinate(ref x, ref y, ref z);
+            return drawCoordinate3D(ref x, ref y, ref z);
         }
 
         private static void updateCoordinates()
@@ -155,12 +157,19 @@ namespace PacificEngine.OW_CommonResources.Game.State
             }
 
             var oldCard = Data.getFactEntry("OPC_SUNKEN_MODULE");
-            if (oldCard.HasValue)
+            if (oldCard != null && oldCard.Item1.HasValue && oldCard.Item2 != null)
             {
-                var sprite = createSprite(texture, oldCard.Value.sprite);
-                var altSprite = createSprite(texture, oldCard.Value.altSprite);
+                var newEntry = new EntryData();
+                newEntry.id = oldCard.Item1.Value.id;
+                newEntry.sprite = createSprite(texture, oldCard.Item1.Value.sprite);
+                newEntry.altSprite = createSprite(texture, oldCard.Item1.Value.altSprite);
+                newEntry.cardPosition = oldCard.Item1.Value.cardPosition;
 
-                Data.setFactCardImage("OPC_SUNKEN_MODULE", sprite, altSprite);
+
+                oldCard.Item2.SetSprite(newEntry.sprite);
+                oldCard.Item2.SetAltSprite(newEntry.altSprite);
+
+                Data.putFactEntry(newEntry, oldCard.Item2);
             }
         }
 
@@ -219,16 +228,16 @@ namespace PacificEngine.OW_CommonResources.Game.State
             updateCoordinates();
         }
 
-        private static Shapes3D drawCoordinate(ref Vector3[] x, ref Vector3[] y, ref Vector3[] z)
+        private static Shapes3D drawCoordinate3D(ref Vector3[] x, ref Vector3[] y, ref Vector3[] z)
         {
             var coordinates = new Shapes3D();
-            drawCoordinate(ref coordinates, ref x, 1.25f, 0.5f, 0.25f);
-            drawCoordinate(ref coordinates, ref y, -1.25f, 0.5f, 0.25f);
-            drawCoordinate(ref coordinates, ref z, -3.75f, 0.5f, 0.25f);
+            drawCoordinate3D(ref coordinates, ref x, 1.25f, 0.5f, 0.25f);
+            drawCoordinate3D(ref coordinates, ref y, -1.25f, 0.5f, 0.25f);
+            drawCoordinate3D(ref coordinates, ref z, -3.75f, 0.5f, 0.25f);
             return coordinates;
         }
 
-        private static void drawCoordinate(ref Shapes3D coordinates, ref Vector3[] w, float xOffset, float height, float width)
+        private static void drawCoordinate3D(ref Shapes3D coordinates, ref Vector3[] w, float xOffset, float height, float width)
         {
             var multiplier = height / 2.5f;
             if (w.Length > 0)
@@ -252,18 +261,18 @@ namespace PacificEngine.OW_CommonResources.Game.State
             }
         }
 
-        private static Shapes2D drawCoordinate(ref Vector2[] x, ref Vector2[] y, ref Vector2[] z)
+        private static Shapes2D drawCoordinate2D(ref Vector2[] x, ref Vector2[] y, ref Vector2[] z)
         {
             var width = 1024f;
             var height = (width / 7.5f) * 2.5f;
             var coordinates = new Shapes2D(new Vector2(width, height));
-            drawCoordinate(ref coordinates, ref x, 0.25f, 0.25f, 0.25f);
-            drawCoordinate(ref coordinates, ref y, 2.75f, 0.25f, 0.25f);
-            drawCoordinate(ref coordinates, ref z, 5.25f, 0.25f, 0.25f);
+            drawCoordinate2D(ref coordinates, ref x, 0.25f, 0.25f, 0.25f);
+            drawCoordinate2D(ref coordinates, ref y, 2.75f, 0.25f, 0.25f);
+            drawCoordinate2D(ref coordinates, ref z, 5.25f, 0.25f, 0.25f);
             return coordinates;
         }
 
-        private static void drawCoordinate(ref Shapes2D coordinates, ref Vector2[] w, float xOffset, float yOffset, float width)
+        private static void drawCoordinate2D(ref Shapes2D coordinates, ref Vector2[] w, float xOffset, float yOffset, float width)
         {
             var multiplier = coordinates.size.y / 2.5f;
             if (w.Length > 0)
