@@ -239,7 +239,7 @@ namespace PacificEngine.OW_CommonResources.Game.State
                     float index = 12.1f;
                     console.setElement(getId("Header"), "Warp Pads", 12.09f);
                     var allBodies = bodies;
-                    allBodies.Sort();
+                    allBodies.Sort((t1, t2) => t1.value.CompareTo(t2.value));
                     foreach (var body in allBodies)
                     {
                         List<Tuple<NomaiWarpPlatform, float>> portals;

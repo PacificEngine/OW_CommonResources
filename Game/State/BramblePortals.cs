@@ -337,7 +337,7 @@ namespace PacificEngine.OW_CommonResources.Game.State
                     float index = 11.1f;
 
                     var allBodies = bodies;
-                    allBodies.Sort();
+                    allBodies.Sort((t1, t2) => t1.value.CompareTo(t2.value));
 
                     console.setElement(getId("Outer"), "Bramble Outer Portals", 11.09f);
                     foreach (var body in allBodies)
