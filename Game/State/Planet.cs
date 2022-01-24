@@ -142,6 +142,7 @@ namespace PacificEngine.OW_CommonResources.Game.State
                 {
                     _defaultMapping.Add(val.Key, val.Value);
                 }
+                enabledManagement = true;
                 mapping = _mapping;
             }
         }

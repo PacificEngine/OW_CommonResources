@@ -13,16 +13,19 @@ namespace PacificEngine.OW_CommonResources.Game.State
     public static class WarpPad
     {
         private const string classId = "PacificEngine.OW_CommonResources.Game.State.WarpPad";
-        public static bool debugMode { get; set; } = false;
+
         private static float _lastUpdate = 0f;
         private static List<string> debugIds = new List<string>();
+        public static bool enabledManagement { get; set; } = false;
+        public static bool debugMode { get; set; } = false;
 
         public delegate void PadWarpEvent(OWRigidbody warpObject, Tuple<HeavenlyBody, int> sender, Tuple<HeavenlyBody, int> reciever);
 
         private static bool requireUpdate = false;
         private static List<NomaiWarpPlatform> unprocessedPortals = new List<NomaiWarpPlatform>();
         private static Dictionary<HeavenlyBody, List<Tuple<NomaiWarpPlatform, float>>> _portals = new Dictionary<HeavenlyBody, List<Tuple<NomaiWarpPlatform, float>>>();
-        private static Dictionary<Tuple<HeavenlyBody, int>, Tuple<HeavenlyBody, int>> _mapping = defaultMapping;
+        private static Dictionary<Tuple<HeavenlyBody, int>, Tuple<HeavenlyBody, int>> _defaultMapping = standardMapping;
+        private static Dictionary<Tuple<HeavenlyBody, int>, Tuple<HeavenlyBody, int>> _mapping = standardMapping;
 
         public static List<HeavenlyBody> bodies
         {
@@ -60,6 +63,46 @@ namespace PacificEngine.OW_CommonResources.Game.State
             get
             {
                 return portals.FindAll(x => x.Item2 is NomaiWarpReceiver).ConvertAll(x => Tuple.Create(x.Item1, x.Item2 as NomaiWarpReceiver));
+            }
+        }
+
+        public static Dictionary<Tuple<HeavenlyBody, int>, Tuple<HeavenlyBody, int>> standardMapping
+        {
+            get
+            {
+                var mapping = new Dictionary<Tuple<HeavenlyBody, int>, Tuple<HeavenlyBody, int>>();
+                mapping.Add(Tuple.Create(HeavenlyBodies.AshTwin, 0), Tuple.Create(HeavenlyBodies.GiantsDeep, -1));
+                mapping.Add(Tuple.Create(HeavenlyBodies.AshTwin, 1), Tuple.Create(HeavenlyBodies.BrittleHollow, -1));
+                mapping.Add(Tuple.Create(HeavenlyBodies.AshTwin, 2), Tuple.Create(HeavenlyBodies.TimberHearth, -1));
+                mapping.Add(Tuple.Create(HeavenlyBodies.AshTwin, 3), Tuple.Create(HeavenlyBodies.EmberTwin, -1));
+                mapping.Add(Tuple.Create(HeavenlyBodies.AshTwin, 4), Tuple.Create(HeavenlyBodies.AshTwin, -1));
+                mapping.Add(Tuple.Create(HeavenlyBodies.AshTwin, 5), Tuple.Create(HeavenlyBodies.SunStation, -1));
+                mapping.Add(Tuple.Create(HeavenlyBodies.WhiteHoleStation, 0), Tuple.Create(HeavenlyBodies.BrittleHollow, -2));
+
+                return mapping;
+            }
+        }
+
+        public static Dictionary<Tuple<HeavenlyBody, int>, Tuple<HeavenlyBody, int>> defaultMapping
+        {
+            get
+            {
+                var value = new Dictionary<Tuple<HeavenlyBody, int>, Tuple<HeavenlyBody, int>>();
+                foreach (var val in _defaultMapping)
+                {
+                    value.Add(val.Key, val.Value);
+                }
+                return value;
+            }
+            set
+            {
+                _defaultMapping.Clear();
+                foreach (var val in value)
+                {
+                    _defaultMapping.Add(val.Key, val.Value);
+                }
+                enabledManagement = true;
+                mapping = _mapping;
             }
         }
 
@@ -112,25 +155,9 @@ namespace PacificEngine.OW_CommonResources.Game.State
             set
             {
                 _mapping = value;
+                enabledManagement = true;
                 requireUpdate = true;
                 updateLists();
-            }
-        }
-
-        public static Dictionary<Tuple<HeavenlyBody, int>, Tuple<HeavenlyBody, int>> defaultMapping
-        {
-            get
-            {
-                var mapping = new Dictionary<Tuple<HeavenlyBody, int>, Tuple<HeavenlyBody, int>>();
-                mapping.Add(Tuple.Create(HeavenlyBodies.AshTwin, 0), Tuple.Create(HeavenlyBodies.GiantsDeep, -1));
-                mapping.Add(Tuple.Create(HeavenlyBodies.AshTwin, 1), Tuple.Create(HeavenlyBodies.BrittleHollow, -1));
-                mapping.Add(Tuple.Create(HeavenlyBodies.AshTwin, 2), Tuple.Create(HeavenlyBodies.TimberHearth, -1));
-                mapping.Add(Tuple.Create(HeavenlyBodies.AshTwin, 3), Tuple.Create(HeavenlyBodies.EmberTwin, -1));
-                mapping.Add(Tuple.Create(HeavenlyBodies.AshTwin, 4), Tuple.Create(HeavenlyBodies.AshTwin, -1));
-                mapping.Add(Tuple.Create(HeavenlyBodies.AshTwin, 5), Tuple.Create(HeavenlyBodies.SunStation, -1));
-                mapping.Add(Tuple.Create(HeavenlyBodies.WhiteHoleStation, 0), Tuple.Create(HeavenlyBodies.BrittleHollow, -2));
-
-                return mapping;
             }
         }
 
@@ -355,7 +382,7 @@ namespace PacificEngine.OW_CommonResources.Game.State
 
         private static void updateLists()
         {
-            if (requireUpdate)
+            if (enabledManagement && requireUpdate)
             {
                 foreach (var volume in unprocessedPortals)
                 {
