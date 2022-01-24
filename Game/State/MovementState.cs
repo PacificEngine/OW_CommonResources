@@ -11,7 +11,7 @@ using UnityEngine;
 
 namespace PacificEngine.OW_CommonResources.Game.State
 {
-    public class ScaleState
+    public class ScaleState : IEquatable<ScaleState>
     {
         public static ScaleState identity { get { return new ScaleState(Vector3.one, Vector3.one); } }
 
@@ -83,9 +83,17 @@ namespace PacificEngine.OW_CommonResources.Game.State
         {
             if (other != null && other is ScaleState)
             {
-                var obj = other as ScaleState;
-                return lossyScale == obj.lossyScale
-                   && localScale == obj.localScale;
+                return Equals((ScaleState)(other as ScaleState));
+            }
+            return false;
+        }
+
+        public bool Equals(ScaleState other)
+        {
+            if (other != null)
+            {
+                return ((lossyScale == null && other.lossyScale == null) || lossyScale.Equals(other.lossyScale))
+                    && ((localScale == null && other.localScale == null) || localScale.Equals(other.localScale));
             }
             return false;
         }
@@ -97,7 +105,7 @@ namespace PacificEngine.OW_CommonResources.Game.State
         }
     }
 
-    public class PositionState
+    public class PositionState : IEquatable<PositionState>
     {
         public static PositionState offset { get {
                 var position = Vector3.zero;
@@ -279,11 +287,18 @@ namespace PacificEngine.OW_CommonResources.Game.State
         {
             if (other != null && other is PositionState)
             {
-                var obj = other as PositionState;
-                return position == obj.position
-                   && velocity == obj.velocity
-                   && acceleration == obj.acceleration
-                   && jerk == obj.jerk;
+                return Equals((PositionState)(other as PositionState));
+            }
+            return false;
+        }
+        public bool Equals(PositionState other)
+        {
+            if (other != null)
+            {
+                return ((position == null && other.position == null) || position.Equals(other.position))
+                    && ((velocity == null && other.velocity == null) || velocity.Equals(other.velocity))
+                    && ((acceleration == null && other.acceleration == null) || acceleration.Equals(other.acceleration))
+                    && ((jerk == null && other.jerk == null) || jerk.Equals(other.jerk));
             }
             return false;
         }
@@ -297,7 +312,7 @@ namespace PacificEngine.OW_CommonResources.Game.State
         }
     }
 
-    public class OrientationState
+    public class OrientationState : IEquatable<OrientationState>
     {
         public static OrientationState identity { get { return new OrientationState(Quaternion.identity, Vector3.zero, Vector3.zero); } }
 
@@ -455,10 +470,18 @@ namespace PacificEngine.OW_CommonResources.Game.State
         {
             if (other != null && other is OrientationState)
             {
-                var obj = other as OrientationState;
-                return rotation == obj.rotation
-                    && angularVelocity == obj.angularVelocity
-                    && angularAcceleration == obj.angularAcceleration;
+                return Equals((OrientationState)(other as OrientationState));
+            }
+            return false;
+        }
+
+        public bool Equals(OrientationState other)
+        {
+            if (other != null)
+            {
+                return ((rotation == null && other.rotation == null) || rotation.Equals(other.rotation))
+                    && ((angularVelocity == null && other.angularVelocity == null) || angularVelocity.Equals(other.angularVelocity))
+                    && ((angularAcceleration == null && other.angularAcceleration == null) || angularAcceleration.Equals(other.angularAcceleration));
             }
             return false;
         }
@@ -471,7 +494,7 @@ namespace PacificEngine.OW_CommonResources.Game.State
         }
     }
 
-    public class KeplerState
+    public class KeplerState : IEquatable<KeplerState>
     {
         public ScaleState scale { get; }
         public KeplerCoordinates coordinates { get; }
@@ -500,10 +523,18 @@ namespace PacificEngine.OW_CommonResources.Game.State
         {
             if (other != null && other is KeplerState)
             {
-                var obj = other as KeplerState;
-                return scale == obj.scale
-                    && coordinates == obj.coordinates
-                    && orientation == obj.orientation;
+                return Equals((KeplerState)(other as KeplerState));
+            }
+            return false;
+        }
+
+        public bool Equals(KeplerState other)
+        {
+            if (other != null)
+            {
+                return ((scale == null && other.scale == null) || scale.Equals(other.scale))
+                    && ((coordinates == null && other.coordinates == null) || coordinates.Equals(other.coordinates))
+                    && ((orientation == null && other.orientation == null) || orientation.Equals(other.orientation));
             }
             return false;
         }
@@ -516,7 +547,7 @@ namespace PacificEngine.OW_CommonResources.Game.State
         }
     }
 
-    public class MovementState
+    public class MovementState : IEquatable<MovementState>
     {
         public ScaleState scale { get; }
         public PositionState coordinates { get; }
@@ -550,10 +581,18 @@ namespace PacificEngine.OW_CommonResources.Game.State
         {
             if (other != null && other is MovementState)
             {
-                var obj = other as MovementState;
-                return scale == obj.scale
-                    && coordinates == obj.coordinates
-                    && orientation == obj.orientation;
+                return Equals((MovementState)(other as MovementState));
+            }
+            return false;
+        }
+
+        public bool Equals(MovementState other)
+        {
+            if (other != null)
+            {
+                return ((scale == null && other.scale == null) || scale.Equals(other.scale))
+                    && ((coordinates == null && other.coordinates == null) || coordinates.Equals(other.coordinates))
+                    && ((orientation == null && other.orientation == null) || orientation.Equals(other.orientation));
             }
             return false;
         }
@@ -566,7 +605,7 @@ namespace PacificEngine.OW_CommonResources.Game.State
         }
     }
 
-    public class AbsoluteState : MovementState
+    public class AbsoluteState : MovementState, IEquatable<AbsoluteState>
     {
         public AbsoluteState(ScaleState scale, PositionState coordinates, OrientationState orientation) : base(scale, coordinates, orientation)
         {
@@ -624,10 +663,22 @@ namespace PacificEngine.OW_CommonResources.Game.State
         {
             if (other != null && other is AbsoluteState)
             {
-                var obj = other as AbsoluteState;
-                return scale == obj.scale
-                    && coordinates == obj.coordinates
-                    && orientation == obj.orientation;
+                return Equals((AbsoluteState)(other as AbsoluteState));
+            }
+            else if (other != null && other is MovementState)
+            {
+                return Equals((MovementState)(other as MovementState));
+            }
+            return false;
+        }
+
+        public bool Equals(AbsoluteState other)
+        {
+            if (other != null)
+            {
+                return ((scale == null && other.scale == null) || scale.Equals(other.scale))
+                    && ((coordinates == null && other.coordinates == null) || coordinates.Equals(other.coordinates))
+                    && ((orientation == null && other.orientation == null) || orientation.Equals(other.orientation));
             }
             return false;
         }
@@ -747,7 +798,7 @@ namespace PacificEngine.OW_CommonResources.Game.State
         }
     }
 
-    public class RelativeState
+    public class RelativeState : IEquatable<RelativeState>
     {
         public HeavenlyBody parent { get; }
         public MovementState relative { get; }
@@ -775,11 +826,19 @@ namespace PacificEngine.OW_CommonResources.Game.State
         {
             if (other != null && other is RelativeState)
             {
-                var obj = other as RelativeState;
-                return parent == obj.parent
-                    && relative == obj.relative
-                    && surface == obj.surface
-                    && orbit == obj.orbit;
+                return Equals((RelativeState)(other as RelativeState));
+            }
+            return false;
+        }
+
+        public bool Equals(RelativeState other)
+        {
+            if (other != null)
+            {
+                return ((parent == null && other.parent == null) || parent.Equals(other.parent))
+                    && ((relative == null && other.relative == null) || relative.Equals(other.relative))
+                    && ((surface == null && other.surface == null) || surface.Equals(other.surface))
+                    && ((orbit == null && other.orbit == null) || orbit.Equals(other.orbit));
             }
             return false;
         }

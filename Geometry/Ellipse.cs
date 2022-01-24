@@ -7,7 +7,7 @@ using UnityEngine;
 
 namespace PacificEngine.OW_CommonResources.Geometry
 {
-    public class Ellipse
+    public class Ellipse : IEquatable<Ellipse>
     {
         private float _semiMajorRadius = float.NaN; // a
         private float _semiMinorRadius = float.NaN; // b
@@ -733,9 +733,17 @@ namespace PacificEngine.OW_CommonResources.Geometry
         {
             if (other != null && other is Ellipse)
             {
-                var obj = other as Ellipse;
-                return eccentricity == obj.eccentricity
-                    && semiMajorRadius == obj.semiMajorRadius;
+                return Equals((Ellipse)(other as Ellipse));
+            }
+            return false;
+        }
+
+        public bool Equals(Ellipse other)
+        {
+            if (other != null)
+            {
+                return eccentricity == other.eccentricity
+                    && semiMajorRadius == other.semiMajorRadius;
             }
             return false;
         }

@@ -16,7 +16,8 @@ namespace PacificEngine.OW_CommonResources.Game.State
 
         private static float _lastUpdate = 0f;
         private static List<string> debugIds = new List<string>();
-        public static bool enabledManagement { get; set; } = false;
+        public static bool _enabledManagement { get; set; } = false;
+        public static bool enabledManagement { get { return _enabledManagement; } set { _enabledManagement = value; requireUpdate = true; } }
         public static bool debugMode { get; set; } = false;
 
         public delegate void PadWarpEvent(OWRigidbody warpObject, Tuple<HeavenlyBody, int> sender, Tuple<HeavenlyBody, int> reciever);
@@ -404,7 +405,7 @@ namespace PacificEngine.OW_CommonResources.Game.State
 
         private static void updateLists()
         {
-            if (enabledManagement && requireUpdate)
+            if (requireUpdate)
             {
                 foreach (var volume in unprocessedPortals)
                 {
@@ -431,7 +432,10 @@ namespace PacificEngine.OW_CommonResources.Game.State
                 }
                 requireUpdate = false;
 
-                doMapping();
+                if (enabledManagement)
+                {
+                    doMapping();
+                }
             }
         }
 

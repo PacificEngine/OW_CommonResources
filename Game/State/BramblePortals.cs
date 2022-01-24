@@ -17,7 +17,8 @@ namespace PacificEngine.OW_CommonResources.Game.State
 
         private static float _lastUpdate = 0f;
         private static List<string> debugIds = new List<string>();
-        public static bool enabledManagement { get; set; } = false;
+        public static bool _enabledManagement { get; set; } = false;
+        public static bool enabledManagement { get { return _enabledManagement; } set { _enabledManagement = value; requireUpdate = true; } }
         public static bool debugMode { get; set; } = false;
 
         public delegate void BrambleWarpEvent(FogWarpDetector.Name warpObject, bool isInnerPortal, Tuple<HeavenlyBody, int> sender, Tuple<HeavenlyBody, int> reciever);
@@ -195,9 +196,9 @@ namespace PacificEngine.OW_CommonResources.Game.State
         {
             get
             {
+                var allPortals = portals;
                 var outerPortalMap = new Dictionary<Tuple<HeavenlyBody, int>, Tuple<HeavenlyBody, int>>();
                 var innerPortalMap = new Dictionary<Tuple<HeavenlyBody, int>, Tuple<HeavenlyBody, int>>();
-                var allPortals = portals;
                 if (allPortals.Count < 1)
                 {
                     foreach (var val in _outerPortalMap)
@@ -214,22 +215,25 @@ namespace PacificEngine.OW_CommonResources.Game.State
                             innerPortalMap.Add(Tuple.Create(val.Key.Item1, val.Key.Item2), Tuple.Create(val.Value.Item1, val.Value.Item2));
                         }
                     }
-                    return Tuple.Create(outerPortalMap, innerPortalMap);
                 }
-
-                updateLists();
-                foreach (var portal in allPortals)
+                else
                 {
-                    var index = findIndex(portal.Item2, portal.Item1);
-                    if (index.HasValue && portal.Item2 is SphericalFogWarpVolume)
+                    updateLists();
+                    foreach (var portal in allPortals)
                     {
-                        if (portal.Item2 is InnerFogWarpVolume)
+                        var index = findIndex(portal.Item2, portal.Item1);
+                        if (index.HasValue && portal.Item2 is SphericalFogWarpVolume)
                         {
-                            innerPortalMap[Tuple.Create(portal.Item1, index.Value)] = find((portal.Item2 as SphericalFogWarpVolume).GetLinkedFogWarpVolume());
-                        }
-                        else
-                        {
-                            outerPortalMap[Tuple.Create(portal.Item1, index.Value)] = find((portal.Item2 as SphericalFogWarpVolume).GetLinkedFogWarpVolume());
+                            if (portal.Item2 is InnerFogWarpVolume)
+                            {
+                                Helper.helper.Console.WriteLine($"Inner: ${portal.Item1}:${index.Value} -> ${find((portal.Item2 as SphericalFogWarpVolume).GetLinkedFogWarpVolume()).Item1}:${find((portal.Item2 as SphericalFogWarpVolume).GetLinkedFogWarpVolume()).Item2}");
+                                innerPortalMap[Tuple.Create(portal.Item1, index.Value)] = find((portal.Item2 as SphericalFogWarpVolume).GetLinkedFogWarpVolume());
+                            }
+                            else
+                            {
+                                Helper.helper.Console.WriteLine($"Outer: ${portal.Item1}:${index.Value} -> ${find((portal.Item2 as SphericalFogWarpVolume).GetLinkedFogWarpVolume()).Item1}:${find((portal.Item2 as SphericalFogWarpVolume).GetLinkedFogWarpVolume()).Item2}");
+                                outerPortalMap[Tuple.Create(portal.Item1, index.Value)] = find((portal.Item2 as SphericalFogWarpVolume).GetLinkedFogWarpVolume());
+                            }
                         }
                     }
                 }
@@ -617,7 +621,7 @@ namespace PacificEngine.OW_CommonResources.Game.State
 
         private static void updateLists()
         {
-            if (enabledManagement && requireUpdate)
+            if (requireUpdate)
             {
                 foreach (FogWarpVolume volume in unprocessedPortals)
                 {
@@ -640,7 +644,10 @@ namespace PacificEngine.OW_CommonResources.Game.State
                 }
                 requireUpdate = false;
 
-                doMapping();
+                if (enabledManagement)
+                {
+                    doMapping();
+                }
             }
         }
 

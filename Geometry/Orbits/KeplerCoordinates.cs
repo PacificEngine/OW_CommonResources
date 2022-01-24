@@ -5,7 +5,7 @@ using System.Text;
 
 namespace PacificEngine.OW_CommonResources.Geometry.Orbits
 {
-    public class KeplerCoordinates
+    public class KeplerCoordinates : IEquatable<KeplerCoordinates>
     {
         private const float twoPi = (float)(2d * Math.PI);
 
@@ -152,13 +152,21 @@ namespace PacificEngine.OW_CommonResources.Geometry.Orbits
         {
             if (other != null && other is KeplerCoordinates)
             {
-                var obj = other as KeplerCoordinates;
-                return eccentricity == obj.eccentricity
-                    && semiMajorRadius == obj.semiMajorRadius
-                    && inclinationAngle == obj.inclinationAngle
-                    && periapseAngle == obj.periapseAngle
-                    && ascendingAngle == obj.ascendingAngle
-                    && trueAnomaly == obj.trueAnomaly;
+                return Equals((KeplerCoordinates)(other as KeplerCoordinates));
+            }
+            return false;
+        }
+
+        public bool Equals(KeplerCoordinates other)
+        {
+            if (other != null)
+            {
+                return eccentricity == other.eccentricity
+                    && semiMajorRadius == other.semiMajorRadius
+                    && inclinationAngle == other.inclinationAngle
+                    && periapseAngle == other.periapseAngle
+                    && ascendingAngle == other.ascendingAngle
+                    && trueAnomaly == other.trueAnomaly;
             }
             return false;
         }

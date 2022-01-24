@@ -21,7 +21,8 @@ namespace PacificEngine.OW_CommonResources.Game.State
         private static ShipLogEntry shipLogEntry = null;
         private static System.Random random = new System.Random();
 
-        public static bool enabledManagement { get; set; } = false;
+        public static bool _enabledManagement { get; set; } = false;
+        public static bool enabledManagement { get { return _enabledManagement; } set { _enabledManagement = value; requireUpdate = true; } }
 
         private static bool requireUpdate = false;
         private static Tuple<int[], int[], int[]> _defaultCoordinates = standardCoordinates;

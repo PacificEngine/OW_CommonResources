@@ -8,7 +8,7 @@ using UnityEngine.InputSystem;
 
 namespace PacificEngine.OW_CommonResources.Game.Config
 {
-    public class InputClass
+    public class InputClass : IEquatable<InputClass>
     {
         private const char _split = ',';
         private HashSet<Key> _keys;
@@ -89,12 +89,19 @@ namespace PacificEngine.OW_CommonResources.Game.Config
         {
             if (other != null && other is InputClass)
             {
-                var obj = other as InputClass;
-                if (obj._keys.Count == _keys.Count)
+                return Equals((InputClass)(other as InputClass));
+            }
+            return false;
+        }
+        public bool Equals(InputClass other)
+        {
+            if (other != null)
+            {
+                if (other._keys.Count == _keys.Count)
                 {
                     foreach (var key in _keys)
                     {
-                        if (!obj._keys.Contains(key))
+                        if (!other._keys.Contains(key))
                         {
                             return false;
                         }
@@ -141,7 +148,7 @@ namespace PacificEngine.OW_CommonResources.Game.Config
         }
     }
 
-    public class MultiInputClass
+    public class MultiInputClass : IEquatable<MultiInputClass>
     {
         private const char _split = '|';
         HashSet<InputClass> _keys;
@@ -220,12 +227,19 @@ namespace PacificEngine.OW_CommonResources.Game.Config
         {
             if (other != null && other is MultiInputClass)
             {
-                var obj = other as MultiInputClass;
-                if (obj._keys.Count == _keys.Count)
+                return Equals((MultiInputClass)(other as MultiInputClass));
+            }
+            return false;
+        }
+        public bool Equals(MultiInputClass other)
+        {
+            if (other != null)
+            {
+                if (other._keys.Count == _keys.Count)
                 {
                     foreach (var key in _keys)
                     {
-                        if (!obj._keys.Contains(key))
+                        if (!other._keys.Contains(key))
                         {
                             return false;
                         }

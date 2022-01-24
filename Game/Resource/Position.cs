@@ -14,7 +14,7 @@ namespace PacificEngine.OW_CommonResources.Game.Resource
 {
     public static class Position
     {
-        public class Size
+        public class Size : IEquatable<Size>
         {
             public float size { get; }
             public float influence { get; }
@@ -34,9 +34,17 @@ namespace PacificEngine.OW_CommonResources.Game.Resource
             {
                 if (other != null && other is Size)
                 {
-                    var obj = other as Size;
-                    return size == obj.size
-                        && influence == obj.influence;
+                    return Equals((Size)(other as Size));
+                }
+                return false;
+            }
+
+            public bool Equals(Size other)
+            {
+                if (other != null)
+                {
+                    return size == other.size
+                        && influence == other.influence;
                 }
                 return false;
             }
