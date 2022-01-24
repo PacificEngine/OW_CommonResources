@@ -143,16 +143,21 @@ namespace PacificEngine.OW_CommonResources.Game.State
         {
             get
             {
-
                 var outerPortalMap = new Dictionary<Tuple<HeavenlyBody, int>, Tuple<HeavenlyBody, int>>();
                 var innerPortalMap = new Dictionary<Tuple<HeavenlyBody, int>, Tuple<HeavenlyBody, int>>();
                 foreach (var val in _defaultMapping.Item1)
                 {
-                    outerPortalMap.Add(val.Key, val.Value);
+                    if (val.Key != null && val.Value != null)
+                    {
+                        outerPortalMap.Add(Tuple.Create(val.Key.Item1, val.Key.Item2), Tuple.Create(val.Value.Item1, val.Value.Item2));
+                    }
                 }
                 foreach (var val in _defaultMapping.Item2)
                 {
-                    innerPortalMap.Add(val.Key, val.Value);
+                    if (val.Key != null && val.Value != null)
+                    {
+                        innerPortalMap.Add(Tuple.Create(val.Key.Item1, val.Key.Item2), Tuple.Create(val.Value.Item1, val.Value.Item2));
+                    }
                 }
                 return Tuple.Create(outerPortalMap, innerPortalMap);
             }
@@ -163,7 +168,11 @@ namespace PacificEngine.OW_CommonResources.Game.State
                     _defaultMapping.Item1.Clear();
                     foreach (var val in value.Item1)
                     {
-                        _defaultMapping.Item1.Add(val.Key, val.Value);
+
+                        if (val.Key != null && val.Value != null)
+                        {
+                            _defaultMapping.Item1.Add(Tuple.Create(val.Key.Item1, val.Key.Item2), Tuple.Create(val.Value.Item1, val.Value.Item2));
+                        }
                     }
                 }
                 if (value.Item2 != null)
@@ -171,7 +180,10 @@ namespace PacificEngine.OW_CommonResources.Game.State
                     _defaultMapping.Item1.Clear();
                     foreach (var val in value.Item2)
                     {
-                        _defaultMapping.Item2.Add(val.Key, val.Value);
+                        if (val.Key != null && val.Value != null)
+                        {
+                            _defaultMapping.Item2.Add(Tuple.Create(val.Key.Item1, val.Key.Item2), Tuple.Create(val.Value.Item1, val.Value.Item2));
+                        }
                     }
                 }
                 enabledManagement = true;
@@ -183,15 +195,29 @@ namespace PacificEngine.OW_CommonResources.Game.State
         {
             get
             {
+                var outerPortalMap = new Dictionary<Tuple<HeavenlyBody, int>, Tuple<HeavenlyBody, int>>();
+                var innerPortalMap = new Dictionary<Tuple<HeavenlyBody, int>, Tuple<HeavenlyBody, int>>();
                 var allPortals = portals;
                 if (allPortals.Count < 1)
                 {
-                    return Tuple.Create(_outerPortalMap, _innerPortalMap);
+                    foreach (var val in _outerPortalMap)
+                    {
+                        if (val.Key != null && val.Value != null)
+                        {
+                            outerPortalMap.Add(Tuple.Create(val.Key.Item1, val.Key.Item2), Tuple.Create(val.Value.Item1, val.Value.Item2));
+                        }
+                    }
+                    foreach (var val in _innerPortalMap)
+                    {
+                        if (val.Key != null && val.Value != null)
+                        {
+                            innerPortalMap.Add(Tuple.Create(val.Key.Item1, val.Key.Item2), Tuple.Create(val.Value.Item1, val.Value.Item2));
+                        }
+                    }
+                    return Tuple.Create(outerPortalMap, innerPortalMap);
                 }
 
                 updateLists();
-                var outerPortalMap = new Dictionary<Tuple<HeavenlyBody, int>, Tuple<HeavenlyBody, int>>();
-                var innerPortalMap = new Dictionary<Tuple<HeavenlyBody, int>, Tuple<HeavenlyBody, int>>();
                 foreach (var portal in allPortals)
                 {
                     var index = findIndex(portal.Item2, portal.Item1);
@@ -234,11 +260,17 @@ namespace PacificEngine.OW_CommonResources.Game.State
 
                 foreach (var outerMappping in value.Item1)
                 {
-                    _outerPortalMap[outerMappping.Key] = outerMappping.Value;
+                    if (outerMappping.Key != null && outerMappping.Value != null)
+                    {
+                        _outerPortalMap[Tuple.Create(outerMappping.Key.Item1, outerMappping.Key.Item2)] = Tuple.Create(outerMappping.Value.Item1, outerMappping.Value.Item2);
+                    }
                 }
                 foreach (var innerMapping in value.Item2)
                 {
-                    _innerPortalMap[innerMapping.Key] = innerMapping.Value;
+                    if (innerMapping.Key != null && innerMapping.Value != null)
+                    {
+                        _innerPortalMap[Tuple.Create(innerMapping.Key.Item1, innerMapping.Key.Item2)] = Tuple.Create(innerMapping.Value.Item1, innerMapping.Value.Item2);
+                    }
                 }
 
                 enabledManagement = true;

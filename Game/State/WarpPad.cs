@@ -90,7 +90,10 @@ namespace PacificEngine.OW_CommonResources.Game.State
                 var value = new Dictionary<Tuple<HeavenlyBody, int>, Tuple<HeavenlyBody, int>>();
                 foreach (var val in _defaultMapping)
                 {
-                    value.Add(val.Key, val.Value);
+                    if (val.Key != null && val.Value != null)
+                    {
+                        value.Add(Tuple.Create(val.Key.Item1, val.Key.Item2), Tuple.Create(val.Value.Item1, val.Value.Item2));
+                    }
                 }
                 return value;
             }
@@ -99,7 +102,10 @@ namespace PacificEngine.OW_CommonResources.Game.State
                 _defaultMapping.Clear();
                 foreach (var val in value)
                 {
-                    _defaultMapping.Add(val.Key, val.Value);
+                    if (val.Key != null && val.Value != null)
+                    {
+                        _defaultMapping.Add(Tuple.Create(val.Key.Item1, val.Key.Item2), Tuple.Create(val.Value.Item1, val.Value.Item2));
+                    }
                 }
                 enabledManagement = true;
                 mapping = _mapping;
@@ -113,7 +119,15 @@ namespace PacificEngine.OW_CommonResources.Game.State
                 var allPortals = portals;
                 if (allPortals.Count < 1)
                 {
-                    return _mapping;
+                    var value = new Dictionary<Tuple<HeavenlyBody, int>, Tuple<HeavenlyBody, int>>();
+                    foreach (var val in _mapping)
+                    {
+                        if (val.Key != null && val.Value != null)
+                        {
+                            value.Add(Tuple.Create(val.Key.Item1, val.Key.Item2), Tuple.Create(val.Value.Item1, val.Value.Item2));
+                        }
+                    }
+                    return value;
                 }
 
                 updateLists();
@@ -154,7 +168,15 @@ namespace PacificEngine.OW_CommonResources.Game.State
             }
             set
             {
-                _mapping = value;
+                _mapping.Clear();
+                foreach (var val in value)
+                {
+                    if (val.Key != null && val.Value != null)
+                    {
+                        _mapping.Add(Tuple.Create(val.Key.Item1, val.Key.Item2), Tuple.Create(val.Value.Item1, val.Value.Item2));
+                    }
+                }
+
                 enabledManagement = true;
                 requireUpdate = true;
                 updateLists();

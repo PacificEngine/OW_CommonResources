@@ -81,11 +81,27 @@ namespace PacificEngine.OW_CommonResources.Game.State
         {
             get
             {
-                return Tuple.Create(_defaultCoordinates.Item1, _defaultCoordinates.Item2, _defaultCoordinates.Item3);
+                var x = new int[_defaultCoordinates.Item1.Length];
+                var y = new int[_defaultCoordinates.Item2.Length];
+                var z = new int[_defaultCoordinates.Item3.Length];
+
+                Array.Copy(_defaultCoordinates.Item1, x, x.Length);
+                Array.Copy(_defaultCoordinates.Item2, y, y.Length);
+                Array.Copy(_defaultCoordinates.Item3, z, z.Length);
+
+                return Tuple.Create(x, y, z);
             }
             set
             {
-                _defaultCoordinates = Tuple.Create(value.Item1, value.Item2, value.Item3);
+                var x = new int[value.Item1.Length];
+                var y = new int[value.Item2.Length];
+                var z = new int[value.Item3.Length];
+
+                Array.Copy(value.Item1, x, x.Length);
+                Array.Copy(value.Item2, y, y.Length);
+                Array.Copy(value.Item3, z, z.Length);
+
+                _defaultCoordinates = Tuple.Create(x, y, z);
                 enabledManagement = true;
             }
         }
@@ -94,11 +110,31 @@ namespace PacificEngine.OW_CommonResources.Game.State
         {
             get
             {
+                var _x = EyeCoordinates.x;
+                var _y = EyeCoordinates.y;
+                var _z = EyeCoordinates.z;
+
+                var x = new int[_x.Length];
+                var y = new int[_y.Length];
+                var z = new int[_z.Length];
+
+                Array.Copy(_x, x, x.Length);
+                Array.Copy(_y, y, y.Length);
+                Array.Copy(_z, z, z.Length);
+
                 return Tuple.Create(x, y, z);
             }
             set
             {
-                _coordinates = value;
+                var x = new int[value.Item1.Length];
+                var y = new int[value.Item2.Length];
+                var z = new int[value.Item3.Length];
+
+                Array.Copy(value.Item1, x, x.Length);
+                Array.Copy(value.Item2, y, y.Length);
+                Array.Copy(value.Item3, z, z.Length);
+
+                _coordinates = Tuple.Create(x, y, z);
                 enabledManagement = true;
                 requireUpdate = true;
             }
