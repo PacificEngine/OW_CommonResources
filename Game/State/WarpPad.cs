@@ -18,6 +18,7 @@ namespace PacificEngine.OW_CommonResources.Game.State
         private static List<string> debugIds = new List<string>();
         public static bool _enabledManagement { get; set; } = false;
         public static bool enabledManagement { get { return _enabledManagement; } set { _enabledManagement = value; requireUpdate = true; } }
+        public static int logFrequency { get; set; } = -1;
         public static bool debugMode { get; set; } = false;
 
         public delegate void PadWarpEvent(OWRigidbody warpObject, Tuple<HeavenlyBody, int> sender, Tuple<HeavenlyBody, int> reciever);
@@ -223,6 +224,18 @@ namespace PacificEngine.OW_CommonResources.Game.State
         {
         }
 
+        public static void SceneLoaded()
+        {
+            if (logFrequency > 0)
+            {
+                Helper.helper.Console.WriteLine($"Scene Loaded Warp Pad State");
+                foreach (var element in mapping)
+                {
+                    Helper.helper.Console.WriteLine($"{element.Key?.Item1 ?? HeavenlyBody.None}:{element.Key?.Item2.ToString() ?? ""} -> {element.Value?.Item1 ?? HeavenlyBody.None}:{element.Value?.Item2.ToString() ?? ""}");
+                }
+            }
+        }
+
         public static void Update()
         {
             var console = DisplayConsole.getConsole(ConsoleLocation.BottomLeft);
@@ -269,6 +282,18 @@ namespace PacificEngine.OW_CommonResources.Game.State
             }
 
             updateLists();
+
+            if (logFrequency > 0)
+            {
+                if (GameTimer.FramesSinceAwake % logFrequency == 0)
+                {
+                    Helper.helper.Console.WriteLine($"Frame {GameTimer.FramesSinceAwake} Warp Pad State");
+                    foreach (var element in mapping)
+                    {
+                        Helper.helper.Console.WriteLine($"{element.Key?.Item1 ?? HeavenlyBody.None}:{element.Key?.Item2.ToString() ?? ""} -> {element.Value?.Item1 ?? HeavenlyBody.None}:{element.Value?.Item2.ToString() ?? ""}");
+                    }
+                }
+            }
         }
 
         public static void FixedUpdate()
@@ -312,6 +337,7 @@ namespace PacificEngine.OW_CommonResources.Game.State
             int? index = findIndex(volume, body);
             if (!index.HasValue)
                 return null;
+
             return Tuple.Create(body, index.Value);
         }
 
@@ -344,7 +370,7 @@ namespace PacificEngine.OW_CommonResources.Game.State
 
         private static int? findIndex(NomaiWarpPlatform volume, HeavenlyBody body)
         {
-            var index = portals.FindAll(x => x.Item1 == body && (volume is NomaiWarpReceiver == x.Item2 is NomaiWarpReceiver)).FindIndex(x => x.Item2 == volume);
+            var index = portals.FindAll(x => (x.Item1 == body) && ((volume is NomaiWarpReceiver) == (x.Item2 is NomaiWarpReceiver))).FindIndex(x => x.Item2 == volume);
             if (index < 0)
             {
                 return null;

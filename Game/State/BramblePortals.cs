@@ -19,6 +19,7 @@ namespace PacificEngine.OW_CommonResources.Game.State
         private static List<string> debugIds = new List<string>();
         public static bool _enabledManagement { get; set; } = false;
         public static bool enabledManagement { get { return _enabledManagement; } set { _enabledManagement = value; requireUpdate = true; } }
+        public static int logFrequency { get; set; } = -1;
         public static bool debugMode { get; set; } = false;
 
         public delegate void BrambleWarpEvent(FogWarpDetector.Name warpObject, bool isInnerPortal, Tuple<HeavenlyBody, int> sender, Tuple<HeavenlyBody, int> reciever);
@@ -226,12 +227,10 @@ namespace PacificEngine.OW_CommonResources.Game.State
                         {
                             if (portal.Item2 is InnerFogWarpVolume)
                             {
-                                Helper.helper.Console.WriteLine($"Inner: ${portal.Item1}:${index.Value} -> ${find((portal.Item2 as SphericalFogWarpVolume).GetLinkedFogWarpVolume()).Item1}:${find((portal.Item2 as SphericalFogWarpVolume).GetLinkedFogWarpVolume()).Item2}");
                                 innerPortalMap[Tuple.Create(portal.Item1, index.Value)] = find((portal.Item2 as SphericalFogWarpVolume).GetLinkedFogWarpVolume());
                             }
                             else
                             {
-                                Helper.helper.Console.WriteLine($"Outer: ${portal.Item1}:${index.Value} -> ${find((portal.Item2 as SphericalFogWarpVolume).GetLinkedFogWarpVolume()).Item1}:${find((portal.Item2 as SphericalFogWarpVolume).GetLinkedFogWarpVolume()).Item2}");
                                 outerPortalMap[Tuple.Create(portal.Item1, index.Value)] = find((portal.Item2 as SphericalFogWarpVolume).GetLinkedFogWarpVolume());
                             }
                         }
@@ -322,6 +321,25 @@ namespace PacificEngine.OW_CommonResources.Game.State
         {
         }
 
+        public static void SceneLoaded()
+        {
+            if (logFrequency > 0)
+            {
+                var map = mapping;
+                Helper.helper.Console.WriteLine($"Scene Loaded Bramble Outer Portal State");
+                foreach (var element in map.Item1)
+                {
+                    Helper.helper.Console.WriteLine($"{element.Key?.Item1 ?? HeavenlyBody.None}:{element.Key?.Item2.ToString() ?? ""} -> {element.Value?.Item1 ?? HeavenlyBody.None}:{element.Value?.Item2.ToString() ?? ""}");
+                }
+
+                Helper.helper.Console.WriteLine($"Scene Loaded Bramble Inner Portal State");
+                foreach (var element in map.Item2)
+                {
+                    Helper.helper.Console.WriteLine($"{element.Key?.Item1 ?? HeavenlyBody.None}:{element.Key?.Item2.ToString() ?? ""} -> {element.Value?.Item1 ?? HeavenlyBody.None}:{element.Value?.Item2.ToString() ?? ""}");
+                }
+            }
+        }
+
         public static void Update()
         {
             var console = DisplayConsole.getConsole(ConsoleLocation.BottomLeft);
@@ -398,6 +416,25 @@ namespace PacificEngine.OW_CommonResources.Game.State
             }
 
             updateLists();
+
+            if (logFrequency > 0)
+            {
+                if (GameTimer.FramesSinceAwake % logFrequency == 0)
+                {
+                    var map = mapping;
+                    Helper.helper.Console.WriteLine($"Scene Loaded Bramble Outer Portal State");
+                    foreach (var element in map.Item1)
+                    {
+                        Helper.helper.Console.WriteLine($"{element.Key?.Item1 ?? HeavenlyBody.None}:{element.Key?.Item2.ToString() ?? ""} -> {element.Value?.Item1 ?? HeavenlyBody.None}:{element.Value?.Item2.ToString() ?? ""}");
+                    }
+
+                    Helper.helper.Console.WriteLine($"Scene Loaded Bramble Inner Portal State");
+                    foreach (var element in map.Item2)
+                    {
+                        Helper.helper.Console.WriteLine($"{element.Key?.Item1 ?? HeavenlyBody.None}:{element.Key?.Item2.ToString() ?? ""} -> {element.Value?.Item1 ?? HeavenlyBody.None}:{element.Value?.Item2.ToString() ?? ""}");
+                    }
+                }
+            }
         }
 
         public static void FixedUpdate()
@@ -477,8 +514,8 @@ namespace PacificEngine.OW_CommonResources.Game.State
         public static Tuple<HeavenlyBody, int> find(FogWarpVolume volume)
         {
             var body = findBody(volume);
-            if (body != null
-                    && body != HeavenlyBodies.None)
+            if (body == null
+                    || body == HeavenlyBodies.None)
                 return null;
 
             int? index = findIndex(volume, body);
@@ -557,7 +594,7 @@ namespace PacificEngine.OW_CommonResources.Game.State
             }
             else if (volume is InnerFogWarpVolume)
             {
-                var index = innerPortals.FindAll(x => x.Item1 == body && x.Item2.IsProbeOnly() == volume.IsProbeOnly()).FindIndex(x => x.Item2 == volume);
+                var index = innerPortals.FindAll(x => (x.Item1 == body) && (x.Item2.IsProbeOnly() == volume.IsProbeOnly())).FindIndex(x => x.Item2 == volume);
                 if (index < 0)
                 {
                     return null;

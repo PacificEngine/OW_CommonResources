@@ -60,6 +60,7 @@ namespace PacificEngine.OW_CommonResources.Game.Resource
 
         private static float lastUpdate = 0f;
         private static List<string> debugIds = new List<string>();
+        public static int logFrequency { get; set; } = -1;
         public static bool debugPlayerPosition { get; set; } = false;
 
         private static Dictionary<HeavenlyBody, Func<AstroObject>> _astroLookup = StandardAstroLookup;
@@ -217,6 +218,30 @@ namespace PacificEngine.OW_CommonResources.Game.Resource
         {
         }
 
+        public static void SceneLoaded()
+        {
+            if (logFrequency > 0)
+            {
+                Helper.helper.Console.WriteLine($"Scene Loaded Positions");
+                var player = getClosetRelativeState(Locator.GetPlayerBody(), true);
+                var ship = getClosetRelativeState(Locator.GetShipBody(), true);
+                var probe = getClosetRelativeState(Locator.GetProbe()?.GetAttachedOWRigidbody(), true);
+
+                if (player != null)
+                {
+                    Helper.helper.Console.WriteLine($"Player {player.ToString()}");
+                }
+                if (ship != null)
+                {
+                    Helper.helper.Console.WriteLine($"Ship {ship.ToString()}");
+                }
+                if (probe != null)
+                {
+                    Helper.helper.Console.WriteLine($"Probe {probe.ToString()}");
+                }
+            }
+        }
+
         public static void Update()
         {
             var console = DisplayConsole.getConsole(ConsoleLocation.BottomRight);
@@ -236,10 +261,47 @@ namespace PacificEngine.OW_CommonResources.Game.Resource
                     listValue("Probe", "Probe", 10.2f, Locator.GetProbe()?.GetAttachedOWRigidbody());
                 }
             }
+
+            if (logFrequency > 0)
+            {
+                if (GameTimer.FramesSinceAwake % logFrequency == 0)
+                {
+                    Helper.helper.Console.WriteLine($"Frame {GameTimer.FramesSinceAwake} Positions");
+                    var player = getClosetRelativeState(Locator.GetPlayerBody(), true);
+                    var ship = getClosetRelativeState(Locator.GetShipBody(), true);
+                    var probe = getClosetRelativeState(Locator.GetProbe()?.GetAttachedOWRigidbody(), true);
+
+                    if (player != null)
+                    {
+                        Helper.helper.Console.WriteLine($"Player {player.ToString()}");
+                    }
+                    if (ship != null)
+                    {
+                        Helper.helper.Console.WriteLine($"Ship {ship.ToString()}");
+                    }
+                    if (probe != null)
+                    {
+                        Helper.helper.Console.WriteLine($"Probe {probe.ToString()}");
+                    }
+                }
+            }
         }
 
         public static void FixedUpdate()
         {
+        }
+
+        private static RelativeState getClosetRelativeState(OWRigidbody comparison, bool useInitialVelcity = false)
+        {
+            if (!comparison)
+            {
+                return null;
+            }
+
+            var absoluteState = PositionState.fromCurrentState(comparison);
+            var parent = getClosetInfluence(absoluteState.position, getAstros(), new HeavenlyBody[0]);
+
+            return RelativeState.fromGlobal(parent[0].Item1, comparison, useInitialVelcity);
         }
 
         private static void listValue(string id, string name, float index, OWRigidbody comparison)
