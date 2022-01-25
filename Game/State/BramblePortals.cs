@@ -639,7 +639,7 @@ namespace PacificEngine.OW_CommonResources.Game.State
             var innerPortal = end == null ? null : getInnerPortal(end.Item1, end.Item2);
             if (innerPortal != null && outerPortal != null)
             {
-                outerPortal.SetValue("_linkedInnerWarpVolume", innerPortal);
+                outerPortal?.SetValue("_linkedInnerWarpVolume", innerPortal);
             }
         }
 
@@ -649,10 +649,10 @@ namespace PacificEngine.OW_CommonResources.Game.State
             var innerPortal = start == null ? null : getInnerPortal(start.Item1, start.Item2);
             if (innerPortal != null && outerPortal != null)
             {
-                innerPortal.GetValue<OuterFogWarpVolume>("_linkedOuterWarpVolume").GetValue<List<InnerFogWarpVolume>>("_senderWarps").Remove(innerPortal);
-                innerPortal.SetValue("_linkedOuterWarpVolume", outerPortal);
-                innerPortal.SetValue("_linkedOuterWarpName", outerPortal.GetName());
-                outerPortal.RegisterSenderWarp(innerPortal);
+                innerPortal?.GetValue<OuterFogWarpVolume>("_linkedOuterWarpVolume")?.GetValue<List<InnerFogWarpVolume>>("_senderWarps")?.Remove(innerPortal);
+                innerPortal?.SetValue("_linkedOuterWarpVolume", outerPortal);
+                innerPortal?.SetValue("_linkedOuterWarpName", outerPortal.GetName());
+                outerPortal?.RegisterSenderWarp(innerPortal);
             }
         }
 
