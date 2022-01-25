@@ -287,7 +287,7 @@ namespace PacificEngine.OW_CommonResources.Game.State
 
             if (logPlanetPositionFrequency > 0)
             {
-                if (GameTimer.FramesSinceAwake % logPlanetPositionFrequency == 0)
+                if (GameTimer.FramesSinceAwake % logPlanetPositionFrequency == 1)
                 {
                     Helper.helper.Console.WriteLine($"Frame {GameTimer.FramesSinceAwake} Planet State");
                     foreach (var map in mapping)

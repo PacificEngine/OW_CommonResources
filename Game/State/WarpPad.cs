@@ -285,7 +285,7 @@ namespace PacificEngine.OW_CommonResources.Game.State
 
             if (logFrequency > 0)
             {
-                if (GameTimer.FramesSinceAwake % logFrequency == 0)
+                if (GameTimer.FramesSinceAwake % logFrequency == 1)
                 {
                     Helper.helper.Console.WriteLine($"Frame {GameTimer.FramesSinceAwake} Warp Pad State");
                     foreach (var element in mapping)

@@ -264,7 +264,7 @@ namespace PacificEngine.OW_CommonResources.Game.Resource
 
             if (logFrequency > 0)
             {
-                if (GameTimer.FramesSinceAwake % logFrequency == 0)
+                if (GameTimer.FramesSinceAwake % logFrequency == 1)
                 {
                     Helper.helper.Console.WriteLine($"Frame {GameTimer.FramesSinceAwake} Positions");
                     var player = getClosetRelativeState(Locator.GetPlayerBody(), true);

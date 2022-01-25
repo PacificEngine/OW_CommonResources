@@ -419,7 +419,7 @@ namespace PacificEngine.OW_CommonResources.Game.State
 
             if (logFrequency > 0)
             {
-                if (GameTimer.FramesSinceAwake % logFrequency == 0)
+                if (GameTimer.FramesSinceAwake % logFrequency == 1)
                 {
                     var map = mapping;
                     Helper.helper.Console.WriteLine($"Scene Loaded Bramble Outer Portal State");
