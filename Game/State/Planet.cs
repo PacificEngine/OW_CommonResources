@@ -451,10 +451,17 @@ namespace PacificEngine.OW_CommonResources.Game.State
                     {
                         var orbitOffset = name.StartsWith("CannonBarrel") ? 11 : 22;
 
+                        var probeCannonKepler = mapping[HeavenlyBodies.ProbeCannon].state.orbit.coordinates;
+
                         var state = RelativeState.fromKepler(
                             HeavenlyBodies.GiantsDeep,
                             ScaleState.fromCurrentState(child),
-                            KeplerCoordinates.fromTrueAnomaly(0, 1199.99878f, 180, 214.9022f, 180, 178.0978f + orbitOffset),
+                            KeplerCoordinates.fromTrueAnomaly(probeCannonKepler.eccentricity,
+                                probeCannonKepler.semiMajorRadius,
+                                probeCannonKepler.inclinationAngle,
+                                probeCannonKepler.periapseAngle,
+                                probeCannonKepler.ascendingAngle,
+                                probeCannonKepler.trueAnomaly + orbitOffset),
                             OrientationState.fromCurrentState(child)
                         );
                         bodies.Add(Tuple.Create(child, state));
