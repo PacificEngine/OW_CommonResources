@@ -63,6 +63,9 @@ namespace PacificEngine.OW_CommonResources
         {
             Helper.helper = ModHelper;
             GameTimer.SceneLoaded();
+            Position.SceneLoaded();
+            BramblePortals.SceneLoaded();
+            WarpPad.SceneLoaded();
             Planet.SceneLoaded();
         }
 

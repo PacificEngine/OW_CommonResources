@@ -5,7 +5,7 @@ using System.Text;
 
 namespace PacificEngine.OW_CommonResources.Geometry.Orbits
 {
-    public class Gravity
+    public class Gravity : IEquatable<Gravity>
     {
         public static float GRAVITATIONAL_CONSTANT { get; } = GravityVolume.GRAVITATIONAL_CONSTANT;
 
@@ -65,13 +65,22 @@ namespace PacificEngine.OW_CommonResources.Geometry.Orbits
         {
             if (other != null && other is Gravity)
             {
-                var obj = other as Gravity;
-                return gravityConstant == obj.gravityConstant
-                    && exponent == obj.exponent
-                    && mass == obj.mass;
+                return Equals((Gravity)(other as Gravity));
             }
             return false;
         }
+
+        public bool Equals(Gravity other)
+        {
+            if (other != null)
+            {
+                return gravityConstant == other.gravityConstant
+                    && exponent == other.exponent
+                    && mass == other.mass;
+            }
+            return false;
+        }
+
 
         public override int GetHashCode()
         {

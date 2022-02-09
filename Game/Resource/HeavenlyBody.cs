@@ -5,7 +5,7 @@ using System.Text;
 
 namespace PacificEngine.OW_CommonResources.Game.Resource
 {
-    public class HeavenlyBody
+    public class HeavenlyBody : IEquatable<HeavenlyBody>
     {
         private static Dictionary<string, HeavenlyBody> _map = new Dictionary<string, HeavenlyBody>();
         private static int _nextValue = 1;
@@ -86,8 +86,20 @@ namespace PacificEngine.OW_CommonResources.Game.Resource
             }
             else if (!(other is null) && other is HeavenlyBody)
             {
-                var obj = other as HeavenlyBody;
-                return _value == obj._value;
+                return Equals((HeavenlyBody)(other as HeavenlyBody));
+            }
+            return false;
+        }
+
+        public bool Equals(HeavenlyBody other)
+        {
+            if (other is null && this._value == None._value)
+            {
+                return true;
+            }
+            if (other != null)
+            {
+                return _value == other._value;
             }
             return false;
         }

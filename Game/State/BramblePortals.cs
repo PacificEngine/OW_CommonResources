@@ -13,19 +13,25 @@ namespace PacificEngine.OW_CommonResources.Game.State
     public static class BramblePortals
     {
         private const string classId = "PacificEngine.OW_CommonResources.Game.State.BramblePortals";
-        public static bool debugMode { get; set; } = false;
+
+
         private static float _lastUpdate = 0f;
         private static List<string> debugIds = new List<string>();
+        public static bool _enabledManagement { get; set; } = false;
+        public static bool enabledManagement { get { return _enabledManagement; } set { _enabledManagement = value; requireUpdate = true; } }
+        public static int logFrequency { get; set; } = -1;
+        public static bool debugMode { get; set; } = false;
 
         public delegate void BrambleWarpEvent(FogWarpDetector.Name warpObject, bool isInnerPortal, Tuple<HeavenlyBody, int> sender, Tuple<HeavenlyBody, int> reciever);
 
+        private static Boolean requireUpdate = false;
         private static int processingFrame = -1;
         private static HashSet<OuterFogWarpVolume> alreadyProcessed = new HashSet<OuterFogWarpVolume>();
         private static List<FogWarpVolume> unprocessedPortals = new List<FogWarpVolume>();
         private static Dictionary<HeavenlyBody, List<Tuple<FogWarpVolume, float>>> _portals = new Dictionary<HeavenlyBody, List<Tuple<FogWarpVolume, float>>>();
-        private static Dictionary<Tuple<HeavenlyBody, int>, Tuple<HeavenlyBody, int>> _outerPortalMap = defaultMapping.Item1;
-        private static Dictionary<Tuple<HeavenlyBody, int>, Tuple<HeavenlyBody, int>> _innerPortalMap = defaultMapping.Item2;
-        private static Boolean requireUpdate = false;
+        private static Tuple<Dictionary<Tuple<HeavenlyBody, int>, Tuple<HeavenlyBody, int>>, Dictionary<Tuple<HeavenlyBody, int>, Tuple<HeavenlyBody, int>>> _defaultMapping = standardMapping;
+        private static Dictionary<Tuple<HeavenlyBody, int>, Tuple<HeavenlyBody, int>> _outerPortalMap = standardMapping.Item1;
+        private static Dictionary<Tuple<HeavenlyBody, int>, Tuple<HeavenlyBody, int>> _innerPortalMap = standardMapping.Item2;
 
         public static List<HeavenlyBody> bodies
         {
@@ -82,74 +88,7 @@ namespace PacificEngine.OW_CommonResources.Game.State
             }
         }
 
-        public static Tuple<Dictionary<Tuple<HeavenlyBody, int>, Tuple<HeavenlyBody, int>>, Dictionary<Tuple<HeavenlyBody, int>, Tuple<HeavenlyBody, int>>> mapping
-        {
-            get
-            {
-                var allPortals = portals;
-                if (allPortals.Count < 1)
-                {
-                    return Tuple.Create(_outerPortalMap, _innerPortalMap);
-                }
-
-                updateLists();
-                var outerPortalMap = new Dictionary<Tuple<HeavenlyBody, int>, Tuple<HeavenlyBody, int>>();
-                var innerPortalMap = new Dictionary<Tuple<HeavenlyBody, int>, Tuple<HeavenlyBody, int>>();
-                foreach (var portal in allPortals)
-                {
-                    var index = findIndex(portal.Item2, portal.Item1);
-                    if (index.HasValue && portal.Item2 is SphericalFogWarpVolume)
-                    {
-                        if (portal.Item2 is InnerFogWarpVolume)
-                        {
-                            innerPortalMap[Tuple.Create(portal.Item1, index.Value)] = find((portal.Item2 as SphericalFogWarpVolume).GetLinkedFogWarpVolume());
-                        }
-                        else
-                        {
-                            outerPortalMap[Tuple.Create(portal.Item1, index.Value)] = find((portal.Item2 as SphericalFogWarpVolume).GetLinkedFogWarpVolume());
-                        }
-                    }
-                }
-                return Tuple.Create(outerPortalMap, innerPortalMap);
-            }
-            set
-            {
-                if (_outerPortalMap == null || _innerPortalMap == null)
-                {
-                    var defaults = defaultMapping;
-                    if (_outerPortalMap == null)
-                    {
-                        _outerPortalMap = new Dictionary<Tuple<HeavenlyBody, int>, Tuple<HeavenlyBody, int>>();
-                        foreach (var outerMappping in defaults.Item1)
-                        {
-                            _outerPortalMap[outerMappping.Key] = outerMappping.Value;
-                        }
-                    }
-                    if (_innerPortalMap == null)
-                    {
-                        _innerPortalMap = new Dictionary<Tuple<HeavenlyBody, int>, Tuple<HeavenlyBody, int>>();
-                        foreach (var innerMapping in defaults.Item2)
-                        {
-                            _innerPortalMap[innerMapping.Key] = innerMapping.Value;
-                        }
-                    }
-                }
-
-                foreach (var outerMappping in value.Item1)
-                {
-                    _outerPortalMap[outerMappping.Key] = outerMappping.Value;
-                }
-                foreach (var innerMapping in value.Item2)
-                {
-                    _innerPortalMap[innerMapping.Key] = innerMapping.Value;
-                }
-
-                requireUpdate = true;
-                updateLists();
-            }
-        }
-
-        public static Tuple<Dictionary<Tuple<HeavenlyBody, int>, Tuple<HeavenlyBody, int>>, Dictionary<Tuple<HeavenlyBody, int>, Tuple<HeavenlyBody, int>>> defaultMapping
+        public static Tuple<Dictionary<Tuple<HeavenlyBody, int>, Tuple<HeavenlyBody, int>>, Dictionary<Tuple<HeavenlyBody, int>, Tuple<HeavenlyBody, int>>> standardMapping
         {
             get
             {
@@ -202,6 +141,147 @@ namespace PacificEngine.OW_CommonResources.Game.State
             }
         }
 
+        public static Tuple<Dictionary<Tuple<HeavenlyBody, int>, Tuple<HeavenlyBody, int>>, Dictionary<Tuple<HeavenlyBody, int>, Tuple<HeavenlyBody, int>>> defaultMapping
+        {
+            get
+            {
+                var outerPortalMap = new Dictionary<Tuple<HeavenlyBody, int>, Tuple<HeavenlyBody, int>>();
+                var innerPortalMap = new Dictionary<Tuple<HeavenlyBody, int>, Tuple<HeavenlyBody, int>>();
+                foreach (var val in _defaultMapping.Item1)
+                {
+                    if (val.Key != null && val.Value != null)
+                    {
+                        outerPortalMap.Add(Tuple.Create(val.Key.Item1, val.Key.Item2), Tuple.Create(val.Value.Item1, val.Value.Item2));
+                    }
+                }
+                foreach (var val in _defaultMapping.Item2)
+                {
+                    if (val.Key != null && val.Value != null)
+                    {
+                        innerPortalMap.Add(Tuple.Create(val.Key.Item1, val.Key.Item2), Tuple.Create(val.Value.Item1, val.Value.Item2));
+                    }
+                }
+                return Tuple.Create(outerPortalMap, innerPortalMap);
+            }
+            set
+            {
+                if (value.Item1 != null)
+                {
+                    _defaultMapping.Item1.Clear();
+                    foreach (var val in value.Item1)
+                    {
+
+                        if (val.Key != null && val.Value != null)
+                        {
+                            _defaultMapping.Item1.Add(Tuple.Create(val.Key.Item1, val.Key.Item2), Tuple.Create(val.Value.Item1, val.Value.Item2));
+                        }
+                    }
+                }
+                if (value.Item2 != null)
+                {
+                    _defaultMapping.Item1.Clear();
+                    foreach (var val in value.Item2)
+                    {
+                        if (val.Key != null && val.Value != null)
+                        {
+                            _defaultMapping.Item2.Add(Tuple.Create(val.Key.Item1, val.Key.Item2), Tuple.Create(val.Value.Item1, val.Value.Item2));
+                        }
+                    }
+                }
+                enabledManagement = true;
+                mapping = Tuple.Create(_outerPortalMap, _innerPortalMap);
+            }
+        }
+
+        public static Tuple<Dictionary<Tuple<HeavenlyBody, int>, Tuple<HeavenlyBody, int>>, Dictionary<Tuple<HeavenlyBody, int>, Tuple<HeavenlyBody, int>>> mapping
+        {
+            get
+            {
+                var allPortals = portals;
+                var outerPortalMap = new Dictionary<Tuple<HeavenlyBody, int>, Tuple<HeavenlyBody, int>>();
+                var innerPortalMap = new Dictionary<Tuple<HeavenlyBody, int>, Tuple<HeavenlyBody, int>>();
+                if (allPortals.Count < 1)
+                {
+                    foreach (var val in _outerPortalMap)
+                    {
+                        if (val.Key != null && val.Value != null)
+                        {
+                            outerPortalMap.Add(Tuple.Create(val.Key.Item1, val.Key.Item2), Tuple.Create(val.Value.Item1, val.Value.Item2));
+                        }
+                    }
+                    foreach (var val in _innerPortalMap)
+                    {
+                        if (val.Key != null && val.Value != null)
+                        {
+                            innerPortalMap.Add(Tuple.Create(val.Key.Item1, val.Key.Item2), Tuple.Create(val.Value.Item1, val.Value.Item2));
+                        }
+                    }
+                }
+                else
+                {
+                    updateLists();
+                    foreach (var portal in allPortals)
+                    {
+                        var index = findIndex(portal.Item2, portal.Item1);
+                        if (index.HasValue && portal.Item2 is SphericalFogWarpVolume)
+                        {
+                            if (portal.Item2 is InnerFogWarpVolume)
+                            {
+                                innerPortalMap[Tuple.Create(portal.Item1, index.Value)] = find((portal.Item2 as SphericalFogWarpVolume).GetLinkedFogWarpVolume());
+                            }
+                            else
+                            {
+                                outerPortalMap[Tuple.Create(portal.Item1, index.Value)] = find((portal.Item2 as SphericalFogWarpVolume).GetLinkedFogWarpVolume());
+                            }
+                        }
+                    }
+                }
+                return Tuple.Create(outerPortalMap, innerPortalMap);
+            }
+            set
+            {
+                if (_outerPortalMap == null || _innerPortalMap == null)
+                {
+                    var defaults = defaultMapping;
+                    if (_outerPortalMap == null)
+                    {
+                        _outerPortalMap = new Dictionary<Tuple<HeavenlyBody, int>, Tuple<HeavenlyBody, int>>();
+                        foreach (var outerMappping in defaults.Item1)
+                        {
+                            _outerPortalMap[outerMappping.Key] = outerMappping.Value;
+                        }
+                    }
+                    if (_innerPortalMap == null)
+                    {
+                        _innerPortalMap = new Dictionary<Tuple<HeavenlyBody, int>, Tuple<HeavenlyBody, int>>();
+                        foreach (var innerMapping in defaults.Item2)
+                        {
+                            _innerPortalMap[innerMapping.Key] = innerMapping.Value;
+                        }
+                    }
+                }
+
+                foreach (var outerMappping in value.Item1)
+                {
+                    if (outerMappping.Key != null && outerMappping.Value != null)
+                    {
+                        _outerPortalMap[Tuple.Create(outerMappping.Key.Item1, outerMappping.Key.Item2)] = Tuple.Create(outerMappping.Value.Item1, outerMappping.Value.Item2);
+                    }
+                }
+                foreach (var innerMapping in value.Item2)
+                {
+                    if (innerMapping.Key != null && innerMapping.Value != null)
+                    {
+                        _innerPortalMap[Tuple.Create(innerMapping.Key.Item1, innerMapping.Key.Item2)] = Tuple.Create(innerMapping.Value.Item1, innerMapping.Value.Item2);
+                    }
+                }
+
+                enabledManagement = true;
+                requireUpdate = true;
+                updateLists();
+            }
+        }
+
         public static event BrambleWarpEvent onBrambleWarp;
 
         private static void reset()
@@ -241,6 +321,25 @@ namespace PacificEngine.OW_CommonResources.Game.State
         {
         }
 
+        public static void SceneLoaded()
+        {
+            if (logFrequency > 0)
+            {
+                var map = mapping;
+                Helper.helper.Console.WriteLine($"Scene Loaded Bramble Outer Portal State");
+                foreach (var element in map.Item1)
+                {
+                    Helper.helper.Console.WriteLine($"{element.Key?.Item1 ?? HeavenlyBody.None}:{element.Key?.Item2.ToString() ?? ""} -> {element.Value?.Item1 ?? HeavenlyBody.None}:{element.Value?.Item2.ToString() ?? ""}");
+                }
+
+                Helper.helper.Console.WriteLine($"Scene Loaded Bramble Inner Portal State");
+                foreach (var element in map.Item2)
+                {
+                    Helper.helper.Console.WriteLine($"{element.Key?.Item1 ?? HeavenlyBody.None}:{element.Key?.Item2.ToString() ?? ""} -> {element.Value?.Item1 ?? HeavenlyBody.None}:{element.Value?.Item2.ToString() ?? ""}");
+                }
+            }
+        }
+
         public static void Update()
         {
             var console = DisplayConsole.getConsole(ConsoleLocation.BottomLeft);
@@ -260,7 +359,7 @@ namespace PacificEngine.OW_CommonResources.Game.State
                     float index = 11.1f;
 
                     var allBodies = bodies;
-                    allBodies.Sort();
+                    allBodies.Sort((t1, t2) => t1.value.CompareTo(t2.value));
 
                     console.setElement(getId("Outer"), "Bramble Outer Portals", 11.09f);
                     foreach (var body in allBodies)
@@ -317,6 +416,25 @@ namespace PacificEngine.OW_CommonResources.Game.State
             }
 
             updateLists();
+
+            if (logFrequency > 0)
+            {
+                if (GameTimer.FramesSinceAwake % logFrequency == 1)
+                {
+                    var map = mapping;
+                    Helper.helper.Console.WriteLine($"Scene Loaded Bramble Outer Portal State");
+                    foreach (var element in map.Item1)
+                    {
+                        Helper.helper.Console.WriteLine($"{element.Key?.Item1 ?? HeavenlyBody.None}:{element.Key?.Item2.ToString() ?? ""} -> {element.Value?.Item1 ?? HeavenlyBody.None}:{element.Value?.Item2.ToString() ?? ""}");
+                    }
+
+                    Helper.helper.Console.WriteLine($"Scene Loaded Bramble Inner Portal State");
+                    foreach (var element in map.Item2)
+                    {
+                        Helper.helper.Console.WriteLine($"{element.Key?.Item1 ?? HeavenlyBody.None}:{element.Key?.Item2.ToString() ?? ""} -> {element.Value?.Item1 ?? HeavenlyBody.None}:{element.Value?.Item2.ToString() ?? ""}");
+                    }
+                }
+            }
         }
 
         public static void FixedUpdate()
@@ -396,8 +514,8 @@ namespace PacificEngine.OW_CommonResources.Game.State
         public static Tuple<HeavenlyBody, int> find(FogWarpVolume volume)
         {
             var body = findBody(volume);
-            if (body != null
-                    && body != HeavenlyBodies.None)
+            if (body == null
+                    || body == HeavenlyBodies.None)
                 return null;
 
             int? index = findIndex(volume, body);
@@ -476,7 +594,7 @@ namespace PacificEngine.OW_CommonResources.Game.State
             }
             else if (volume is InnerFogWarpVolume)
             {
-                var index = innerPortals.FindAll(x => x.Item1 == body && x.Item2.IsProbeOnly() == volume.IsProbeOnly()).FindIndex(x => x.Item2 == volume);
+                var index = innerPortals.FindAll(x => (x.Item1 == body) && (x.Item2.IsProbeOnly() == volume.IsProbeOnly())).FindIndex(x => x.Item2 == volume);
                 if (index < 0)
                 {
                     return null;
@@ -521,7 +639,7 @@ namespace PacificEngine.OW_CommonResources.Game.State
             var innerPortal = end == null ? null : getInnerPortal(end.Item1, end.Item2);
             if (innerPortal != null && outerPortal != null)
             {
-                outerPortal.SetValue("_linkedInnerWarpVolume", innerPortal);
+                outerPortal?.SetValue("_linkedInnerWarpVolume", innerPortal);
             }
         }
 
@@ -531,10 +649,10 @@ namespace PacificEngine.OW_CommonResources.Game.State
             var innerPortal = start == null ? null : getInnerPortal(start.Item1, start.Item2);
             if (innerPortal != null && outerPortal != null)
             {
-                innerPortal.GetValue<OuterFogWarpVolume>("_linkedOuterWarpVolume").GetValue<List<InnerFogWarpVolume>>("_senderWarps").Remove(innerPortal);
-                innerPortal.SetValue("_linkedOuterWarpVolume", outerPortal);
-                innerPortal.SetValue("_linkedOuterWarpName", outerPortal.GetName());
-                outerPortal.RegisterSenderWarp(innerPortal);
+                innerPortal?.GetValue<OuterFogWarpVolume>("_linkedOuterWarpVolume")?.GetValue<List<InnerFogWarpVolume>>("_senderWarps")?.Remove(innerPortal);
+                innerPortal?.SetValue("_linkedOuterWarpVolume", outerPortal);
+                innerPortal?.SetValue("_linkedOuterWarpName", outerPortal.GetName());
+                outerPortal?.RegisterSenderWarp(innerPortal);
             }
         }
 
@@ -563,7 +681,10 @@ namespace PacificEngine.OW_CommonResources.Game.State
                 }
                 requireUpdate = false;
 
-                doMapping();
+                if (enabledManagement)
+                {
+                    doMapping();
+                }
             }
         }
 

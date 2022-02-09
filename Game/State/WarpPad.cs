@@ -13,16 +13,21 @@ namespace PacificEngine.OW_CommonResources.Game.State
     public static class WarpPad
     {
         private const string classId = "PacificEngine.OW_CommonResources.Game.State.WarpPad";
-        public static bool debugMode { get; set; } = false;
+
         private static float _lastUpdate = 0f;
         private static List<string> debugIds = new List<string>();
+        public static bool _enabledManagement { get; set; } = false;
+        public static bool enabledManagement { get { return _enabledManagement; } set { _enabledManagement = value; requireUpdate = true; } }
+        public static int logFrequency { get; set; } = -1;
+        public static bool debugMode { get; set; } = false;
 
         public delegate void PadWarpEvent(OWRigidbody warpObject, Tuple<HeavenlyBody, int> sender, Tuple<HeavenlyBody, int> reciever);
 
         private static bool requireUpdate = false;
         private static List<NomaiWarpPlatform> unprocessedPortals = new List<NomaiWarpPlatform>();
         private static Dictionary<HeavenlyBody, List<Tuple<NomaiWarpPlatform, float>>> _portals = new Dictionary<HeavenlyBody, List<Tuple<NomaiWarpPlatform, float>>>();
-        private static Dictionary<Tuple<HeavenlyBody, int>, Tuple<HeavenlyBody, int>> _mapping = defaultMapping;
+        private static Dictionary<Tuple<HeavenlyBody, int>, Tuple<HeavenlyBody, int>> _defaultMapping = standardMapping;
+        private static Dictionary<Tuple<HeavenlyBody, int>, Tuple<HeavenlyBody, int>> _mapping = standardMapping;
 
         public static List<HeavenlyBody> bodies
         {
@@ -63,6 +68,52 @@ namespace PacificEngine.OW_CommonResources.Game.State
             }
         }
 
+        public static Dictionary<Tuple<HeavenlyBody, int>, Tuple<HeavenlyBody, int>> standardMapping
+        {
+            get
+            {
+                var mapping = new Dictionary<Tuple<HeavenlyBody, int>, Tuple<HeavenlyBody, int>>();
+                mapping.Add(Tuple.Create(HeavenlyBodies.AshTwin, 0), Tuple.Create(HeavenlyBodies.GiantsDeep, -1));
+                mapping.Add(Tuple.Create(HeavenlyBodies.AshTwin, 1), Tuple.Create(HeavenlyBodies.BrittleHollow, -1));
+                mapping.Add(Tuple.Create(HeavenlyBodies.AshTwin, 2), Tuple.Create(HeavenlyBodies.TimberHearth, -1));
+                mapping.Add(Tuple.Create(HeavenlyBodies.AshTwin, 3), Tuple.Create(HeavenlyBodies.EmberTwin, -1));
+                mapping.Add(Tuple.Create(HeavenlyBodies.AshTwin, 4), Tuple.Create(HeavenlyBodies.AshTwin, -1));
+                mapping.Add(Tuple.Create(HeavenlyBodies.AshTwin, 5), Tuple.Create(HeavenlyBodies.SunStation, -1));
+                mapping.Add(Tuple.Create(HeavenlyBodies.WhiteHoleStation, 0), Tuple.Create(HeavenlyBodies.BrittleHollow, -2));
+
+                return mapping;
+            }
+        }
+
+        public static Dictionary<Tuple<HeavenlyBody, int>, Tuple<HeavenlyBody, int>> defaultMapping
+        {
+            get
+            {
+                var value = new Dictionary<Tuple<HeavenlyBody, int>, Tuple<HeavenlyBody, int>>();
+                foreach (var val in _defaultMapping)
+                {
+                    if (val.Key != null && val.Value != null)
+                    {
+                        value.Add(Tuple.Create(val.Key.Item1, val.Key.Item2), Tuple.Create(val.Value.Item1, val.Value.Item2));
+                    }
+                }
+                return value;
+            }
+            set
+            {
+                _defaultMapping.Clear();
+                foreach (var val in value)
+                {
+                    if (val.Key != null && val.Value != null)
+                    {
+                        _defaultMapping.Add(Tuple.Create(val.Key.Item1, val.Key.Item2), Tuple.Create(val.Value.Item1, val.Value.Item2));
+                    }
+                }
+                enabledManagement = true;
+                mapping = _mapping;
+            }
+        }
+
         public static Dictionary<Tuple<HeavenlyBody, int>, Tuple<HeavenlyBody, int>> mapping
         {
             get
@@ -70,7 +121,15 @@ namespace PacificEngine.OW_CommonResources.Game.State
                 var allPortals = portals;
                 if (allPortals.Count < 1)
                 {
-                    return _mapping;
+                    var value = new Dictionary<Tuple<HeavenlyBody, int>, Tuple<HeavenlyBody, int>>();
+                    foreach (var val in _mapping)
+                    {
+                        if (val.Key != null && val.Value != null)
+                        {
+                            value.Add(Tuple.Create(val.Key.Item1, val.Key.Item2), Tuple.Create(val.Value.Item1, val.Value.Item2));
+                        }
+                    }
+                    return value;
                 }
 
                 updateLists();
@@ -111,26 +170,18 @@ namespace PacificEngine.OW_CommonResources.Game.State
             }
             set
             {
-                _mapping = value;
+                _mapping.Clear();
+                foreach (var val in value)
+                {
+                    if (val.Key != null && val.Value != null)
+                    {
+                        _mapping.Add(Tuple.Create(val.Key.Item1, val.Key.Item2), Tuple.Create(val.Value.Item1, val.Value.Item2));
+                    }
+                }
+
+                enabledManagement = true;
                 requireUpdate = true;
                 updateLists();
-            }
-        }
-
-        public static Dictionary<Tuple<HeavenlyBody, int>, Tuple<HeavenlyBody, int>> defaultMapping
-        {
-            get
-            {
-                var mapping = new Dictionary<Tuple<HeavenlyBody, int>, Tuple<HeavenlyBody, int>>();
-                mapping.Add(Tuple.Create(HeavenlyBodies.AshTwin, 0), Tuple.Create(HeavenlyBodies.GiantsDeep, -1));
-                mapping.Add(Tuple.Create(HeavenlyBodies.AshTwin, 1), Tuple.Create(HeavenlyBodies.BrittleHollow, -1));
-                mapping.Add(Tuple.Create(HeavenlyBodies.AshTwin, 2), Tuple.Create(HeavenlyBodies.TimberHearth, -1));
-                mapping.Add(Tuple.Create(HeavenlyBodies.AshTwin, 3), Tuple.Create(HeavenlyBodies.EmberTwin, -1));
-                mapping.Add(Tuple.Create(HeavenlyBodies.AshTwin, 4), Tuple.Create(HeavenlyBodies.AshTwin, -1));
-                mapping.Add(Tuple.Create(HeavenlyBodies.AshTwin, 5), Tuple.Create(HeavenlyBodies.SunStation, -1));
-                mapping.Add(Tuple.Create(HeavenlyBodies.WhiteHoleStation, 0), Tuple.Create(HeavenlyBodies.BrittleHollow, -2));
-
-                return mapping;
             }
         }
 
@@ -173,6 +224,18 @@ namespace PacificEngine.OW_CommonResources.Game.State
         {
         }
 
+        public static void SceneLoaded()
+        {
+            if (logFrequency > 0)
+            {
+                Helper.helper.Console.WriteLine($"Scene Loaded Warp Pad State");
+                foreach (var element in mapping)
+                {
+                    Helper.helper.Console.WriteLine($"{element.Key?.Item1 ?? HeavenlyBody.None}:{element.Key?.Item2.ToString() ?? ""} -> {element.Value?.Item1 ?? HeavenlyBody.None}:{element.Value?.Item2.ToString() ?? ""}");
+                }
+            }
+        }
+
         public static void Update()
         {
             var console = DisplayConsole.getConsole(ConsoleLocation.BottomLeft);
@@ -190,7 +253,7 @@ namespace PacificEngine.OW_CommonResources.Game.State
                     float index = 12.1f;
                     console.setElement(getId("Header"), "Warp Pads", 12.09f);
                     var allBodies = bodies;
-                    allBodies.Sort();
+                    allBodies.Sort((t1, t2) => t1.value.CompareTo(t2.value));
                     foreach (var body in allBodies)
                     {
                         List<Tuple<NomaiWarpPlatform, float>> portals;
@@ -219,6 +282,18 @@ namespace PacificEngine.OW_CommonResources.Game.State
             }
 
             updateLists();
+
+            if (logFrequency > 0)
+            {
+                if (GameTimer.FramesSinceAwake % logFrequency == 1)
+                {
+                    Helper.helper.Console.WriteLine($"Frame {GameTimer.FramesSinceAwake} Warp Pad State");
+                    foreach (var element in mapping)
+                    {
+                        Helper.helper.Console.WriteLine($"{element.Key?.Item1 ?? HeavenlyBody.None}:{element.Key?.Item2.ToString() ?? ""} -> {element.Value?.Item1 ?? HeavenlyBody.None}:{element.Value?.Item2.ToString() ?? ""}");
+                    }
+                }
+            }
         }
 
         public static void FixedUpdate()
@@ -262,6 +337,7 @@ namespace PacificEngine.OW_CommonResources.Game.State
             int? index = findIndex(volume, body);
             if (!index.HasValue)
                 return null;
+
             return Tuple.Create(body, index.Value);
         }
 
@@ -294,7 +370,7 @@ namespace PacificEngine.OW_CommonResources.Game.State
 
         private static int? findIndex(NomaiWarpPlatform volume, HeavenlyBody body)
         {
-            var index = portals.FindAll(x => x.Item1 == body && (volume is NomaiWarpReceiver == x.Item2 is NomaiWarpReceiver)).FindIndex(x => x.Item2 == volume);
+            var index = portals.FindAll(x => (x.Item1 == body) && ((volume is NomaiWarpReceiver) == (x.Item2 is NomaiWarpReceiver))).FindIndex(x => x.Item2 == volume);
             if (index < 0)
             {
                 return null;
@@ -382,7 +458,10 @@ namespace PacificEngine.OW_CommonResources.Game.State
                 }
                 requireUpdate = false;
 
-                doMapping();
+                if (enabledManagement)
+                {
+                    doMapping();
+                }
             }
         }
 

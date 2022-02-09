@@ -18,7 +18,7 @@ namespace PacificEngine.OW_CommonResources.Game.State
     {
         private const string classId = "PacificEngine.OW_CommonResources.Game.State.Planet";
 
-        public class Plantoid
+        public class Plantoid : IEquatable<Plantoid>
         {
             public Position.Size size { get; }
             public Gravity gravity { get; }
@@ -65,10 +65,18 @@ namespace PacificEngine.OW_CommonResources.Game.State
             {
                 if (other != null && other is Plantoid)
                 {
-                    var obj = other as Plantoid;
-                    return size == obj.size
-                        && gravity == obj.gravity
-                        && state == obj.state;
+                    return Equals((Plantoid)(other as Plantoid));
+                }
+                return false;
+            }
+
+            public bool Equals(Plantoid other)
+            {
+                if (other != null)
+                {
+                    return ((size == null && other.size == null) || size.Equals(other.size))
+                        && ((gravity == null && other.gravity == null) || gravity.Equals(other.gravity))
+                        && ((state == null && other.state == null) || state.Equals(other.state));
                 }
                 return false;
             }
@@ -83,7 +91,8 @@ namespace PacificEngine.OW_CommonResources.Game.State
 
         private static float lastUpdate = 0f;
         private static List<string> debugIds = new List<string>();
-        public static bool enabledManagement { get; set; } = true;
+        public static bool _enabledManagement { get; set; } = false;
+        public static bool enabledManagement { get { return _enabledManagement; } set { _enabledManagement = value; update = true; } }
         public static int logPlanetPositionFrequency { get; set; } = -1;
         public static bool debugPlanetPosition { get; set; } = false;
 
@@ -142,6 +151,7 @@ namespace PacificEngine.OW_CommonResources.Game.State
                 {
                     _defaultMapping.Add(val.Key, val.Value);
                 }
+                enabledManagement = true;
                 mapping = _mapping;
             }
         }
@@ -179,6 +189,7 @@ namespace PacificEngine.OW_CommonResources.Game.State
                     mapping[map.Key] = map.Value;
                 }
                 _mapping = mapping;
+                enabledManagement = true;
                 update = true;
             }
         }
@@ -276,7 +287,7 @@ namespace PacificEngine.OW_CommonResources.Game.State
 
             if (logPlanetPositionFrequency > 0)
             {
-                if (GameTimer.FramesSinceAwake % logPlanetPositionFrequency == 0)
+                if (GameTimer.FramesSinceAwake % logPlanetPositionFrequency == 1)
                 {
                     Helper.helper.Console.WriteLine($"Frame {GameTimer.FramesSinceAwake} Planet State");
                     foreach (var map in mapping)

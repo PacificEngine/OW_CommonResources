@@ -21,6 +21,12 @@ namespace PacificEngine.OW_CommonResources.Game.State
         private static ShipLogEntry shipLogEntry = null;
         private static System.Random random = new System.Random();
 
+        public static bool _enabledManagement { get; set; } = false;
+        public static bool enabledManagement { get { return _enabledManagement; } set { _enabledManagement = value; requireUpdate = true; } }
+
+        private static bool requireUpdate = false;
+        private static Tuple<int[], int[], int[]> _defaultCoordinates = standardCoordinates;
+        private static Tuple<int[], int[], int[]> _coordinates = standardCoordinates;
         private static int[] _x = new int[] { 1, 5, 4 };
         private static int[] _y = new int[] { 3, 0, 1, 4 };
         private static int[] _z = new int[] { 1, 2, 3, 0, 5, 4 };
@@ -64,18 +70,74 @@ namespace PacificEngine.OW_CommonResources.Game.State
             }
         }
 
-        public static Tuple<int[], int[], int[]> coordinates
+        public static Tuple<int[], int[], int[]> standardCoordinates
         {
             get
             {
+                return Tuple.Create(new int[] { 1, 5, 4 }, new int[] { 3, 0, 1, 4 }, new int[] { 1, 2, 3, 0, 5, 4 });
+            }
+        }
+
+        public static Tuple<int[], int[], int[]> defaultMapping
+        {
+            get
+            {
+                var x = new int[_defaultCoordinates.Item1.Length];
+                var y = new int[_defaultCoordinates.Item2.Length];
+                var z = new int[_defaultCoordinates.Item3.Length];
+
+                Array.Copy(_defaultCoordinates.Item1, x, x.Length);
+                Array.Copy(_defaultCoordinates.Item2, y, y.Length);
+                Array.Copy(_defaultCoordinates.Item3, z, z.Length);
+
                 return Tuple.Create(x, y, z);
             }
             set
             {
-                x = value.Item1;
-                y = value.Item2;
-                z = value.Item3;
-                updateCoordinates();
+                var x = new int[value.Item1.Length];
+                var y = new int[value.Item2.Length];
+                var z = new int[value.Item3.Length];
+
+                Array.Copy(value.Item1, x, x.Length);
+                Array.Copy(value.Item2, y, y.Length);
+                Array.Copy(value.Item3, z, z.Length);
+
+                _defaultCoordinates = Tuple.Create(x, y, z);
+                enabledManagement = true;
+            }
+        }
+
+        public static Tuple<int[], int[], int[]> coordinates
+        {
+            get
+            {
+                var _x = EyeCoordinates.x;
+                var _y = EyeCoordinates.y;
+                var _z = EyeCoordinates.z;
+
+                var x = new int[_x.Length];
+                var y = new int[_y.Length];
+                var z = new int[_z.Length];
+
+                Array.Copy(_x, x, x.Length);
+                Array.Copy(_y, y, y.Length);
+                Array.Copy(_z, z, z.Length);
+
+                return Tuple.Create(x, y, z);
+            }
+            set
+            {
+                var x = new int[value.Item1.Length];
+                var y = new int[value.Item2.Length];
+                var z = new int[value.Item3.Length];
+
+                Array.Copy(value.Item1, x, x.Length);
+                Array.Copy(value.Item2, y, y.Length);
+                Array.Copy(value.Item3, z, z.Length);
+
+                _coordinates = Tuple.Create(x, y, z);
+                enabledManagement = true;
+                requireUpdate = true;
             }
         }
 
@@ -110,8 +172,10 @@ namespace PacificEngine.OW_CommonResources.Game.State
             {
                 shipEntry = card.Item1;
                 shipLogEntry = card.Item2;
-                updateCoordinates();
+                requireUpdate = true;
             }
+
+            updateCoordinates();
         }
 
         public static void FixedUpdate()
@@ -136,40 +200,49 @@ namespace PacificEngine.OW_CommonResources.Game.State
 
         private static void updateCoordinates()
         {
-            var texture = getCoordinatesImage().getTexture();
-            if (keyInfoPromptController)
+            if (enabledManagement && requireUpdate)
             {
-                var manager = Locator.GetPromptManager();
-                var oldPrompt = keyInfoPromptController.GetValue<ScreenPrompt>("_eyeCoordinatesPrompt");
-                manager.RemoveScreenPrompt(oldPrompt);
-                var eyePrompt = new ScreenPrompt(UITextLibrary.GetString(UITextType.EyeCoordinates) + "<EYE>", Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), Vector2.zero));
-                eyePromptElement = manager.AddScreenPrompt(eyePrompt, manager.GetScreenPromptList(PromptPosition.LowerLeft), manager.GetTextAnchor(PromptPosition.LowerLeft), -1, oldPrompt.IsVisible());
-                keyInfoPromptController.SetValue("_eyeCoordinatesPrompt", eyePrompt);
-            }
+                requireUpdate = false;
 
-            if (eyeHologram)
-            {
-                var model = getCoordinatesModel();
-                var gameObject = eyeHologram.GetComponentInChildren<MeshRenderer>().gameObject;
-                gameObject.DestroyAllComponentsImmediate<MeshFilter>();
-                var filter = gameObject.AddComponent<MeshFilter>();
-                filter.mesh = model.getMesh();
-            }
+                x = _coordinates.Item1;
+                y = _coordinates.Item2;
+                z = _coordinates.Item3;
 
-            var oldCard = Data.getFactEntry("OPC_SUNKEN_MODULE");
-            if (oldCard != null && oldCard.Item1.HasValue && oldCard.Item2 != null)
-            {
-                var newEntry = new EntryData();
-                newEntry.id = oldCard.Item1.Value.id;
-                newEntry.sprite = createSprite(texture, oldCard.Item1.Value.sprite);
-                newEntry.altSprite = createSprite(texture, oldCard.Item1.Value.altSprite);
-                newEntry.cardPosition = oldCard.Item1.Value.cardPosition;
+                var texture = getCoordinatesImage().getTexture();
+                if (keyInfoPromptController)
+                {
+                    var manager = Locator.GetPromptManager();
+                    var oldPrompt = keyInfoPromptController.GetValue<ScreenPrompt>("_eyeCoordinatesPrompt");
+                    manager.RemoveScreenPrompt(oldPrompt);
+                    var eyePrompt = new ScreenPrompt(UITextLibrary.GetString(UITextType.EyeCoordinates) + "<EYE>", Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), Vector2.zero));
+                    eyePromptElement = manager.AddScreenPrompt(eyePrompt, manager.GetScreenPromptList(PromptPosition.LowerLeft), manager.GetTextAnchor(PromptPosition.LowerLeft), -1, oldPrompt.IsVisible());
+                    keyInfoPromptController.SetValue("_eyeCoordinatesPrompt", eyePrompt);
+                }
+
+                if (eyeHologram)
+                {
+                    var model = getCoordinatesModel();
+                    var gameObject = eyeHologram.GetComponentInChildren<MeshRenderer>().gameObject;
+                    gameObject.DestroyAllComponentsImmediate<MeshFilter>();
+                    var filter = gameObject.AddComponent<MeshFilter>();
+                    filter.mesh = model.getMesh();
+                }
+
+                var oldCard = Data.getFactEntry("OPC_SUNKEN_MODULE");
+                if (oldCard != null && oldCard.Item1.HasValue && oldCard.Item2 != null)
+                {
+                    var newEntry = new EntryData();
+                    newEntry.id = oldCard.Item1.Value.id;
+                    newEntry.sprite = createSprite(texture, oldCard.Item1.Value.sprite);
+                    newEntry.altSprite = createSprite(texture, oldCard.Item1.Value.altSprite);
+                    newEntry.cardPosition = oldCard.Item1.Value.cardPosition;
 
 
-                oldCard.Item2.SetSprite(newEntry.sprite);
-                oldCard.Item2.SetAltSprite(newEntry.altSprite);
+                    oldCard.Item2.SetSprite(newEntry.sprite);
+                    oldCard.Item2.SetAltSprite(newEntry.altSprite);
 
-                Data.putFactEntry(newEntry, oldCard.Item2);
+                    Data.putFactEntry(newEntry, oldCard.Item2);
+                }
             }
         }
 
@@ -210,7 +283,7 @@ namespace PacificEngine.OW_CommonResources.Game.State
         private static void onKeyInfoPromptControllerStart(ref KeyInfoPromptController __instance)
         {
             keyInfoPromptController = __instance;
-            updateCoordinates();
+            requireUpdate = true;
         }
 
 
@@ -225,7 +298,7 @@ namespace PacificEngine.OW_CommonResources.Game.State
                     break;
                 }
             }
-            updateCoordinates();
+            requireUpdate = true;
         }
 
         private static Shapes3D drawCoordinate3D(ref Vector3[] x, ref Vector3[] y, ref Vector3[] z)
