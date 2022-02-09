@@ -204,6 +204,7 @@ namespace PacificEngine.OW_CommonResources.Game.State
             Helper.helper.HarmonyHelper.AddPrefix<InitialVelocity>("Start", typeof(Planet), "onInitialVelocityStart");
             Helper.helper.HarmonyHelper.AddPrefix<MatchInitialMotion>("Start", typeof(Planet), "onMatchInitialMotionStart");
             Helper.helper.HarmonyHelper.AddPrefix<KinematicRigidbody>("Move", typeof(Planet), "onKinematicRigidbodyMove");
+            Helper.helper.HarmonyHelper.AddPrefix<PlayerState>("CheckShipOutsideSolarSystem", typeof(Planet), "onPlayerStateCheckShipOutsideSolarSystem");
         }
 
         public static void Awake()
@@ -1173,6 +1174,16 @@ namespace PacificEngine.OW_CommonResources.Game.State
             owBody.MoveRotation(rotation.normalized);
 
             return false;
+        }
+
+        private static bool onPlayerStateCheckShipOutsideSolarSystem(PlayerState __instance, ref bool __result)
+        {
+            if (PlayerState._inBrambleDimension)
+            {
+                __result = false;
+                return false;
+            }
+            return true;
         }
     }
 }
