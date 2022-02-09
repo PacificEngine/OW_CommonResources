@@ -204,7 +204,6 @@ namespace PacificEngine.OW_CommonResources.Game.State
             Helper.helper.HarmonyHelper.AddPrefix<InitialVelocity>("Start", typeof(Planet), "onInitialVelocityStart");
             Helper.helper.HarmonyHelper.AddPrefix<MatchInitialMotion>("Start", typeof(Planet), "onMatchInitialMotionStart");
             Helper.helper.HarmonyHelper.AddPrefix<KinematicRigidbody>("Move", typeof(Planet), "onKinematicRigidbodyMove");
-
         }
 
         public static void Awake()
@@ -446,15 +445,19 @@ namespace PacificEngine.OW_CommonResources.Game.State
                 }
                 else
                 {
-                    if (name.StartsWith("CannonBarrel_Body")
-                         && child != null && child.enabled)
+                    if ((name.StartsWith("CannonBarrel_Body") || name.StartsWith("CannonMuzzle_Body"))
+                         && child != null)
                     {
-                        // CannonBarrel_Body has no parent
-                        if (child != null && child.enabled)
-                        {
-                            var surface = RelativeState.getSurfaceMovement(HeavenlyBodies.ProbeCannon, child);
-                            bodies.Add(Tuple.Create(child, RelativeState.fromSurface(HeavenlyBodies.ProbeCannon, surface)));
-                        }
+                        var orbitOffset = name.StartsWith("CannonBarrel") ? 11 : 22;
+
+                        var state = RelativeState.fromKepler(
+                            HeavenlyBodies.GiantsDeep,
+                            ScaleState.fromCurrentState(child),
+                            KeplerCoordinates.fromTrueAnomaly(0, 1199.99878f, 180, 214.9022f, 180, 178.0978f + orbitOffset),
+                            OrientationState.fromCurrentState(child)
+                        );
+                        bodies.Add(Tuple.Create(child, state));
+
                         continue;
                     }
                 }
