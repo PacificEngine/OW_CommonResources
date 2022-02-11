@@ -1024,6 +1024,7 @@ namespace PacificEngine.OW_CommonResources.Game.State
                 var pointRotation = Quaternion.FromToRotation(alignmentAxis, targetDirection);
 
                 rotation = pointRotation * relative.rotation;
+
                 angularVelocity = Vector3.zero;
                 angularAcceleration = Vector3.zero;
             }
@@ -1032,7 +1033,10 @@ namespace PacificEngine.OW_CommonResources.Game.State
                 rotation = relative.rotation;
                 angularVelocity = relative.angularVelocity;
                 angularAcceleration = Vector3.zero;
-            }            
+            }
+
+            // All AlignWithTargetBody's are wrong
+            if (alignment) rotation = rotation * Quaternion.AngleAxis(180, alignment._localAlignmentAxis);
 
             return new OrientationState(rotation, angularVelocity, angularAcceleration);
         }
@@ -1170,6 +1174,10 @@ namespace PacificEngine.OW_CommonResources.Game.State
                 var targetDirection = parentState.position - targetState.position;
 
                 var pointRotation = Quaternion.FromToRotation(alignmentAxis, targetDirection);
+
+                // All AlignWithTargetBody's are wrong
+                pointRotation = pointRotation * Quaternion.AngleAxis(90, alignment._localAlignmentAxis);
+
                 var targetOrientation = Quaternion.Inverse(pointRotation) * targetState.rotation;
                 var targetVelocity = Vector3.zero;
                 var targetAcceleration = Vector3.zero;
