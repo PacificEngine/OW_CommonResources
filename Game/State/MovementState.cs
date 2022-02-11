@@ -736,8 +736,16 @@ namespace PacificEngine.OW_CommonResources.Game.State
         {
             var groundNormal = worldPoint - position;
 
-            var forwardDirection = -Vector3.Cross(groundNormal, orientation.right);
-            return Quaternion.LookRotation(forwardDirection, groundNormal);
+            if (groundNormal.z < 0)
+            {
+                var forwardDirection = -Vector3.Cross(groundNormal, orientation.right);
+                return Quaternion.LookRotation(forwardDirection, groundNormal);
+            }
+            else
+            {
+                var forwardDirection = -Vector3.Cross(groundNormal, orientation.left);
+                return Quaternion.LookRotation(forwardDirection, groundNormal);
+            }
         }
 
         public void apply(HeavenlyBody parent, AbsoluteState parentState, OWRigidbody target)
@@ -1008,6 +1016,8 @@ namespace PacificEngine.OW_CommonResources.Game.State
                 rotation = pointRotation * orbit.rotation;
                 angularVelocity = pointRotation * orbit.angularVelocity;
                 angularAcceleration = Vector3.zero;
+
+                var targetDirection = parentState.position - worldPosition;
             }
             else if (parentState != null && surface != null)
             {
@@ -1019,11 +1029,12 @@ namespace PacificEngine.OW_CommonResources.Game.State
             else if (alignment != null
                 && parentState != null)
             {
-                var alignmentAxis = alignment.GetValue<Vector3>("_localAlignmentAxis");
+                var alignmentAxis = alignment._localAlignmentAxis;
                 var targetDirection = parentState.position - worldPosition;
                 var pointRotation = Quaternion.FromToRotation(alignmentAxis, targetDirection);
 
                 rotation = pointRotation * relative.rotation;
+                rotation = rotation * Quaternion.AngleAxis(180, alignment._localAlignmentAxis);
 
                 angularVelocity = Vector3.zero;
                 angularAcceleration = Vector3.zero;
@@ -1034,9 +1045,6 @@ namespace PacificEngine.OW_CommonResources.Game.State
                 angularVelocity = relative.angularVelocity;
                 angularAcceleration = Vector3.zero;
             }
-
-            // All AlignWithTargetBody's are wrong
-            if (alignment) rotation = rotation * Quaternion.AngleAxis(180, alignment._localAlignmentAxis);
 
             return new OrientationState(rotation, angularVelocity, angularAcceleration);
         }
