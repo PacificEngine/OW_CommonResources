@@ -91,7 +91,7 @@ namespace PacificEngine.OW_CommonResources.Game.State
 
         private static float lastUpdate = 0f;
         private static List<string> debugIds = new List<string>();
-        public static bool _enabledManagement { get; set; } = true;
+        public static bool _enabledManagement { get; set; } = false;
         public static bool enabledManagement { get { return _enabledManagement; } set { _enabledManagement = value; update = true; } }
         public static int logPlanetPositionFrequency { get; set; } = -1;
         public static bool debugPlanetPosition { get; set; } = false;
